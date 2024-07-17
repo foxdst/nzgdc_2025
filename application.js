@@ -1,21 +1,17 @@
+let loaded = false;
+let loading = null;
+let apiData = null;
+
+function parseTime(date, t) {
+   let time = t.match( /(\d+)(?::(\d\d))?\s*(p?)/ );
+   date.setHours( parseInt(time[1]) + (time[3] ? 12 : 0));
+   date.setMinutes( parseInt(time[2]) || 0);
+   return date;
+}
+
 const API = {
-  endpoint: 'https://api.entegy.com.au/',
-  projectId: 'unset',
-  key1: 'unset',
-  key2: 'unset',
-  Get: (url, data) => {
-    return fetch(url, {
-      method: 'POST',
-      headers: {
-        'Authorization': `ApiKey ${API.key1}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        projectId: API.projectId,
-        apiKey: API.key2,
-        ...data
-      })
-    })
+  Get: () => {
+    return fetch('https://n8n.rascality.nz/webhook/9a4c6003-0874-45ba-9d06-a49375fb632b')
     .then(response => {
       if (!response.ok) {
         throw new Error('Network response was not ok ' + response.statusText);
@@ -26,10 +22,6 @@ const API = {
       console.error('Error:', error);
     });
   }
-}
-
-const Template = {
-  Speakers: 25
 }
 
 class Speaker {
@@ -100,6 +92,209 @@ class Speaker {
   }
 }
 
+class ScheduleEvent {
+  static parent;
+  static template;
+
+  title;
+  name;
+  start;
+  end;
+  copy;
+  speaker;
+  studio;
+  stream;
+  streamClass;
+
+  element;
+
+  constructor(date, event) {
+    this.name = event['name'];
+    if (event['strings']) {
+      this.title = event['strings']['1']; // Has the short title.;
+      let startTime = event['strings']['startTime'];
+      let endTime = event['strings']['endTime'];
+      if (startTime) this.start = parseTime(new Date(date.getTime()), startTime);
+      if (endTime) this.end = parseTime(new Date(date.getTime()), endTime);
+      this.copy = event['strings']['copy'];
+      this.studio = event['strings']['7']; // See if it is always '7';
+    }
+
+    let streams = event['streams'];
+    streams.forEach((stream) => {
+      this.stream = Streams[stream];
+    });
+
+    if (this.stream) {
+      this.streamClass = this.stream.split(' ')[0].toLowerCase();
+    } else {
+      this.stream = 'General'
+      this.streamClass = 'general';
+    }
+
+    this.buildElement();
+  }
+
+  buildElement() {
+    this.element = ScheduleEvent.template.cloneNode(true);
+    this.setTime();
+    this.setSpeaker();
+    this.setOrganisation();
+    this.setTitle();
+    this.setType();
+  }
+
+  setTime() {
+    let nameEl = this.element.querySelector('.event_time');
+    if (nameEl != null) {
+      nameEl.classList.remove('preFade');
+      nameEl.classList.remove('preSlide');
+      let hours = this.start.getHours()
+      let hoursStr = hours < 10 ? "0" + hours.toString() : hours.toString();
+      let minutes = this.start.getMinutes();
+      let minutesStr = minutes < 10 ? "0" + minutes.toString() : minutes.toString();
+      nameEl.innerText = hoursStr + "." + minutesStr;
+    }
+  }
+
+  setSpeaker() {
+    let nameEl = this.element.querySelector('.event_speaker');
+    if (nameEl != null) {
+      if (this.speaker != null) {
+        nameEl.classList.remove('preFade');
+        nameEl.classList.remove('preSlide');
+        nameEl.innerText = this.speaker ?? '';
+      } else {
+        nameEl.remove();
+      }
+    }
+  }
+
+  setOrganisation() {
+    let nameEl = this.element.querySelector('.event_org');
+    if (nameEl != null) {
+      if (this.studio != null) {
+        nameEl.classList.remove('preFade');
+        nameEl.classList.remove('preSlide');
+        nameEl.innerText = this.studio ?? '';
+      } else {
+        nameEl.remove();
+      }
+    }
+  }
+
+  setTitle() {
+    let nameEl = this.element.querySelector('.event_name');
+    if (nameEl != null) {
+      nameEl.classList.remove('preFade');
+      nameEl.classList.remove('preSlide');
+      nameEl.innerText = this.title;
+    }
+  }
+
+  setType() {
+    let nameEl = this.element.querySelector('.event_type.name');
+    if (nameEl != null) {
+      nameEl.classList.remove('preFade');
+      nameEl.classList.remove('preSlide');
+      nameEl.innerText = this.stream;
+    }
+
+    let background = this.element.querySelector('.event_type_block');
+    if (background != null) {
+      background.className = `event_type_block ${this.streamClass}`
+    }
+  }
+
+  render() {
+    if (this.title && this.title != "...") {
+      ScheduleEvent.parent.append(this.element);
+    }
+  }
+}
+
+const DaysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+class ScheduleDay {
+  static parent;
+  static template;
+
+  id;
+  name;
+  date;
+  dateMs;
+  events;
+
+  element;
+
+  constructor(day) {
+    this.id = day['id'];
+    this.name = day['name'];
+    this.dateMs = Date.parse(day['strings']['date']);
+    this.date = new Date(Date.parse(day['strings']['date']));
+
+    this.events = [];
+    let children = day['children'];
+    for (let i = 0; i < children.length; i++) {
+      this.events.push(new ScheduleEvent(this.date, children[i]))
+    }
+
+    this.showEvents = this.showEvents.bind(this);
+    this.buildElement();
+  }
+
+  buildElement() {
+    this.element = ScheduleDay.template.cloneNode(true);
+    this.setTitle();
+    this.element.addEventListener('click', () => {
+      this.showEvents();
+    });
+  }
+
+  setTitle() {
+    let nameEl = this.element.querySelector('.day_title');
+    if (nameEl != null) {
+      nameEl.classList.remove('preFade');
+      nameEl.classList.remove('preSlide');
+      nameEl.innerText = DaysOfWeek[this.date.getDay()] + " " + this.date.getDate();
+    }
+  }
+
+  showEvents() {
+    let parent = ScheduleEvent.parent;
+    while (parent.firstChild) parent.removeChild(parent.firstChild);
+    this.events.forEach((event) => event.render());
+  }
+
+  render() {
+    ScheduleDay.parent.append(this.element);
+  }
+}
+
+class Schedule {
+  static _schedule;
+
+  days;
+
+  static instance() {
+    return this._schedule;
+  }
+
+  static load(data) {
+    this._schedule = new Schedule(data);
+    return this._schedule;
+  }
+
+  constructor(data) {
+    let days = data['days'];
+    this.days = days.map((dayData) => new ScheduleDay(dayData));
+  }
+
+  render() {
+    this.days.forEach((day) => day.render());
+  }
+}
+
 function waitForElement(selector, callback) {
   const element = document.querySelector(selector);
   if (element) {
@@ -109,24 +304,60 @@ function waitForElement(selector, callback) {
   }
 }
 
-function LoadSpeakers(projectId, apiKey1, apiKey2) {
-  API.projectId = projectId;
-  API.key1 = apiKey1;
-  API.key2 = apiKey2;
+function Load() {
+  if (!loaded) {
+    if (loading) {
+      return loading
+    } else {
+      loading = API.Get().then((json) => {
+        loaded = true;
+        loading = null;
+        apiData = json['data'];
+        return apiData;
+      });
+      return loading;
+    }
+  } else {
+    return Promise.resolve(apiData);
+  }
+}
+
+let Streams = {};
+
+function LoadSchedule() {
+  waitForElement('.event_block', function(element) {
+    ScheduleEvent.parent = document.querySelector('.events');
+    ScheduleEvent.template = document.querySelector('.event_block');
+    ScheduleEvent.template.remove();
+
+    waitForElement('.schedule_day', function(el) {
+      ScheduleDay.parent = document.querySelector('.schedule_days');
+      ScheduleDay.template = document.querySelector('.schedule_day');
+      ScheduleDay.template.remove();
+
+      Load().then((json) => {
+        console.log('loaded', json);
+        Streams = json['streams'];
+        let schedule = Schedule.load(json["schedule"]);
+        schedule.render();
+
+        console.log(schedule);
+      });
+    });
+  });
+}
+
+function LoadSpeakers() {
 
   waitForElement('.speakers', function(element) {
     Speaker.template = element.querySelector('.speaker');
     Speaker.template.remove();
 
-    API.Get(API.endpoint + '/v2/Content', { templateId: Template.Speakers, moduleId: 1 }).then((json) => {
-      let content = json["content"];
-      let children = content["children"]
+    Load().then((json) => {
+      let children = json['speakers']
       let speakers = [];
       for (let i = 0; i < children.length; i++) {
-        let child = children[i];
-        if (child != null && child["templateType"] == "speaker") {
-          speakers.push(new Speaker(child));
-        }
+        speakers.push(new Speaker(children[i]));
       }
 
       speakers.map((speaker) => {
