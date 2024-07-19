@@ -14,7 +14,7 @@ const API = {
     return fetch('https://n8n.rascality.nz/webhook/9a4c6003-0874-45ba-9d06-a49375fb632b')
     .then(response => {
       if (!response.ok) {
-        throw new Error('Network response was not ok ' + response.statusText);
+        console.log('Network response was not ok ' + response.statusText);
       }
       return response.json();
     })
@@ -107,6 +107,7 @@ class ScheduleEvent {
   streamClass;
 
   element;
+  hiddenTime;
 
   constructor(date, event) {
     this.name = event['name'];
@@ -118,6 +119,7 @@ class ScheduleEvent {
       if (endTime) this.end = parseTime(new Date(date.getTime()), endTime);
       this.copy = event['strings']['copy'];
       this.studio = event['strings']['7']; // See if it is always '7';
+      this.hiddenTime = false;
     }
 
     let streams = event['streams'];
@@ -146,7 +148,7 @@ class ScheduleEvent {
 
   setTime() {
     let nameEl = this.element.querySelector('.event_time');
-    if (nameEl != null) {
+    if (nameEl != null && !this.hiddenTime) {
       nameEl.classList.remove('preFade');
       nameEl.classList.remove('preSlide');
       let hours = this.start.getHours()
@@ -235,8 +237,13 @@ class ScheduleDay {
 
     this.events = [];
     let children = day['children'];
+    let previousEvent = null;
     for (let i = 0; i < children.length; i++) {
-      this.events.push(new ScheduleEvent(this.date, children[i]))
+      let scheduleEvent = new ScheduleEvent(this.date, children[i]);
+      if (previousEvent != null && scheduleEvent.start === previousEvent.start) {
+        scheduleEvent.hiddenTime = true;
+      }
+      this.events.push(scheduleEvent)
     }
 
     this.showEvents = this.showEvents.bind(this);
@@ -247,6 +254,8 @@ class ScheduleDay {
     this.element = ScheduleDay.template.cloneNode(true);
     this.setTitle();
     this.element.addEventListener('click', () => {
+      document.querySelectorAll('.active_day').forEach((value) => value.classList.remove('active_day'));
+      this.element.classList.add('active_day');
       this.showEvents();
     });
   }
@@ -287,20 +296,14 @@ class Schedule {
 
   constructor(data) {
     let days = data['days'];
-    this.days = days.map((dayData) => new ScheduleDay(dayData));
+    this.days = days.map((dayData) => new ScheduleDay(dayData)).filter((day) => day.events.length > 0);
   }
 
   render() {
     this.days.forEach((day) => day.render());
-  }
-}
-
-function waitForElement(selector, callback) {
-  const element = document.querySelector(selector);
-  if (element) {
-    callback(element);
-  } else {
-    setTimeout(() => waitForElement(selector, callback), 100);
+    if (this.days.length > 0) {
+      this.days[0].showEvents();
+    }
   }
 }
 
@@ -325,31 +328,26 @@ function Load() {
 let Streams = {};
 
 function LoadSchedule() {
-  waitForElement('.event_block', function(element) {
+  document.addEventListener("DOMContentLoaded", () => {
     ScheduleEvent.parent = document.querySelector('.events');
     ScheduleEvent.template = document.querySelector('.event_block');
     ScheduleEvent.template.remove();
 
-    waitForElement('.schedule_day', function(el) {
-      ScheduleDay.parent = document.querySelector('.schedule_days');
-      ScheduleDay.template = document.querySelector('.schedule_day');
-      ScheduleDay.template.remove();
+    ScheduleDay.parent = document.querySelector('.schedule_days');
+    ScheduleDay.template = document.querySelector('.schedule_day');
+    ScheduleDay.template.remove();
 
-      Load().then((json) => {
-        console.log('loaded', json);
-        Streams = json['streams'];
-        let schedule = Schedule.load(json["schedule"]);
-        schedule.render();
-
-        console.log(schedule);
-      });
+    Load().then((json) => {
+      Streams = json['streams'];
+      let schedule = Schedule.load(json["schedule"]);
+      schedule.render();
     });
-  });
+  })
 }
 
 function LoadSpeakers() {
-
-  waitForElement('.speakers', function(element) {
+  document.addEventListener("DOMContentLoaded", () => {
+    let element = document.querySelector('.speakers');
     Speaker.template = element.querySelector('.speaker');
     Speaker.template.remove();
 
