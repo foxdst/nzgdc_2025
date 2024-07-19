@@ -159,6 +159,10 @@ class ScheduleEvent {
     }
   }
 
+  sameTime(other) {
+    return this.start != null && other.start != null && this.start.getTime() === other.start.getTime();
+  }
+
   setSpeaker() {
     let nameEl = this.element.querySelector('.event_speaker');
     if (nameEl != null) {
@@ -240,7 +244,7 @@ class ScheduleDay {
     let previousEvent = null;
     for (let i = 0; i < children.length; i++) {
       let scheduleEvent = new ScheduleEvent(this.date, children[i]);
-      if (previousEvent != null && scheduleEvent.start === previousEvent.start) {
+      if (previousEvent != null && scheduleEvent.sameTime(previousEvent)) {
         scheduleEvent.hiddenTime = true;
       }
       this.events.push(scheduleEvent)
@@ -255,7 +259,6 @@ class ScheduleDay {
     this.setTitle();
     this.element.addEventListener('click', () => {
       document.querySelectorAll('.active_day').forEach((value) => value.classList.remove('active_day'));
-      this.element.classList.add('active_day');
       this.showEvents();
     });
   }
@@ -272,6 +275,7 @@ class ScheduleDay {
   showEvents() {
     let parent = ScheduleEvent.parent;
     while (parent.firstChild) parent.removeChild(parent.firstChild);
+    this.element.classList.add('active_day');
     this.events.forEach((event) => event.render());
   }
 
