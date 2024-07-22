@@ -9,17 +9,37 @@ function parseTime(date, t) {
    return date;
 }
 
+function compareDate(date1, date2) {
+  if (date1 != null) {
+    if (date2 != null) {
+      if (date1.getTime() > date2.getTime()) {
+        return 1
+      } else if (date1.getTime() == date2.getTime()) {
+        return 0;
+      } else {
+        return -1
+      }
+    } else {
+      return 1;
+    }
+  } else if (date2 != null) {
+    return -1;
+  } else {
+    return 0;
+  }
+}
+
 const API = {
   Get: () => {
     return fetch('https://n8n.rascality.nz/webhook/9a4c6003-0874-45ba-9d06-a49375fb632b')
     .then(response => {
       if (!response.ok) {
-        console.log('Network response was not ok ' + response.statusText);
+        console.log('APP: Network response was not ok ' + response.statusText);
       }
       return response.json();
     })
     .catch(error => {
-      console.error('Error:', error);
+      console.error('APP: Error:', error);
     });
   }
 }
@@ -137,6 +157,11 @@ class ScheduleEvent {
     this.buildElement();
   }
 
+  hide() {
+    this.hiddenTime = true;
+    this.setTime();
+  }
+
   buildElement() {
     this.element = ScheduleEvent.template.cloneNode(true);
     this.setTime();
@@ -149,6 +174,7 @@ class ScheduleEvent {
   setTime() {
     let nameEl = this.element.querySelector('.event_time');
     if (nameEl != null && !this.hiddenTime) {
+      nameEl.parentNode.classList.remove('hidden_time');
       nameEl.classList.remove('preFade');
       nameEl.classList.remove('preSlide');
       let hours = this.start.getHours()
@@ -156,7 +182,17 @@ class ScheduleEvent {
       let minutes = this.start.getMinutes();
       let minutesStr = minutes < 10 ? "0" + minutes.toString() : minutes.toString();
       nameEl.innerText = hoursStr + "." + minutesStr;
+    } else {
+      nameEl.parentNode.classList.add('hidden_time');
     }
+  }
+
+  compareTime(other) {
+    let diff = compareDate(this.start, other.start);
+    if (diff === 0) {
+      return compareDate(this.end, other.end);
+    }
+    return diff;
   }
 
   sameTime(other) {
@@ -241,13 +277,25 @@ class ScheduleDay {
 
     this.events = [];
     let children = day['children'];
-    let previousEvent = null;
     for (let i = 0; i < children.length; i++) {
       let scheduleEvent = new ScheduleEvent(this.date, children[i]);
-      if (previousEvent != null && scheduleEvent.sameTime(previousEvent)) {
-        scheduleEvent.hiddenTime = true;
+      if (scheduleEvent != null) {
+        this.events.push(scheduleEvent)
       }
-      this.events.push(scheduleEvent)
+    }
+
+    this.events = this.events.sort((a, b) => a.compareTime(b));
+
+    let i = 0;
+    if (this.events.length > 0) {
+      let previousEvent = this.events[i];
+      for (i = 1; i < this.events.length; i++) {
+        let scheduleEvent = this.events[i];
+        if (scheduleEvent.sameTime(previousEvent)) {
+          scheduleEvent.hide();
+        }
+        previousEvent = scheduleEvent;
+      }
     }
 
     this.showEvents = this.showEvents.bind(this);
@@ -317,11 +365,16 @@ function Load() {
       return loading
     } else {
       loading = API.Get().then((json) => {
-        loaded = true;
-        loading = null;
-        apiData = json['data'];
-        return apiData;
+        if (json != null) {
+          loaded = true;
+          loading = null;
+          apiData = json['data'];
+          return apiData;
+        } else {
+          loading = null;
+        }
       });
+
       return loading;
     }
   } else {
@@ -330,42 +383,77 @@ function Load() {
 }
 
 let Streams = {};
+let displayedSchedule = false;
+let displayedSpeakers = false;
+
+function waitForElement(ele, callback) {
+  let elements = document.querySelectorAll(ele);
+  if (elements.length > 0) {
+    callback(elements);
+  } else {
+    setTimeout(() => {
+      waitForElement(ele, callback)
+    }, 100);
+  }
+}
+
+function displaySchedule() {
+  if (displayedSchedule) return;
+
+  displayedSchedule = true;
+  ScheduleEvent.parent = document.querySelector('.events');
+  ScheduleEvent.template = document.querySelector('.event_block');
+  ScheduleEvent.template.remove();
+
+  ScheduleDay.parent = document.querySelector('.schedule_days');
+  ScheduleDay.template = document.querySelector('.schedule_day');
+  ScheduleDay.template.remove();
+
+  Load().then((json) => {
+    Streams = json['streams'];
+    let schedule = Schedule.load(json["schedule"]);
+    schedule.render();
+  });
+}
 
 function LoadSchedule() {
+  waitForElement('.events', (val) => {
+    displaySchedule();
+  });
+
   document.addEventListener("DOMContentLoaded", () => {
-    ScheduleEvent.parent = document.querySelector('.events');
-    ScheduleEvent.template = document.querySelector('.event_block');
-    ScheduleEvent.template.remove();
-
-    ScheduleDay.parent = document.querySelector('.schedule_days');
-    ScheduleDay.template = document.querySelector('.schedule_day');
-    ScheduleDay.template.remove();
-
-    Load().then((json) => {
-      Streams = json['streams'];
-      let schedule = Schedule.load(json["schedule"]);
-      schedule.render();
-    });
+    displaySchedule();
   })
 }
 
-function LoadSpeakers() {
-  document.addEventListener("DOMContentLoaded", () => {
-    let element = document.querySelector('.speakers');
-    Speaker.template = element.querySelector('.speaker');
-    Speaker.template.remove();
+function displaySpeakers() {
+  if (displayedSpeakers) return;
 
-    Load().then((json) => {
-      let children = json['speakers']
-      let speakers = [];
-      for (let i = 0; i < children.length; i++) {
-        speakers.push(new Speaker(children[i]));
-      }
+  displayedSpeakers = true;
+  let element = document.querySelector('.speakers');
+  Speaker.template = document.querySelector('.speaker_layout');
+  Speaker.template.remove();
 
-      speakers.map((speaker) => {
-        speaker.render(element);
-      });
+  Load().then((json) => {
+    let children = json['speakers']
+    let speakers = [];
+    for (let i = 0; i < children.length; i++) {
+      speakers.push(new Speaker(children[i]));
+    }
+
+    speakers.map((speaker) => {
+      speaker.render(element);
     });
+  });
+}
+
+function LoadSpeakers() {
+  waitForElement('.speaker', (val) => {
+    displaySpeakers();
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    displaySpeakers();
   });
 }
 
