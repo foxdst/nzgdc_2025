@@ -2,6 +2,23 @@ let loaded = false;
 let loading = null;
 let apiData = null;
 
+function setElementsInnerText(element, value, remove = false) {
+  if (element != null) {
+    element.classList.remove('preFade');
+    element.classList.remove('preSlide');
+    element.innerText = value;
+  } else if (remove) {
+    element.remove();
+  }
+}
+
+function setImageDetails(element, src, alt) {
+  if (element != null) {
+    element.src = src;
+    element.alt = alt;
+  }
+}
+
 function parseTime(date, t) {
    let time = t.match( /(\d+)(?::(\d\d))?\s*(p?)/ );
    date.setHours( parseInt(time[1]) + (time[3] ? 12 : 0));
@@ -53,52 +70,64 @@ class Speaker {
   description;
 
   element;
+  expanded;
+  popupElement;
 
   constructor(data) {
     this.name = data["name"];
     this.image = data["mainImage"];
     this.tagline = data["strings"]["companyAndPosition"]
     this.description = data["strings"]["copy"]
+    this.expanded = false;
+
     this.element = Speaker.template.cloneNode(true);
+    this.popupElement = this.element.querySelector('.popup');
+
+    this.expand = this.expand.bind(this);
+    this.collapse = this.collapse.bind(this);
   }
 
   setName() {
-    let nameEl = this.element.querySelector('.name');
-    if (nameEl != null) {
-      nameEl.classList.remove('preFade');
-      nameEl.classList.remove('preSlide');
-      nameEl.innerText = this.name;
-    }
+    setElementsInnerText(this.element.querySelector('.name'), this.name);
+    setElementsInnerText(this.element.querySelector('.popup__name'), this.name);
   }
 
   setImage() {
-    let image = this.element.querySelector('.speaker__image img')
-    if (image != null) {
-      image.src = this.image;
-      image.alt = this.name;
-    }
+    setImageDetails(this.element.querySelector('.speaker__image img'), this.image, this.name);
+    setImageDetails(this.element.querySelector('.popup__speaker__image img'), this.image, this.name);
   }
 
   setDescription() {
-    let descriptionEl = this.element.querySelector('.description');
-    if (descriptionEl != null) {
-      if (this.description) {
-        descriptionEl.classList.remove('preFade');
-        descriptionEl.classList.remove('preSlide');
-        descriptionEl.innerHTML = this.description;
-      } else {
-        descriptionEl.remove();
-      }
-    }
+    setElementsInnerText(this.element.querySelector('.description'), this.description, true);
+    setElementsInnerText(this.element.querySelector('.popup__description'), this.description, true);
   }
 
   setTagline() {
-    let taglineEl = this.element.querySelector('.tagline');
-    if (taglineEl != null) {
-      taglineEl.classList.remove('preFade');
-      taglineEl.classList.remove('preSlide');
-      taglineEl.innerText = this.tagline;
+    setElementsInnerText(this.element.querySelector('.tagline'), this.tagline);
+    setElementsInnerText(this.element.querySelector('.popup__tagline'), this.tagline);
+  }
+
+  expand(e) {
+    if (!this.expanded) {
+      this.expanded = true;
+      this.popupElement.classList.add('show');
     }
+    e.stopImmediatePropagation();
+    return true;
+  }
+
+  collapse(e) {
+    if (this.expanded) {
+      this.expanded = false;
+      this.popupElement.classList.remove('show');
+    }
+    e.stopImmediatePropagation();
+    return true;
+  }
+
+  attachClickListeners() {
+    this.element.addEventListener('click', (e) => this.expand(e));
+    this.popupElement.addEventListener('click', (e) => this.collapse(e));
   }
 
   render(parent) {
@@ -106,6 +135,7 @@ class Speaker {
     this.setImage();
     this.setTagline();
     this.setDescription();
+    this.attachClickListeners();
 
     this.element.classList.remove('layout');
     parent.appendChild(this.element);
@@ -128,6 +158,8 @@ class ScheduleEvent {
 
   element;
   hiddenTime;
+  popupElement;
+  expanded;
 
   constructor(date, event) {
     this.name = event['name'];
@@ -154,6 +186,11 @@ class ScheduleEvent {
       this.streamClass = 'general';
     }
 
+    this.expanded = false;
+
+    this.expand = this.expand.bind(this);
+    this.collapse = this.collapse.bind(this);
+
     this.buildElement();
   }
 
@@ -164,24 +201,31 @@ class ScheduleEvent {
 
   buildElement() {
     this.element = ScheduleEvent.template.cloneNode(true);
+    this.popupElement = this.element.querySelector('.popup');
+
     this.setTime();
     this.setSpeaker();
     this.setOrganisation();
     this.setTitle();
     this.setType();
+    this.setDescription();
+
+    this.attachClickListeners();
+  }
+
+  getTimeText() {
+    let hours = this.start.getHours()
+    let hoursStr = hours < 10 ? "0" + hours.toString() : hours.toString();
+    let minutes = this.start.getMinutes();
+    let minutesStr = minutes < 10 ? "0" + minutes.toString() : minutes.toString();
+    return hoursStr + "." + minutesStr;
   }
 
   setTime() {
     let nameEl = this.element.querySelector('.event_time');
     if (nameEl != null && !this.hiddenTime) {
       nameEl.parentNode.classList.remove('hidden_time');
-      nameEl.classList.remove('preFade');
-      nameEl.classList.remove('preSlide');
-      let hours = this.start.getHours()
-      let hoursStr = hours < 10 ? "0" + hours.toString() : hours.toString();
-      let minutes = this.start.getMinutes();
-      let minutesStr = minutes < 10 ? "0" + minutes.toString() : minutes.toString();
-      nameEl.innerText = hoursStr + "." + minutesStr;
+      setElementsInnerText(nameEl, this.getTimeText());
     } else {
       nameEl.parentNode.classList.add('hidden_time');
     }
@@ -203,9 +247,7 @@ class ScheduleEvent {
     let nameEl = this.element.querySelector('.event_speaker');
     if (nameEl != null) {
       if (this.speaker != null) {
-        nameEl.classList.remove('preFade');
-        nameEl.classList.remove('preSlide');
-        nameEl.innerText = this.speaker ?? '';
+        setElementsInnerText(nameEl, this.speaker ?? '')
       } else {
         nameEl.remove();
       }
@@ -216,9 +258,7 @@ class ScheduleEvent {
     let nameEl = this.element.querySelector('.event_org');
     if (nameEl != null) {
       if (this.studio != null) {
-        nameEl.classList.remove('preFade');
-        nameEl.classList.remove('preSlide');
-        nameEl.innerText = this.studio ?? '';
+        setElementsInnerText(nameEl, this.studio ?? '')
       } else {
         nameEl.remove();
       }
@@ -226,26 +266,50 @@ class ScheduleEvent {
   }
 
   setTitle() {
-    let nameEl = this.element.querySelector('.event_name');
-    if (nameEl != null) {
-      nameEl.classList.remove('preFade');
-      nameEl.classList.remove('preSlide');
-      nameEl.innerText = this.title;
-    }
+    setElementsInnerText(this.element.querySelector('.event_name'), this.title);
+    setElementsInnerText(this.element.querySelector('.popup__schedule__title'), this.title);
+  }
+
+  setDescription() {
+    setElementsInnerText(this.element.querySelector('.popup__schedule__description'), this.copy);
   }
 
   setType() {
-    let nameEl = this.element.querySelector('.event_type.name');
-    if (nameEl != null) {
-      nameEl.classList.remove('preFade');
-      nameEl.classList.remove('preSlide');
-      nameEl.innerText = this.stream;
-    }
+    setElementsInnerText(this.element.querySelector('.event_type'), this.stream);
+    setElementsInnerText(this.element.querySelector('.popup__schedule__tag'), this.stream);
 
     let background = this.element.querySelector('.event_type_block');
     if (background != null) {
       background.className = `event_type_block ${this.streamClass}`
     }
+
+    let popupType = this.element.querySelector('.popup__schedule__tag');
+    if (popupType != null) {
+      popupType.className = `popup__schedule__tag ${this.streamClass}`
+    }
+  }
+
+  expand(e) {
+    if (!this.expanded) {
+      this.expanded = true;
+      this.popupElement.classList.add('show');
+    }
+    e.stopImmediatePropagation();
+    return true;
+  }
+
+  collapse(e) {
+    if (this.expanded) {
+      this.expanded = false;
+      this.popupElement.classList.remove('show');
+    }
+    e.stopImmediatePropagation();
+    return true;
+  }
+
+  attachClickListeners() {
+    this.element.addEventListener('click', (e) => this.expand(e));
+    this.popupElement.addEventListener('click', (e) => this.collapse(e));
   }
 
   render() {
@@ -402,6 +466,16 @@ function displaySchedule() {
 
   displayedSchedule = true;
   ScheduleEvent.parent = document.querySelector('.events');
+
+  let parent = ScheduleEvent.parent.parentElement
+  while (parent != null && parent.nodeName != 'SECTION') {
+    parent = parent.parentElement;
+  }
+  if (parent != null) {
+    parent.style['z-index'] = 1000;
+  }
+
+
   ScheduleEvent.template = document.querySelector('.event_block');
   ScheduleEvent.template.remove();
 
@@ -431,6 +505,15 @@ function displaySpeakers() {
 
   displayedSpeakers = true;
   let element = document.querySelector('.speakers');
+
+  let parent = element.parentElement
+  while (parent != null && parent.nodeName != 'SECTION') {
+    parent = parent.parentElement;
+  }
+  if (parent != null) {
+    parent.style['z-index'] = 1000;
+  }
+
   Speaker.template = document.querySelector('.speaker_layout');
   Speaker.template.remove();
 
