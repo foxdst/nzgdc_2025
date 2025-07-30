@@ -1,1 +1,3 @@
-Temp readme file to test if git is not being an arse
+Temporary Read Me file
+
+To test if Zed's git functionality, and git itself, is not going insane
