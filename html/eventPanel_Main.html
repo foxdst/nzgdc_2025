@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Panel</title>
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .event-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 300px;
+            min-height: 300px;
+            background-color: rgba(255, 255, 255, 1);
+            font-family: FuturaPT-Demi;
+            position: relative;
+        }
+
+        /* Event Category */
+        .event-category {
+            width: 300px;
+            height: 30px;
+            background-color: #F53E3E;
+            display: flex;
+            align-items: center;
+            padding-left: 12px;
+        }
+
+        .category-text {
+            width: 300px;
+            height: 22px;
+            color: rgba(255, 255, 255, 1);
+            font-family: Futura PT Demi;
+            font-size: 18px;
+            font-weight: 500;
+            text-transform: uppercase;
+            line-height: 22px;
+        }
+
+        /* Event Panel Title */
+        .event-panel-title {
+            width: 300px;
+            min-height: 70px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+        }
+
+        .title-text {
+            width: 280px;
+            min-height: 54px;
+            color: rgba(0, 0, 0, 1);
+            font-family: Futura PT Bold;
+            font-size: 21px;
+            font-weight: 700;
+            line-height: 27px;
+            display: flex;
+            align-items: center;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Event Panel Thumbnail */
+        .event-panel-thumbnail {
+            width: 300px;
+            height: 200px;
+            position: relative;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23667eea;stop-opacity:1" /><stop offset="100%" style="stop-color:%23764ba2;stop-opacity:1" /></linearGradient></defs><rect width="300" height="200" fill="url(%23grad)"/></svg>');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .event-panel-overlay {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            gap: 5px;
+            padding: 20px;
+            width: 300px;
+            height: 200px;
+            background-color: rgba(0, 0, 0, 0.75);
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .speaker-details {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 260px;
+            height: 46px;
+            text-align: center;
+        }
+
+        .speaker-name {
+            width: 260px;
+            height: 23px;
+            color: rgba(255, 255, 255, 1);
+            font-family: Futura PT Demi;
+            font-size: 18px;
+            font-weight: 500;
+            font-style: italic;
+            line-height: 23px;
+        }
+
+        .speaker-position-company {
+            width: 260px;
+            height: 23px;
+            color: rgba(204, 204, 204, 1);
+            font-family: Futura PT Medium;
+            font-size: 18px;
+            font-weight: 400;
+            line-height: 23px;
+        }
+
+        .call-to-action {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            width: 177px;
+            height: 36px;
+            cursor: pointer;
+        }
+
+        .open-marker {
+            width: 12.5px;
+            height: 10px;
+            background-color: rgba(255, 255, 255, 1);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .cta-text {
+            width: 177px;
+            height: 21px;
+            color: rgba(255, 255, 255, 1);
+            font-family: Futura PT Heavy;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 21px;
+        }
+
+        .session-thumbnail {
+            width: 300px;
+            height: 200px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="event-panel">
+        <!-- Event Category (Top) -->
+        <div class="event-category">
+            <div class="category-text">Story & Narrative</div>
+        </div>
+
+        <!-- Event Panel Title (Middle) -->
+        <div class="event-panel-title">
+            <div class="title-text">This is a Placeholder Title occupying two lines of space</div>
+        </div>
+
+        <!-- Event Panel Thumbnail (Bottom) -->
+        <div class="event-panel-thumbnail">
+            <!-- Session Thumbnail (Background) -->
+            <div class="session-thumbnail"></div>
+
+            <!-- Event Panel Overlay -->
+            <div class="event-panel-overlay">
+                <!-- Speaker Details -->
+                <div class="speaker-details">
+                    <div class="speaker-name">Presented by Speaker Name</div>
+                    <div class="speaker-position-company">Position + Company</div>
+                </div>
+
+                <!-- Call To Action -->
+                <div class="call-to-action">
+                    <div class="open-marker"></div>
+                    <div class="cta-text">Click to see Event Details</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

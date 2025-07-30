@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Panel Big</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .event-panel-big {
+            display: flex;
+            align-items: center;
+            width: 620px;
+            height: 300px;
+            background-color: rgba(255, 255, 255, 1);
+            font-family: Futura PT Demi;
+            position: relative;
+        }
+
+        /* Event Panel Thumbnail (Left Side) */
+        .event-panel-big-thumbnail {
+            width: 300px;
+            height: 300px;
+            position: relative;
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23667eea;stop-opacity:1" /><stop offset="100%" style="stop-color:%23764ba2;stop-opacity:1" /></linearGradient></defs><rect width="300" height="300" fill="url(%23grad)"/></svg>');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .session-thumbnail-big {
+            width: 300px;
+            height: 300px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .event-detail-overlay-big {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 30px;
+            width: 300px;
+            height: 300px;
+            background-color: rgba(0, 0, 0, 0.75);
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .call-to-action-big {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 247px;
+            height: 61px;
+            cursor: pointer;
+        }
+
+        .open-marker-big {
+            width: 12.5px;
+            height: 10px;
+            background-color: rgba(255, 255, 255, 1);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .cta-text-big {
+            width: 247px;
+            height: 21px;
+            color: rgba(255, 255, 255, 1);
+            font-family: Futura PT Heavy;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 21px;
+        }
+
+        /* Event Panel Details (Right Side) */
+        .event-panel-big-details {
+            width: 320px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Event Category */
+        .event-category-big {
+            width: 320px;
+            min-height: 30px;
+            background-color: #F53E3E;
+            display: flex;
+            align-items: center;
+            padding-left: 12px;
+            flex-shrink: 0;
+        }
+
+        .category-text-big {
+            width: 296px;
+            min-height: 22px;
+            color: rgba(255, 255, 255, 1);
+            font-family: Futura PT Demi;
+            font-size: 18px;
+            font-weight: 500;
+            text-transform: uppercase;
+            line-height: 22px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Event Title */
+        .event-title-big {
+            width: 320px;
+            min-height: 70px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            flex-shrink: 0;
+        }
+
+        .title-text-big {
+            width: 300px;
+            min-height: 54px;
+            color: rgba(0, 0, 0, 1);
+            font-family: Futura PT Bold;
+            font-size: 21px;
+            font-weight: 700;
+            line-height: 27px;
+            display: flex;
+            align-items: center;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        /* Event Speaker Details */
+        .event-speaker-details-big {
+            width: 320px;
+            flex: 1;
+            min-height: 100px;
+            background-color: rgba(0, 0, 0, 1);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            overflow: hidden;
+        }
+
+        .introduction-text-big {
+            width: 300px;
+            min-height: 18px;
+            color: rgba(245, 45, 49, 1);
+            font-family: Futura PT Heavy;
+            font-size: 14px;
+            font-weight: 600;
+            font-style: heavy;
+            text-align: left;
+            flex-shrink: 0;
+        }
+
+        .speaker-details-big {
+            display: flex;
+            flex-direction: column;
+            width: 300px;
+            flex: 1;
+            overflow: hidden;
+            justify-content: space-evenly;
+            min-height: 0;
+        }
+
+        .speaker-container-big {
+            display: flex;
+            flex-direction: column;
+            width: 300px;
+            min-height: 36px;
+            flex: 1;
+        }
+
+        .speaker-name-big {
+            width: 300px;
+            min-height: 18px;
+            color: rgba(255, 255, 255, 1);
+            font-family: Futura PT Demi;
+            font-size: 14px;
+            font-weight: 500;
+            font-style: oblique;
+            line-height: 18px;
+            text-align: left;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .speaker-position-company-big {
+            width: 300px;
+            min-height: 18px;
+            color: rgba(160, 160, 160, 1);
+            font-family: Futura PT Medium;
+            font-size: 14px;
+            font-weight: 400;
+            font-style: medium;
+            line-height: 18px;
+            text-align: left;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .timeframe-big {
+            display: flex;
+            flex-direction: column;
+            width: 300px;
+            min-height: 21px;
+            flex-shrink: 0;
+        }
+
+        .timeframe-text-big {
+            width: 300px;
+            min-height: 21px;
+            color: rgba(245, 45, 49, 1);
+            font-family: Futura PT Heavy;
+            font-size: 16px;
+            font-weight: 600;
+            font-style: heavy;
+            text-align: left;
+            line-height: 21px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="event-panel-big">
+        <!-- Event Panel Thumbnail (Left Side) -->
+        <div class="event-panel-big-thumbnail">
+            <!-- Session Thumbnail (Background) -->
+            <div class="session-thumbnail-big"></div>
+
+            <!-- Event Detail Overlay -->
+            <div class="event-detail-overlay-big">
+                <!-- Call To Action -->
+                <div class="call-to-action-big">
+                    <div class="open-marker-big"></div>
+                    <div class="cta-text-big">See More Event Details</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Event Panel Details (Right Side) -->
+        <div class="event-panel-big-details">
+            <!-- Event Category (Top) -->
+            <div class="event-category-big">
+                <div class="category-text-big">Story & Narrative</div>
+            </div>
+
+            <!-- Event Title (Middle) -->
+            <div class="event-title-big">
+                <div class="title-text-big">This is a Placeholder Title occupying two lines of space</div>
+            </div>
+
+            <!-- Event Speaker Details (Bottom) -->
+            <div class="event-speaker-details-big">
+                <!-- Introduction text -->
+                <div class="introduction-text-big">NZGDC 2025 Workshop by</div>
+
+                <!-- Speaker Details -->
+                <div class="speaker-details-big">
+                    <!-- Speaker 1 -->
+                    <div class="speaker-container-big">
+                        <div class="speaker-name-big">Speaker Name</div>
+                        <div class="speaker-position-company-big">Position + Company</div>
+                    </div>
+
+                    <!-- Speaker 2 -->
+                    <div class="speaker-container-big">
+                        <div class="speaker-name-big">Speaker Name</div>
+                        <div class="speaker-position-company-big">Position + Company</div>
+                    </div>
+
+                    <!-- Speaker 3 -->
+                    <div class="speaker-container-big">
+                        <div class="speaker-name-big">Speaker Name</div>
+                        <div class="speaker-position-company-big">Position + Company</div>
+                    </div>
+                </div>
+
+                <!-- Timeframe -->
+                <div class="timeframe-big">
+                    <div class="timeframe-text-big">Timeframe (Duration)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
