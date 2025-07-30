@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story & Narrative - Big Version</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .event-panel {
+            display: flex;
+            align-items: center;
+            width: 620px;
+            height: 300px;
+            background-color: rgba(255, 255, 255, 1);
+            overflow: hidden;
+        }
+
+        .image-section {
+            width: 300px;
+            height: 300px;
+            background-image: url('https://images.unsplash.com/photo-1504281629324-c8704dce66fc?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60');
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .details-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 247px;
+            height: 61px;
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 2;
+        }
+
+        .details-link {
+            width: 247px;
+            height: 31px;
+            color: rgba(255, 255, 255, 1);
+            font-family: FuturaPT-Heavy;
+            font-size: 24px;
+            font-weight: 600;
+            font-style: heavy;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            background-color: rgba(0, 0, 0, 0.4);
+            border-radius: 4px;
+        }
+
+        .arrow-icon {
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 10px solid white;
+        }
+
+        .category-container {
+            width: 320px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            position: relative;
+            margin-bottom: 0;
+        }
+
+        .category-background {
+            position: absolute;
+            width: 320px;
+            height: 30px;
+            background-color: rgba(245, 45, 49, 1);
+            z-index: 0;
+        }
+
+        .category-title {
+            width: 320px;
+            height: 30px;
+            color: rgba(255, 255, 255, 1);
+            font-family: FuturaPT-Demi;
+            font-size: 18px;
+            font-weight: 500;
+            font-style: demi;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 1;
+            padding-left: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .category-background {
+            position: absolute;
+            width: 320px;
+            height: 30px;
+            background-color: #ff3b30;
+            z-index: 0;
+        }
+
+        .category-title {
+            width: 320px;
+            height: 30px;
+            color: rgba(255, 255, 255, 1);
+            font-family: FuturaPT-Demi;
+            font-size: 18px;
+            font-weight: 500;
+            font-style: demi;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 1;
+            padding-left: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .title-background {
+            width: 320px;
+            height: 70px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding-left: 10px;
+            box-sizing: border-box;
+        }
+
+        .event-title {
+            width: 300px;
+            height: 54px;
+            color: rgba(0, 0, 0, 1);
+            font-family: FuturaPT-Bold;
+            font-size: 21px;
+            font-weight: 700;
+            font-style: bold;
+        }
+
+        .details-link {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .arrow-icon {
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 10px solid white;
+        }
+
+        .event-details {
+            width: 320px;
+            height: 300px;
+            background-color: #000;
+            color: white;
+            padding: 0;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .workshop-header {
+            color: #ff3b30;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 20px 30px 0 30px;
+        }
+
+        .speaker-list {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            width: 280px;
+            height: 128px;
+            padding: 0;
+            margin: 0;
+        }
+
+        .speaker-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 280px;
+            height: 36px;
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .speaker-name {
+            width: 280px;
+            height: 18px;
+            color: rgba(255, 255, 255, 1);
+            font-family: FuturaPT-DemiOblique;
+            font-size: 14px;
+            font-weight: 500;
+            font-style: demi oblique;
+            text-align: left;
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .speaker-position {
+            width: 280px;
+            height: 18px;
+            color: rgba(160, 160, 160, 1);
+            font-family: FuturaPT-Medium;
+            font-size: 14px;
+            font-weight: 400;
+            font-style: medium;
+            text-align: left;
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .timeframe {
+            color: #ff3b30;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 0 30px 30px 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="event-panel">
+        <div class="image-section">
+            <div class="details-container">
+                <a href="#" class="details-link">
+                    See More Event Details
+                </a>
+                <div class="arrow-icon"></div>
+            </div>
+        </div>
+
+        <div class="event-details">
+            <div class="category-container">
+                <div class="category-background"></div>
+                <div class="category-title">STORY & NARRATIVE</div>
+            </div>
+            <div class="title-background">
+                <div class="event-title">This is a Placeholder Title occupying two lines of space</div>
+            </div>
+
+            <div class="workshop-header">NZGDC 2025 Workshop by</div>
+
+            <div class="speaker-list">
+                <div class="speaker-item">
+                    <div class="speaker-name">Speaker Name</div>
+                    <div class="speaker-position">Position + Company</div>
+                </div>
+
+                <div class="speaker-item">
+                    <div class="speaker-name">Speaker Name</div>
+                    <div class="speaker-position">Position + Company</div>
+                </div>
+
+                <div class="speaker-item">
+                    <div class="speaker-name">Speaker Name</div>
+                    <div class="speaker-position">Position + Company</div>
+                </div>
+            </div>
+
+            <div class="timeframe">Timeframe (Duration)</div>
+        </div>
+    </div>
+</body>
+</html>
