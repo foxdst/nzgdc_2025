@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Panel Big</title>
     <style>
+
         * {
             margin: 0;
             padding: 0;
@@ -12,12 +13,27 @@
         }
 
         .event-panel-big {
+            --font-family-demi: 'Futura PT Demi', Arial, sans-serif;
+            --font-family-bold: 'Futura PT Bold', Arial, sans-serif;
+            --font-family-heavy: 'Futura PT Heavy', Arial, sans-serif;
+            --font-family-medium: 'Futura PT Medium', Arial, sans-serif;
+            --color-primary: #F53E3E;
+            --color-bg: rgba(255, 255, 255, 1);
+            --color-overlay: rgba(0, 0, 0, 0.75);
+            --color-title: rgba(0, 0, 0, 1);
+            --color-category-text: rgba(255, 255, 255, 1);
+            --color-intro: rgba(245, 45, 49, 1);
+            --color-speaker: rgba(255, 255, 255, 1);
+            --color-speaker-secondary: rgba(160, 160, 160, 1);
+        }
+
+        .event-panel-big {
             display: flex;
             align-items: center;
             width: 620px;
             height: 300px;
-            background-color: rgba(255, 255, 255, 1);
-            font-family: Futura PT Demi;
+            background-color: var(--color-bg);
+            font-family: var(--font-family-demi);
             position: relative;
         }
 
@@ -26,7 +42,7 @@
             width: 300px;
             height: 300px;
             position: relative;
-            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23667eea;stop-opacity:1" /><stop offset="100%" style="stop-color:%23764ba2;stop-opacity:1" /></linearGradient></defs><rect width="300" height="300" fill="url(%23grad)"/></svg>');
+            background-image: url('');
             background-size: cover;
             background-position: center;
         }
@@ -48,7 +64,7 @@
             padding: 30px;
             width: 300px;
             height: 300px;
-            background-color: rgba(0, 0, 0, 0.75);
+            background-color: var(--color-overlay);
             position: absolute;
             top: 0;
             left: 0;
@@ -67,15 +83,15 @@
         .open-marker-big {
             width: 12.5px;
             height: 10px;
-            background-color: rgba(255, 255, 255, 1);
+            background-color: var(--color-category-text);
             clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
         }
 
         .cta-text-big {
             width: 247px;
             height: 21px;
-            color: rgba(255, 255, 255, 1);
-            font-family: Futura PT Heavy;
+            color: var(--color-category-text);
+            font-family: var(--font-family-heavy);
             font-size: 16px;
             font-weight: 600;
             text-align: center;
@@ -95,7 +111,7 @@
         .event-category-big {
             width: 320px;
             min-height: 30px;
-            background-color: #F53E3E;
+            background-color: var(--color-primary);
             display: flex;
             align-items: center;
             padding-left: 12px;
@@ -105,13 +121,12 @@
         .category-text-big {
             width: 296px;
             min-height: 22px;
-            color: rgba(255, 255, 255, 1);
-            font-family: Futura PT Demi;
+            color: var(--color-category-text);
+            font-family: var(--font-family-demi);
             font-size: 18px;
             font-weight: 500;
             text-transform: uppercase;
             line-height: 22px;
-            word-wrap: break-word;
             overflow-wrap: break-word;
         }
 
@@ -119,7 +134,7 @@
         .event-title-big {
             width: 320px;
             min-height: 70px;
-            background-color: white;
+            background-color: var(--color-bg);
             display: flex;
             align-items: center;
             padding: 8px 10px;
@@ -129,14 +144,13 @@
         .title-text-big {
             width: 300px;
             min-height: 54px;
-            color: rgba(0, 0, 0, 1);
-            font-family: Futura PT Bold;
+            color: var(--color-title);
+            font-family: var(--font-family-bold);
             font-size: 21px;
             font-weight: 700;
             line-height: 27px;
             display: flex;
             align-items: center;
-            word-wrap: break-word;
             overflow-wrap: break-word;
         }
 
@@ -145,7 +159,7 @@
             width: 320px;
             flex: 1;
             min-height: 100px;
-            background-color: rgba(0, 0, 0, 1);
+            background-color: #000;
             padding: 10px;
             display: flex;
             flex-direction: column;
@@ -156,11 +170,10 @@
         .introduction-text-big {
             width: 300px;
             min-height: 18px;
-            color: rgba(245, 45, 49, 1);
-            font-family: Futura PT Heavy;
+            color: var(--color-intro);
+            font-family: var(--font-family-heavy);
             font-size: 14px;
             font-weight: 600;
-            font-style: heavy;
             text-align: left;
             flex-shrink: 0;
         }
@@ -186,28 +199,25 @@
         .speaker-name-big {
             width: 300px;
             min-height: 18px;
-            color: rgba(255, 255, 255, 1);
-            font-family: Futura PT Demi;
+            color: var(--color-speaker);
+            font-family: var(--font-family-demi);
             font-size: 14px;
             font-weight: 500;
-            font-style: oblique;
+            font-style: italic;
             line-height: 18px;
             text-align: left;
-            word-wrap: break-word;
             overflow-wrap: break-word;
         }
 
         .speaker-position-company-big {
             width: 300px;
             min-height: 18px;
-            color: rgba(160, 160, 160, 1);
-            font-family: Futura PT Medium;
+            color: var(--color-speaker-secondary);
+            font-family: var(--font-family-medium);
             font-size: 14px;
             font-weight: 400;
-            font-style: medium;
             line-height: 18px;
             text-align: left;
-            word-wrap: break-word;
             overflow-wrap: break-word;
         }
 
@@ -222,14 +232,12 @@
         .timeframe-text-big {
             width: 300px;
             min-height: 21px;
-            color: rgba(245, 45, 49, 1);
-            font-family: Futura PT Heavy;
+            color: var(--color-intro);
+            font-family: var(--font-family-heavy);
             font-size: 16px;
             font-weight: 600;
-            font-style: heavy;
             text-align: left;
             line-height: 21px;
-            word-wrap: break-word;
             overflow-wrap: break-word;
         }
     </style>

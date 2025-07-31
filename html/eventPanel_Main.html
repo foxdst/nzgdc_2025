@@ -13,13 +13,26 @@
         }
 
         .event-panel {
+            --font-family-demi: 'Futura PT Demi', Arial, sans-serif;
+            --font-family-bold: 'Futura PT Bold', Arial, sans-serif;
+            --font-family-heavy: 'Futura PT Heavy', Arial, sans-serif;
+            --font-family-medium: 'Futura PT Medium', Arial, sans-serif;
+            --color-primary: #F53E3E;
+            --color-bg: rgba(255, 255, 255, 1);
+            --color-overlay: rgba(0, 0, 0, 0.75);
+            --color-text-main: rgba(0, 0, 0, 1);
+            --color-text-light: rgba(255, 255, 255, 1);
+            --color-text-muted: rgba(204, 204, 204, 1);
+        }
+
+        .event-panel {
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 300px;
             min-height: 300px;
-            background-color: rgba(255, 255, 255, 1);
-            font-family: FuturaPT-Demi;
+            background-color: var(--color-bg);
+            font-family: var(--font-family-demi);
             position: relative;
         }
 
@@ -27,7 +40,7 @@
         .event-category {
             width: 300px;
             height: 30px;
-            background-color: #F53E3E;
+            background-color: var(--color-primary);
             display: flex;
             align-items: center;
             padding-left: 12px;
@@ -36,12 +49,13 @@
         .category-text {
             width: 300px;
             height: 22px;
-            color: rgba(255, 255, 255, 1);
-            font-family: Futura PT Demi;
+            color: var(--color-text-light);
+            font-family: var(--font-family-demi);
             font-size: 18px;
             font-weight: 500;
             text-transform: uppercase;
             line-height: 22px;
+            overflow-wrap: break-word;
         }
 
         /* Event Panel Title */
@@ -57,14 +71,13 @@
         .title-text {
             width: 280px;
             min-height: 54px;
-            color: rgba(0, 0, 0, 1);
-            font-family: Futura PT Bold;
+            color: var(--color-text-main);
+            font-family: var(--font-family-bold);
             font-size: 21px;
             font-weight: 700;
             line-height: 27px;
             display: flex;
             align-items: center;
-            word-wrap: break-word;
             overflow-wrap: break-word;
         }
 
@@ -73,7 +86,7 @@
             width: 300px;
             height: 200px;
             position: relative;
-            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200"><defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:%23667eea;stop-opacity:1" /><stop offset="100%" style="stop-color:%23764ba2;stop-opacity:1" /></linearGradient></defs><rect width="300" height="200" fill="url(%23grad)"/></svg>');
+            background-image: url('');
             background-size: cover;
             background-position: center;
         }
@@ -87,7 +100,7 @@
             padding: 20px;
             width: 300px;
             height: 200px;
-            background-color: rgba(0, 0, 0, 0.75);
+            background-color: var(--color-overlay);
             position: absolute;
             top: 0;
             left: 0;
@@ -105,22 +118,24 @@
         .speaker-name {
             width: 260px;
             height: 23px;
-            color: rgba(255, 255, 255, 1);
-            font-family: Futura PT Demi;
+            color: var(--color-text-light);
+            font-family: var(--font-family-demi);
             font-size: 18px;
             font-weight: 500;
             font-style: italic;
             line-height: 23px;
+            overflow-wrap: break-word;
         }
 
         .speaker-position-company {
             width: 260px;
             height: 23px;
-            color: rgba(204, 204, 204, 1);
-            font-family: Futura PT Medium;
+            color: var(--color-text-muted);
+            font-family: var(--font-family-medium);
             font-size: 18px;
             font-weight: 400;
             line-height: 23px;
+            overflow-wrap: break-word;
         }
 
         .call-to-action {
@@ -137,19 +152,20 @@
         .open-marker {
             width: 12.5px;
             height: 10px;
-            background-color: rgba(255, 255, 255, 1);
+            background-color: var(--color-text-light);
             clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
         }
 
         .cta-text {
             width: 177px;
             height: 21px;
-            color: rgba(255, 255, 255, 1);
-            font-family: Futura PT Heavy;
+            color: var(--color-text-light);
+            font-family: var(--font-family-heavy);
             font-size: 16px;
             font-weight: 600;
             text-align: center;
             line-height: 21px;
+            overflow-wrap: break-word;
         }
 
         .session-thumbnail {
