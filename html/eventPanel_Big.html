@@ -174,7 +174,7 @@
             padding: 10px;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
+            justify-content: space-between;
             overflow: hidden;
         }
 
@@ -186,20 +186,18 @@
             font-size: 14px;
             font-weight: 600;
             text-align: left;
-            flex-shrink: 0;
         }
 
         .nzgdc-speaker-details-big {
             display: flex;
             flex-direction: column;
             width: 100%;
-            flex: 1;
             overflow: hidden;
-            justify-content: space-evenly;
             min-height: 0;
+            gap: 0.5rem;
         }
 
-        .nzgdc-speaker-container-big {
+        .nzgdc-speaker-biolines-big {
             display: flex;
             flex-direction: column;
             width: 100%;
@@ -207,7 +205,7 @@
             flex: 1;
         }
 
-        .nzgdc-speaker-name-big {
+        .nzgdc-speaker-bioName-big {
             width: 100%;
             min-height: 18px;
             color: var(--color-speaker);
@@ -220,7 +218,7 @@
             overflow-wrap: break-word;
         }
 
-        .nzgdc-speaker-position-company-big {
+        .nzgdc-speaker-bioPosition-big {
             width: 100%;
             min-height: 18px;
             color: var(--color-speaker-secondary);
@@ -292,21 +290,21 @@
                 <!-- Speaker Details -->
                 <div class="nzgdc-speaker-details-big">
                     <!-- Speaker 1 -->
-                    <div class="nzgdc-speaker-container-big">
-                        <div class="nzgdc-speaker-name-big">Speaker Name</div>
-                        <div class="nzgdc-speaker-position-company-big">Position + Company</div>
+                    <div class="nzgdc-speaker-biolines-big">
+                        <div class="nzgdc-speaker-bioName-big">Speaker Name</div>
+                        <div class="nzgdc-speaker-bioPosition-big">Position + Company</div>
                     </div>
 
                     <!-- Speaker 2 -->
-                    <div class="nzgdc-speaker-container-big">
-                        <div class="nzgdc-speaker-name-big">Speaker Name</div>
-                        <div class="nzgdc-speaker-position-company-big">Position + Company</div>
+                    <div class="nzgdc-speaker-biolines-big">
+                        <div class="nzgdc-speaker-bioName-big">Speaker Name</div>
+                        <div class="nzgdc-speaker-bioPosition-big">Position + Company</div>
                     </div>
 
                     <!-- Speaker 3 -->
-                    <div class="nzgdc-speaker-container-big">
-                        <div class="nzgdc-speaker-name-big">Speaker Name</div>
-                        <div class="nzgdc-speaker-position-company-big">Position + Company</div>
+                    <div class="nzgdc-speaker-biolines-big">
+                        <div class="nzgdc-speaker-bioName-big">Speaker Name</div>
+                        <div class="nzgdc-speaker-bioPosition-big">Position + Company</div>
                     </div>
                 </div>
 
