@@ -5,18 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Panel Big</title>
     <style>
+        /* CSS reset for iframe content */
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            width: 620px;
+            height: 300px;
+        }
 
-        * {
+        /* Scoped reset for the event panel component only */
+        .nzgdc-event-panel-big * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        .event-panel-big {
-            --font-family-demi: 'Futura PT Demi', Arial, sans-serif;
-            --font-family-bold: 'Futura PT Bold', Arial, sans-serif;
-            --font-family-heavy: 'Futura PT Heavy', Arial, sans-serif;
-            --font-family-medium: 'Futura PT Medium', Arial, sans-serif;
+        .nzgdc-event-panel-big {
+            --font-family-demi: 'Futura PT Demi', 'Futura', Arial, sans-serif;
+            --font-family-bold: 'Futura PT Bold', 'Futura', Arial, sans-serif;
+            --font-family-heavy: 'Futura PT Heavy', 'Futura', Arial, sans-serif;
+            --font-family-medium: 'Futura PT Medium', 'Futura', Arial, sans-serif;
             --color-primary: #F53E3E;
             --color-bg: rgba(255, 255, 255, 1);
             --color-overlay: rgba(0, 0, 0, 0.75);
@@ -27,7 +36,7 @@
             --color-speaker-secondary: rgba(160, 160, 160, 1);
         }
 
-        .event-panel-big {
+        .nzgdc-event-panel-big {
             display: flex;
             align-items: center;
             width: 620px;
@@ -35,10 +44,11 @@
             background-color: var(--color-bg);
             font-family: var(--font-family-demi);
             position: relative;
+            overflow: hidden;
         }
 
         /* Event Panel Thumbnail (Left Side) */
-        .event-panel-big-thumbnail {
+        .nzgdc-event-panel-big-thumbnail {
             width: 300px;
             height: 300px;
             position: relative;
@@ -47,7 +57,7 @@
             background-position: center;
         }
 
-        .session-thumbnail-big {
+        .nzgdc-session-thumbnail-big {
             width: 300px;
             height: 300px;
             position: absolute;
@@ -56,7 +66,7 @@
             z-index: -1;
         }
 
-        .event-detail-overlay-big {
+        .nzgdc-event-detail-overlay-big {
             display: flex;
             flex-direction: column;
             justify-content: flex-end;
@@ -70,7 +80,7 @@
             left: 0;
         }
 
-        .call-to-action-big {
+        .nzgdc-call-to-action-big {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -80,14 +90,14 @@
             cursor: pointer;
         }
 
-        .open-marker-big {
+        .nzgdc-open-marker-big {
             width: 25px;
             height: 20px;
             background-color: var(--color-category-text);
             clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
         }
 
-        .cta-text-big {
+        .nzgdc-cta-text-big {
             width: 200px;
             height: 21px;
             color: var(--color-category-text);
@@ -100,7 +110,7 @@
         }
 
         /* Event Panel Details (Right Side) */
-        .event-panel-big-details {
+        .nzgdc-event-panel-big-details {
             width: 320px;
             height: 300px;
             display: flex;
@@ -109,7 +119,7 @@
         }
 
         /* Event Category */
-        .event-category-big {
+        .nzgdc-event-category-big {
             width: 320px;
             min-height: 30px;
             background-color: var(--color-primary);
@@ -119,8 +129,8 @@
             flex-shrink: 0;
         }
 
-        .category-text-big {
-            width: 296px;
+        .nzgdc-category-text-big {
+            width: 100%;
             min-height: 22px;
             color: var(--color-category-text);
             font-family: var(--font-family-demi);
@@ -132,7 +142,7 @@
         }
 
         /* Event Title */
-        .event-title-big {
+        .nzgdc-event-title-big {
             width: 320px;
             min-height: 70px;
             background-color: var(--color-bg);
@@ -142,8 +152,8 @@
             flex-shrink: 0;
         }
 
-        .title-text-big {
-            width: 300px;
+        .nzgdc-title-text-big {
+            width: 100%;
             min-height: 54px;
             color: var(--color-title);
             font-family: var(--font-family-bold);
@@ -156,7 +166,7 @@
         }
 
         /* Event Speaker Details */
-        .event-speaker-details-big {
+        .nzgdc-event-speaker-details-big {
             width: 320px;
             flex: 1;
             min-height: 100px;
@@ -168,8 +178,8 @@
             overflow: hidden;
         }
 
-        .introduction-text-big {
-            width: 300px;
+        .nzgdc-introduction-text-big {
+            width: 100%;
             min-height: 18px;
             color: var(--color-intro);
             font-family: var(--font-family-heavy);
@@ -179,26 +189,26 @@
             flex-shrink: 0;
         }
 
-        .speaker-details-big {
+        .nzgdc-speaker-details-big {
             display: flex;
             flex-direction: column;
-            width: 300px;
+            width: 100%;
             flex: 1;
             overflow: hidden;
             justify-content: space-evenly;
             min-height: 0;
         }
 
-        .speaker-container-big {
+        .nzgdc-speaker-container-big {
             display: flex;
             flex-direction: column;
-            width: 300px;
+            width: 100%;
             min-height: 36px;
             flex: 1;
         }
 
-        .speaker-name-big {
-            width: 300px;
+        .nzgdc-speaker-name-big {
+            width: 100%;
             min-height: 18px;
             color: var(--color-speaker);
             font-family: var(--font-family-demi);
@@ -210,8 +220,8 @@
             overflow-wrap: break-word;
         }
 
-        .speaker-position-company-big {
-            width: 300px;
+        .nzgdc-speaker-position-company-big {
+            width: 100%;
             min-height: 18px;
             color: var(--color-speaker-secondary);
             font-family: var(--font-family-medium);
@@ -222,16 +232,16 @@
             overflow-wrap: break-word;
         }
 
-        .timeframe-big {
+        .nzgdc-timeframe-big {
             display: flex;
             flex-direction: column;
-            width: 300px;
+            width: 100%;
             min-height: 21px;
             flex-shrink: 0;
         }
 
-        .timeframe-text-big {
-            width: 300px;
+        .nzgdc-timeframe-text-big {
+            width: 100%;
             min-height: 21px;
             color: var(--color-intro);
             font-family: var(--font-family-heavy);
@@ -241,66 +251,68 @@
             line-height: 21px;
             overflow-wrap: break-word;
         }
+
+
     </style>
 </head>
 <body>
-    <div class="event-panel-big">
+    <div class="nzgdc-event-panel-big">
         <!-- Event Panel Thumbnail (Left Side) -->
-        <div class="event-panel-big-thumbnail">
+        <div class="nzgdc-event-panel-big-thumbnail">
             <!-- Session Thumbnail (Background) -->
-            <div class="session-thumbnail-big"></div>
+            <div class="nzgdc-session-thumbnail-big"></div>
 
             <!-- Event Detail Overlay -->
-            <div class="event-detail-overlay-big">
+            <div class="nzgdc-event-detail-overlay-big">
                 <!-- Call To Action -->
-                <div class="call-to-action-big">
-                    <div class="open-marker-big"></div>
-                    <div class="cta-text-big">Click for More Event Details</div>
+                <div class="nzgdc-call-to-action-big">
+                    <div class="nzgdc-open-marker-big"></div>
+                    <div class="nzgdc-cta-text-big">Click for More Event Details</div>
                 </div>
             </div>
         </div>
 
         <!-- Event Panel Details (Right Side) -->
-        <div class="event-panel-big-details">
+        <div class="nzgdc-event-panel-big-details">
             <!-- Event Category (Top) -->
-            <div class="event-category-big">
-                <div class="category-text-big">Story & Narrative</div>
+            <div class="nzgdc-event-category-big">
+                <div class="nzgdc-category-text-big">Story & Narrative</div>
             </div>
 
             <!-- Event Title (Middle) -->
-            <div class="event-title-big">
-                <div class="title-text-big">This is a Placeholder Title occupying two lines of space</div>
+            <div class="nzgdc-event-title-big">
+                <div class="nzgdc-title-text-big">This is a Placeholder Title occupying two lines of space</div>
             </div>
 
             <!-- Event Speaker Details (Bottom) -->
-            <div class="event-speaker-details-big">
+            <div class="nzgdc-event-speaker-details-big">
                 <!-- Introduction text -->
-                <div class="introduction-text-big">NZGDC 2025 Workshop by</div>
+                <div class="nzgdc-introduction-text-big">NZGDC 2025 Workshop by</div>
 
                 <!-- Speaker Details -->
-                <div class="speaker-details-big">
+                <div class="nzgdc-speaker-details-big">
                     <!-- Speaker 1 -->
-                    <div class="speaker-container-big">
-                        <div class="speaker-name-big">Speaker Name</div>
-                        <div class="speaker-position-company-big">Position + Company</div>
+                    <div class="nzgdc-speaker-container-big">
+                        <div class="nzgdc-speaker-name-big">Speaker Name</div>
+                        <div class="nzgdc-speaker-position-company-big">Position + Company</div>
                     </div>
 
                     <!-- Speaker 2 -->
-                    <div class="speaker-container-big">
-                        <div class="speaker-name-big">Speaker Name</div>
-                        <div class="speaker-position-company-big">Position + Company</div>
+                    <div class="nzgdc-speaker-container-big">
+                        <div class="nzgdc-speaker-name-big">Speaker Name</div>
+                        <div class="nzgdc-speaker-position-company-big">Position + Company</div>
                     </div>
 
                     <!-- Speaker 3 -->
-                    <div class="speaker-container-big">
-                        <div class="speaker-name-big">Speaker Name</div>
-                        <div class="speaker-position-company-big">Position + Company</div>
+                    <div class="nzgdc-speaker-container-big">
+                        <div class="nzgdc-speaker-name-big">Speaker Name</div>
+                        <div class="nzgdc-speaker-position-company-big">Position + Company</div>
                     </div>
                 </div>
 
                 <!-- Timeframe -->
-                <div class="timeframe-big">
-                    <div class="timeframe-text-big">Timeframe (Duration)</div>
+                <div class="nzgdc-timeframe-big">
+                    <div class="nzgdc-timeframe-text-big">Timeframe (Duration)</div>
                 </div>
             </div>
         </div>
