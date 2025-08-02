@@ -1,0 +1,1268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thursday Schedule - NZGDC 2025</title>
+    <style>
+        /*
+        ====================================================================
+        CSS SECTION - To be extracted to thursdaySchedule.css in the future
+        ====================================================================
+        */
+
+        /* CSS Custom Properties (Variables) - Optimization Implementation */
+        :root {
+            --color-yellow: rgba(255, 236, 81, 1);
+            --color-blue: rgba(23, 75, 235, 1);
+            --color-blue-hover: rgba(20, 65, 200, 1);
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-gray-light: #f0f0f0;
+            --color-gray-medium: #666;
+            --color-gray-border: #ddd;
+            --color-yellow-bright: rgba(240, 223, 86, 1);
+
+            --font-primary: 'Futura PT Heavy', 'Futura', Arial, sans-serif;
+            --font-medium: 'Futura PT Medium', 'Futura', Arial, sans-serif;
+
+            --container-max-width: 1630px;
+            --event-panel-width: 620px;
+            --event-panel-height: 300px;
+            --navigation-height: 70px;
+        }
+
+        /* Scoped reset for the schedule component only */
+        .nzgdc-schedule-view * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .nzgdc-schedule-view {
+            font-family: var(--font-primary);
+            background-color: var(--color-white);
+            width: 100%;
+            max-width: var(--container-max-width);
+            height: auto;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Schedule Sub Navigation - Contains Filters */
+        .nzgdc-schedule-sub-navigation {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            width: 100%;
+            max-width: var(--container-max-width);
+            height: var(--navigation-height);
+            background-color: var(--color-white);
+        }
+
+        .nzgdc-filters-section {
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .nzgdc-filters-label {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 136px;
+            height: var(--navigation-height);
+            background-color: var(--color-yellow-bright);
+        }
+
+        .nzgdc-filters-label-text {
+            color: var(--color-black);
+            font-family: var(--font-primary);
+            font-size: 36px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .nzgdc-filters-value {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            width: 170px;
+            height: var(--navigation-height);
+            background-color: var(--color-white);
+        }
+
+        .nzgdc-filters-value-text {
+            color: var(--color-black);
+            font-family: var(--font-primary);
+            font-size: 36px;
+            font-weight: 600;
+            text-align: center;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        /* Time Categories - Base Styles */
+        .nzgdc-time-category {
+            width: 100%;
+            max-width: var(--container-max-width);
+        }
+
+        .nzgdc-time-category-a {
+            background-color: var(--color-yellow);
+        }
+
+        .nzgdc-time-category-b {
+            background-color: var(--color-blue);
+        }
+
+        /* Session Schedule Header - Consolidated Base Styles */
+        .nzgdc-session-schedule {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            height: 46px;
+            margin: 17px 0 10px 0;
+            padding: 0 25px;
+        }
+
+        /* Base text styling - Consolidated */
+        .nzgdc-session-text {
+            font-family: var(--font-primary);
+            font-size: 36px;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        /* Theme-specific colors */
+        .nzgdc-time-category-a .nzgdc-session-text {
+            color: var(--color-black);
+        }
+
+        .nzgdc-time-category-b .nzgdc-session-text {
+            color: var(--color-white);
+        }
+
+        /* Apply base text styling to specific elements */
+        .nzgdc-session-times,
+        .nzgdc-session-title {
+            @extend .nzgdc-session-text; /* Note: This would work with SCSS, using classes directly for now */
+        }
+
+        .nzgdc-time-category-a .nzgdc-session-times,
+        .nzgdc-time-category-a .nzgdc-session-title {
+            color: var(--color-black);
+            font-family: var(--font-primary);
+            font-size: 36px;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .nzgdc-time-category-b .nzgdc-session-times,
+        .nzgdc-time-category-b .nzgdc-session-title {
+            color: var(--color-white);
+            font-family: var(--font-primary);
+            font-size: 36px;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        /* Underline elements */
+        .nzgdc-underline {
+            width: calc(100% - 50px);
+            height: 5px;
+            margin: 0 auto;
+            display: block;
+            flex-shrink: 0;
+        }
+
+        .nzgdc-event-times-a .nzgdc-underline {
+            background-color: var(--color-black);
+        }
+
+        .nzgdc-event-times-b .nzgdc-underline {
+            background-color: var(--color-white);
+        }
+
+        /* Event Times Containers */
+        .nzgdc-event-times-a {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            width: 100%;
+            max-width: var(--container-max-width);
+            height: 81px;
+            background-color: var(--color-yellow);
+        }
+
+        .nzgdc-event-times-b {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            width: 100%;
+            max-width: var(--container-max-width);
+            height: 81px;
+            background-color: var(--color-blue);
+        }
+
+        /* Scheduled Workshops Container */
+        .nzgdc-scheduled-workshops {
+            width: 100%;
+            max-width: var(--container-max-width);
+            padding: 40px;
+            background-color: inherit;
+        }
+
+        /* Workshop Rows - Flexible Layout */
+        .nzgdc-workshop-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            min-height: var(--event-panel-height);
+            margin: 0 0 40px 0;
+        }
+
+        .nzgdc-workshop-row:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Workshop Event Containers - Flexible Sizing */
+        .nzgdc-workshop-event {
+            flex: 1;
+            max-width: var(--event-panel-width);
+            width: var(--event-panel-width);
+            height: var(--event-panel-height);
+        }
+
+        /* Event Panel Container - Optimized for Dynamic Content */
+        .nzgdc-event-panel-container {
+            width: var(--event-panel-width);
+            height: var(--event-panel-height);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Remove iframe-specific styles - No longer needed with template approach */
+
+        /* Schedule Footer Navigation */
+        .nzgdc-schedule-footer-navigation {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            width: 100%;
+            max-width: var(--container-max-width);
+            height: var(--navigation-height);
+            background-color: var(--color-white);
+        }
+
+        /* Back to Top Button */
+        .nzgdc-back-to-top {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 249px;
+            height: 56px;
+            background-color: var(--color-blue);
+            border: none;
+            cursor: pointer;
+            color: var(--color-white);
+            font-family: var(--font-primary);
+            font-size: 36px;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: background-color 0.3s ease;
+        }
+
+        .nzgdc-back-to-top:hover {
+            background-color: var(--color-blue-hover);
+        }
+
+        /* Loading and Error States */
+        .nzgdc-loading-placeholder {
+            width: var(--event-panel-width);
+            height: var(--event-panel-height);
+            background-color: var(--color-gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-medium);
+            color: var(--color-gray-medium);
+            border: 1px solid var(--color-gray-border);
+            font-size: 16px;
+        }
+
+        .nzgdc-error-placeholder {
+            width: var(--event-panel-width);
+            height: var(--event-panel-height);
+            background-color: #ffe6e6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-medium);
+            color: #cc0000;
+            border: 1px solid #ffcccc;
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Responsive Breakpoints - Optimized */
+        @media (max-width: 1680px) {
+            .nzgdc-schedule-view {
+                padding: 0;
+            }
+        }
+
+        @media (max-width: 1300px) {
+            .nzgdc-workshop-row {
+                flex-direction: column;
+                height: auto;
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nzgdc-session-schedule {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+                height: auto;
+                padding: 10px;
+            }
+
+            .nzgdc-time-category-a .nzgdc-session-times,
+            .nzgdc-time-category-a .nzgdc-session-title,
+            .nzgdc-time-category-b .nzgdc-session-times,
+            .nzgdc-time-category-b .nzgdc-session-title {
+                font-size: 24px;
+            }
+
+            .nzgdc-scheduled-workshops {
+                padding: 20px;
+            }
+
+            .nzgdc-workshop-row {
+                margin-bottom: 20px;
+            }
+
+            .nzgdc-back-to-top {
+                font-size: 24px;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nzgdc-schedule-view {
+                padding: 0;
+            }
+
+            .nzgdc-scheduled-workshops {
+                padding: 10px;
+            }
+
+            .nzgdc-filters-section {
+                padding: 10px 15px;
+            }
+
+            .nzgdc-filters-label {
+                font-size: 16px;
+            }
+
+            .nzgdc-filters-value {
+                font-size: 14px;
+                padding: 3px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nzgdc-schedule-view">
+        <!-- Static Navigation Section -->
+        <div class="nzgdc-schedule-sub-navigation">
+            <div class="nzgdc-filters-section">
+                <div class="nzgdc-filters-label">
+                    <span class="nzgdc-filters-label-text">Filters:</span>
+                </div>
+                <div class="nzgdc-filters-value">
+                    <span class="nzgdc-filters-value-text">NONE ▶</span>
+                </div>
+            </div>
+        </div>
+
+        <!--
+        ====================================================================
+        DYNAMIC CONTENT SECTION - Generated by JavaScript
+        This replaces the static HTML structure with data-driven generation
+        ====================================================================
+        -->
+        <div id="schedule-content">
+            <!-- Time slots and workshops will be dynamically inserted here -->
+        </div>
+
+        <!-- Static Footer Section -->
+        <div class="nzgdc-schedule-footer-navigation">
+            <button class="nzgdc-back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                BACK TO TOP
+            </button>
+        </div>
+    </div>
+
+    <!--
+    ====================================================================
+    EMBEDDED EVENT PANEL TEMPLATE - For local file compatibility
+    This template is used as fallback when eventPanel_Big.html can't be loaded
+    ====================================================================
+    -->
+    <template id="event-panel-template">
+        <div class="nzgdc-event-panel-big">
+            <!-- Event Panel Thumbnail (Left Side) -->
+            <div class="nzgdc-event-panel-big-thumbnail">
+                <!-- Session Thumbnail (Background) -->
+                <div class="nzgdc-session-thumbnail-big"></div>
+
+                <!-- Event Detail Overlay -->
+                <div class="nzgdc-event-detail-overlay-big">
+                    <!-- Call To Action -->
+                    <div class="nzgdc-call-to-action-big">
+                        <div class="nzgdc-open-marker-big"></div>
+                        <div class="nzgdc-cta-text-big">Click for More Event Details</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Panel Details (Right Side) -->
+            <div class="nzgdc-event-panel-big-details">
+                <!-- Event Category (Top) -->
+                <div class="nzgdc-event-category-big">
+                    <div class="nzgdc-category-text-big">Story & Narrative</div>
+                </div>
+
+                <!-- Event Title (Middle) -->
+                <div class="nzgdc-event-title-big">
+                    <div class="nzgdc-title-text-big">This is a Placeholder Title occupying two lines of space</div>
+                </div>
+
+                <!-- Event Speaker Details (Bottom) -->
+                <div class="nzgdc-event-speaker-details-big">
+                    <!-- Introduction text -->
+                    <div class="nzgdc-introduction-text-big">NZGDC 2025 Workshop by</div>
+
+                    <!-- Speaker Details -->
+                    <div class="nzgdc-speaker-details-big">
+                        <!-- Speaker 1 -->
+                        <div class="nzgdc-speaker-biolines-big">
+                            <div class="nzgdc-speaker-bioName-big">Speaker Name</div>
+                            <div class="nzgdc-speaker-bioPosition-big">Position + Company</div>
+                        </div>
+
+                        <!-- Speaker 2 -->
+                        <div class="nzgdc-speaker-biolines-big">
+                            <div class="nzgdc-speaker-bioName-big">Speaker Name</div>
+                            <div class="nzgdc-speaker-bioPosition-big">Position + Company</div>
+                        </div>
+
+                        <!-- Speaker 3 -->
+                        <div class="nzgdc-speaker-biolines-big">
+                            <div class="nzgdc-speaker-bioName-big">Speaker Name</div>
+                            <div class="nzgdc-speaker-bioPosition-big">Position + Company</div>
+                        </div>
+                    </div>
+
+                    <!-- Timeframe -->
+                    <div class="nzgdc-timeframe-big">
+                        <div class="nzgdc-timeframe-text-big">Timeframe (Duration)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <style>
+        /*
+        ====================================================================
+        EMBEDDED EVENT PANEL STYLES - For local file compatibility
+        These styles are copied from eventPanel_Big.html
+        ====================================================================
+        */
+
+        .nzgdc-event-panel-big {
+            --font-family-demi: 'Futura PT Demi', 'Futura', Arial, sans-serif;
+            --font-family-bold: 'Futura PT Bold', 'Futura', Arial, sans-serif;
+            --font-family-heavy: 'Futura PT Heavy', 'Futura', Arial, sans-serif;
+            --font-family-medium: 'Futura PT Medium', 'Futura', Arial, sans-serif;
+            --color-primary: #F53E3E;
+            --color-bg: rgba(255, 255, 255, 1);
+            --color-overlay: rgba(0, 0, 0, 0.75);
+            --color-title: rgba(0, 0, 0, 1);
+            --color-category-text: rgba(255, 255, 255, 1);
+            --color-intro: rgba(245, 45, 49, 1);
+            --color-speaker: rgba(255, 255, 255, 1);
+            --color-speaker-secondary: rgba(160, 160, 160, 1);
+
+            display: flex;
+            align-items: center;
+            width: 620px;
+            height: 300px;
+            background-color: var(--color-bg);
+            font-family: var(--font-family-demi);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Event Panel Thumbnail (Left Side) */
+        .nzgdc-event-panel-big-thumbnail {
+            width: 300px;
+            height: 300px;
+            position: relative;
+            background-image: url('');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .nzgdc-session-thumbnail-big {
+            width: 300px;
+            height: 300px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .nzgdc-event-detail-overlay-big {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 30px;
+            width: 300px;
+            height: 300px;
+            background-color: var(--color-overlay);
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .nzgdc-call-to-action-big {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 200px;
+            height: 61px;
+            cursor: pointer;
+        }
+
+        .nzgdc-open-marker-big {
+            width: 25px;
+            height: 20px;
+            background-color: var(--color-category-text);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .nzgdc-cta-text-big {
+            width: 200px;
+            height: 21px;
+            color: var(--color-category-text);
+            font-family: var(--font-family-heavy);
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 21px;
+            overflow-wrap: break-word;
+        }
+
+        /* Event Panel Details (Right Side) */
+        .nzgdc-event-panel-big-details {
+            width: 320px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Event Category */
+        .nzgdc-event-category-big {
+            width: 320px;
+            min-height: 30px;
+            background-color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            padding-left: 12px;
+            flex-shrink: 0;
+        }
+
+        .nzgdc-category-text-big {
+            width: 100%;
+            min-height: 22px;
+            color: var(--color-category-text);
+            font-family: var(--font-family-demi);
+            font-size: 18px;
+            font-weight: 500;
+            text-transform: uppercase;
+            line-height: 22px;
+            overflow-wrap: break-word;
+        }
+
+        /* Event Title */
+        .nzgdc-event-title-big {
+            width: 320px;
+            min-height: 70px;
+            background-color: var(--color-bg);
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            flex-shrink: 0;
+        }
+
+        .nzgdc-title-text-big {
+            width: 100%;
+            min-height: 54px;
+            color: var(--color-title);
+            font-family: var(--font-family-bold);
+            font-size: 21px;
+            font-weight: 700;
+            line-height: 27px;
+            display: flex;
+            align-items: center;
+            overflow-wrap: break-word;
+        }
+
+        /* Event Speaker Details */
+        .nzgdc-event-speaker-details-big {
+            width: 320px;
+            flex: 1;
+            min-height: 100px;
+            background-color: #000;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .nzgdc-introduction-text-big {
+            width: 100%;
+            min-height: 18px;
+            color: var(--color-intro);
+            font-family: var(--font-family-heavy);
+            font-size: 14px;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .nzgdc-speaker-details-big {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            overflow: hidden;
+            min-height: 0;
+            gap: 0.5rem;
+        }
+
+        .nzgdc-speaker-biolines-big {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 36px;
+            flex: 1;
+        }
+
+        .nzgdc-speaker-bioName-big {
+            width: 100%;
+            min-height: 18px;
+            color: var(--color-speaker);
+            font-family: var(--font-family-demi);
+            font-size: 14px;
+            font-weight: 500;
+            font-style: italic;
+            line-height: 18px;
+            text-align: left;
+            overflow-wrap: break-word;
+        }
+
+        .nzgdc-speaker-bioPosition-big {
+            width: 100%;
+            min-height: 18px;
+            color: var(--color-speaker-secondary);
+            font-family: var(--font-family-medium);
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 18px;
+            text-align: left;
+            overflow-wrap: break-word;
+        }
+
+        .nzgdc-timeframe-big {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 21px;
+            flex-shrink: 0;
+        }
+
+        .nzgdc-timeframe-text-big {
+            width: 100%;
+            min-height: 21px;
+            color: var(--color-intro);
+            font-family: var(--font-family-heavy);
+            font-size: 16px;
+            font-weight: 600;
+            text-align: left;
+            line-height: 21px;
+            overflow-wrap: break-word;
+        }
+    </style>
+
+    <script>
+        /*
+        ====================================================================
+        JAVASCRIPT SECTION - To be extracted to separate files in the future:
+        - schedule-data.js (Schedule configuration data)
+        - workshop-events.js (Workshop event details)
+        - workshop-loader.js (Template loading functionality)
+        - schedule-generator.js (HTML generation logic)
+        ====================================================================
+        */
+
+        // ===================================================================
+        // SCHEDULE DATA CONFIGURATION
+        // Future file: schedule-data.js
+        // ===================================================================
+        const scheduleData = {
+            timeSlots: [
+                {
+                    id: 'morning',
+                    timeRange: '9.00am - 12.00pm',
+                    title: 'Morning Workshops',
+                    theme: 'a', // Controls styling (yellow theme)
+                    workshops: [
+                        { id: 'workshop-a1', category: 'Story & Narrative', title: 'Advanced Storytelling Techniques' },
+                        { id: 'workshop-a2', category: 'Technical Skills', title: 'Unity Performance Optimization' },
+                        { id: 'workshop-a3', category: 'Game Design', title: 'Player Psychology in Game Design' },
+                        { id: 'workshop-a4', category: 'Business', title: 'Indie Game Marketing Strategies' }
+                    ]
+                },
+                {
+                    id: 'afternoon',
+                    timeRange: '12.00pm - 3.00pm',
+                    title: 'Afternoon Workshops',
+                    theme: 'b', // Controls styling (blue theme)
+                    workshops: [
+                        { id: 'workshop-b1', category: 'Art & Animation', title: '3D Character Modeling Workshop' },
+                        { id: 'workshop-b2', category: 'Audio', title: 'Interactive Audio Design' },
+                        { id: 'workshop-b3', category: 'Programming', title: 'Advanced Shader Techniques' },
+                        { id: 'workshop-b4', category: 'VR/AR', title: 'Virtual Reality Game Development' },
+                        { id: 'workshop-b5', category: 'Multiplayer', title: 'Netcode for Indie Games' },
+                        { id: 'workshop-b6', category: 'Publishing', title: 'Platform Publishing Guide' }
+                    ]
+                }
+            ]
+        };
+
+        // ===================================================================
+        // WORKSHOP EVENT DETAILS
+        // Future file: workshop-events.js
+        // ===================================================================
+        const workshopEvents = {
+            'workshop-a1': {
+                category: 'Story & Narrative',
+                title: 'Advanced Storytelling Techniques',
+                timeframe: '3 hours',
+                thumbnail: '', // Path to thumbnail image
+                speakers: [
+                    { name: 'Jane Doe', position: 'Lead Writer at GameStudio' },
+                    { name: 'John Smith', position: 'Narrative Designer at IndieDev' }
+                ]
+            },
+            'workshop-a2': {
+                category: 'Technical Skills',
+                title: 'Unity Performance Optimization',
+                timeframe: '3 hours',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Sarah Johnson', position: 'Senior Developer at TechCorp' }
+                ]
+            },
+            'workshop-a3': {
+                category: 'Game Design',
+                title: 'Player Psychology in Game Design',
+                timeframe: '3 hours',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Mike Chen', position: 'Game Designer at BigStudio' }
+                ]
+            },
+            'workshop-a4': {
+                category: 'Business',
+                title: 'Indie Game Marketing Strategies',
+                timeframe: '3 hours',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Emma Wilson', position: 'Marketing Director at IndiePublisher' }
+                ]
+            },
+            'workshop-b1': {
+                category: 'Art & Animation',
+                title: '3D Character Modeling Workshop',
+                timeframe: '3 hours',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Alex Rodriguez', position: '3D Artist at VisualStudio' }
+                ]
+            },
+            'workshop-b2': {
+                category: 'Audio',
+                title: 'Interactive Audio Design',
+                timeframe: '3 hours',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Lisa Park', position: 'Audio Director at SoundDesign Co' }
+                ]
+            },
+            'workshop-b3': {
+                category: 'Programming',
+                title: 'Advanced Shader Techniques',
+                timeframe: '3 hours',
+                thumbnail: '',
+                speakers: [
+                    { name: 'David Kim', position: 'Graphics Programmer at TechEngine' }
+                ]
+            },
+            'workshop-b4': {
+                category: 'VR/AR',
+                title: 'Virtual Reality Game Development',
+                timeframe: '3 hours',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Rachel Green', position: 'VR Developer at ImmersiveTech' }
+                ]
+            },
+            'workshop-b5': {
+                category: 'Multiplayer',
+                title: 'Netcode for Indie Games',
+                timeframe: '3 hours',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Tom Anderson', position: 'Network Engineer at MultiplayerSolutions' }
+                ]
+            },
+            'workshop-b6': {
+                category: 'Publishing',
+                title: 'Platform Publishing Guide',
+                timeframe: '3 hours',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Jennifer Lee', position: 'Platform Relations at GamePublisher' }
+                ]
+            }
+        };
+
+        // ===================================================================
+        // WORKSHOP TEMPLATE LOADER
+        // Future file: workshop-loader.js
+        // Implements single template loading optimization
+        // ===================================================================
+        class WorkshopEventLoader {
+            constructor() {
+                this.template = null;
+                this.isLoading = false;
+                this.loadError = null;
+            }
+
+            // Load the template once and cache it
+            async loadTemplate() {
+                if (this.template) return this.template;
+                if (this.isLoading) {
+                    // Wait for existing load to complete
+                    while (this.isLoading) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
+                    return this.template;
+                }
+
+                this.isLoading = true;
+
+                try {
+                    console.log('Loading event panel template...');
+
+                    // Try to load external file first (for server environments)
+                    try {
+                        const response = await fetch('eventPanel_Big.html');
+                        if (response.ok) {
+                            const html = await response.text();
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            this.template = doc.querySelector('.nzgdc-event-panel-big');
+
+                            if (this.template) {
+                                console.log('External template loaded successfully');
+                                return this.template;
+                            }
+                        }
+                    } catch (fetchError) {
+                        console.log('External template failed, trying embedded template:', fetchError.message);
+                    }
+
+                    // Fallback to embedded template (for local file environments)
+                    const embeddedTemplate = document.querySelector('#event-panel-template');
+                    if (embeddedTemplate) {
+                        this.template = embeddedTemplate.content.querySelector('.nzgdc-event-panel-big');
+                        if (this.template) {
+                            console.log('Embedded template loaded successfully');
+                            return this.template;
+                        }
+                    }
+
+                    throw new Error('No event panel template found (neither external nor embedded)');
+
+                } catch (error) {
+                    console.error('Failed to load template:', error);
+                    this.loadError = error;
+
+                    // Provide helpful error message for local file usage
+                    if (window.location.protocol === 'file:') {
+                        console.info('💡 Local file detected: Using embedded template as fallback should work automatically');
+                    }
+
+                    throw error;
+                } finally {
+                    this.isLoading = false;
+                }
+            }
+
+            // Create customized event panel from template
+            createEventPanel(eventData) {
+                if (!this.template) {
+                    throw new Error('Template not loaded. Call loadTemplate() first.');
+                }
+
+                const clone = this.template.cloneNode(true);
+
+                try {
+                    // Customize the content based on eventData
+                    this.updateEventContent(clone, eventData);
+                    return clone;
+                } catch (error) {
+                    console.error('Failed to create event panel:', error, eventData);
+                    return this.createErrorPanel(error.message);
+                }
+            }
+
+            // Update event panel content with specific data
+            updateEventContent(clone, eventData) {
+                // Update category
+                const categoryEl = clone.querySelector('.nzgdc-category-text-big');
+                if (categoryEl && eventData.category) {
+                    categoryEl.textContent = eventData.category;
+                }
+
+                // Update title
+                const titleEl = clone.querySelector('.nzgdc-title-text-big');
+                if (titleEl && eventData.title) {
+                    titleEl.textContent = eventData.title;
+                }
+
+                // Update thumbnail
+                const thumbnailEl = clone.querySelector('.nzgdc-session-thumbnail-big');
+                if (thumbnailEl && eventData.thumbnail) {
+                    thumbnailEl.style.backgroundImage = `url('${eventData.thumbnail}')`;
+                }
+
+                // Update timeframe
+                const timeframeEl = clone.querySelector('.nzgdc-timeframe-text-big');
+                if (timeframeEl && eventData.timeframe) {
+                    timeframeEl.textContent = eventData.timeframe;
+                }
+
+                // Update speaker information
+                this.updateSpeakers(clone, eventData.speakers);
+            }
+
+            // Update speaker information in the panel
+            updateSpeakers(clone, speakers) {
+                const speakerContainers = clone.querySelectorAll('.nzgdc-speaker-biolines-big');
+
+                if (!speakers || speakers.length === 0) return;
+
+                speakers.forEach((speaker, index) => {
+                    if (index < speakerContainers.length) {
+                        const container = speakerContainers[index];
+                        const nameEl = container.querySelector('.nzgdc-speaker-bioName-big');
+                        const positionEl = container.querySelector('.nzgdc-speaker-bioPosition-big');
+
+                        if (nameEl) nameEl.textContent = speaker.name || '';
+                        if (positionEl) positionEl.textContent = speaker.position || '';
+                    }
+                });
+
+                // Hide unused speaker containers
+                for (let i = speakers.length; i < speakerContainers.length; i++) {
+                    speakerContainers[i].style.display = 'none';
+                }
+            }
+
+            // Create error panel for failed loads
+            createErrorPanel(errorMessage) {
+                const errorPanel = document.createElement('div');
+                errorPanel.className = 'nzgdc-error-placeholder';
+
+                const isLocalFile = window.location.protocol === 'file:';
+                const helpText = isLocalFile
+                    ? 'For local files: Make sure both HTML files are in the same folder'
+                    : 'Please try refreshing the page or contact support';
+
+                errorPanel.innerHTML = `
+                    <strong>Failed to load workshop</strong>
+                    <small>${errorMessage}</small>
+                    <small>${helpText}</small>
+                `;
+                return errorPanel;
+            }
+        }
+
+        // ===================================================================
+        // SCHEDULE GENERATOR
+        // Future file: schedule-generator.js
+        // Implements data-driven HTML generation
+        // ===================================================================
+        class ScheduleGenerator {
+            constructor(containerSelector) {
+                this.container = document.querySelector(containerSelector);
+                this.workshopLoader = new WorkshopEventLoader();
+
+                if (!this.container) {
+                    throw new Error(`Container element '${containerSelector}' not found`);
+                }
+            }
+
+            // Generate complete time slot HTML structure
+            generateTimeSlot(timeSlot) {
+                const timeSlotEl = document.createElement('div');
+                timeSlotEl.className = `nzgdc-time-category nzgdc-time-category-${timeSlot.theme}`;
+                timeSlotEl.setAttribute('data-time-slot', timeSlot.id);
+
+                timeSlotEl.innerHTML = `
+                    <!-- Event Times Container -->
+                    <div class="nzgdc-event-times-${timeSlot.theme}">
+                        <div class="nzgdc-session-schedule">
+                            <div class="nzgdc-session-times">${timeSlot.timeRange}</div>
+                            <div class="nzgdc-session-title">${timeSlot.title}</div>
+                        </div>
+                        <div class="nzgdc-underline"></div>
+                    </div>
+
+                    <!-- Scheduled Workshops -->
+                    <div class="nzgdc-scheduled-workshops">
+                        ${this.generateWorkshopRows(timeSlot.workshops)}
+                    </div>
+                `;
+
+                return timeSlotEl;
+            }
+
+            // Generate workshop rows (2 workshops per row by default)
+            generateWorkshopRows(workshops) {
+                const rows = [];
+                const workshopsPerRow = 2;
+
+                for (let i = 0; i < workshops.length; i += workshopsPerRow) {
+                    const workshopsInRow = workshops.slice(i, i + workshopsPerRow);
+                    const rowHtml = `
+                        <div class="nzgdc-workshop-row" data-row="${Math.floor(i / workshopsPerRow) + 1}">
+                            ${workshopsInRow.map(workshop => this.generateWorkshopEvent(workshop)).join('')}
+                        </div>
+                    `;
+                    rows.push(rowHtml);
+                }
+
+                return rows.join('');
+            }
+
+            // Generate individual workshop event container
+            generateWorkshopEvent(workshop) {
+                return `
+                    <div class="nzgdc-workshop-event">
+                        <div class="nzgdc-event-panel-container"
+                             data-event-id="${workshop.id}"
+                             data-category="${workshop.category}"
+                             data-title="${workshop.title}">
+                            <div class="nzgdc-loading-placeholder">Loading ${workshop.title}...</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Render the complete schedule from data
+            async renderSchedule(data) {
+                try {
+                    console.log('Rendering schedule with data:', data);
+
+                    // Clear existing content
+                    this.container.innerHTML = '';
+
+                    // Generate and append time slots
+                    data.timeSlots.forEach(timeSlot => {
+                        const timeSlotEl = this.generateTimeSlot(timeSlot);
+                        this.container.appendChild(timeSlotEl);
+                    });
+
+                    // Load workshop content after DOM is updated
+                    await this.loadWorkshopContent();
+
+                    console.log('Schedule rendering completed');
+
+                } catch (error) {
+                    console.error('Failed to render schedule:', error);
+                    this.showScheduleError(error);
+                }
+            }
+
+            // Load workshop content using the template loader
+            async loadWorkshopContent() {
+                try {
+                    // Load the template once
+                    await this.workshopLoader.loadTemplate();
+
+                    // Find all workshop containers
+                    const containers = this.container.querySelectorAll('.nzgdc-event-panel-container[data-event-id]');
+                    console.log(`Loading content for ${containers.length} workshop containers`);
+
+                    // Load each workshop
+                    const loadPromises = Array.from(containers).map(container =>
+                        this.loadSingleWorkshop(container)
+                    );
+
+                    await Promise.allSettled(loadPromises);
+                    console.log('All workshop content loaded');
+
+                } catch (error) {
+                    console.error('Failed to load workshop content:', error);
+                    this.showWorkshopLoadError(error);
+                }
+            }
+
+            // Load content for a single workshop container
+            async loadSingleWorkshop(container) {
+                const eventId = container.dataset.eventId;
+                const eventData = workshopEvents[eventId];
+
+                try {
+                    if (!eventData) {
+                        throw new Error(`No data found for workshop: ${eventId}`);
+                    }
+
+                    const eventPanel = this.workshopLoader.createEventPanel(eventData);
+                    container.innerHTML = '';
+                    container.appendChild(eventPanel);
+
+                } catch (error) {
+                    console.error(`Failed to load workshop ${eventId}:`, error);
+                    container.innerHTML = '';
+                    container.appendChild(this.workshopLoader.createErrorPanel(error.message));
+                }
+            }
+
+            // Show schedule-level error
+            showScheduleError(error) {
+                this.container.innerHTML = `
+                    <div class="nzgdc-error-placeholder" style="width: 100%; height: 200px; max-width: none;">
+                        <strong>Failed to load schedule</strong>
+                        <small>${error.message}</small>
+                        <small>Please refresh the page or contact support</small>
+                    </div>
+                `;
+            }
+
+            // Show workshop loading error
+            showWorkshopLoadError(error) {
+                const containers = this.container.querySelectorAll('.nzgdc-loading-placeholder');
+                containers.forEach(container => {
+                    container.className = 'nzgdc-error-placeholder';
+                    container.innerHTML = `
+                        <strong>Failed to load workshops</strong>
+                        <small>${error.message}</small>
+                    `;
+                });
+            }
+        }
+
+        // ===================================================================
+        // INITIALIZATION SCRIPT
+        // Main application logic - coordinates everything
+        // ===================================================================
+        class ScheduleApp {
+            constructor() {
+                this.generator = null;
+                this.initialized = false;
+            }
+
+            async init() {
+                if (this.initialized) return;
+
+                try {
+                    console.log('Initializing NZGDC Thursday Schedule...');
+
+                    // Initialize the schedule generator
+                    this.generator = new ScheduleGenerator('#schedule-content');
+
+                    // Render the schedule
+                    await this.generator.renderSchedule(scheduleData);
+
+                    this.initialized = true;
+                    console.log('Schedule initialization completed successfully');
+
+                } catch (error) {
+                    console.error('Failed to initialize schedule:', error);
+                    this.showInitializationError(error);
+                }
+            }
+
+            showInitializationError(error) {
+                const container = document.querySelector('#schedule-content');
+                if (container) {
+                    const isLocalFile = window.location.protocol === 'file:';
+                    const helpText = isLocalFile
+                        ? 'Local file detected - using embedded templates'
+                        : 'Please refresh the page or contact support';
+
+                    container.innerHTML = `
+                        <div class="nzgdc-error-placeholder" style="width: 100%; height: 300px; max-width: none;">
+                            <strong>Failed to initialize schedule</strong>
+                            <small>${error.message}</small>
+                            <small>${helpText}</small>
+                            <button onclick="location.reload()" style="margin-top: 10px; padding: 5px 10px;">Refresh Page</button>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // ===================================================================
+        // APPLICATION STARTUP
+        // ===================================================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            const app = new ScheduleApp();
+            await app.init();
+        });
+
+        // Expose app for debugging (can be removed in production)
+        window.ScheduleApp = ScheduleApp;
+        window.WorkshopEventLoader = WorkshopEventLoader;
+        window.ScheduleGenerator = ScheduleGenerator;
+    </script>
+</body>
+</html>

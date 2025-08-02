@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NZGDC Schedule Widget Demo</title>
+    <style>
+        /* NZGDC Color Variables */
+        :root {
+            --color-yellow: rgba(255, 236, 81, 1);
+            --color-blue: rgba(23, 75, 235, 1);
+            --color-blue-hover: rgba(20, 65, 200, 1);
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-yellow-bright: rgba(240, 223, 86, 1);
+            --font-primary: 'Futura PT Heavy', 'Futura', Arial, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            margin: 0;
+            padding: 0;
+            background-color: var(--color-white);
+        }
+
+        .demo-header {
+            background: var(--color-blue);
+            color: var(--color-white);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .demo-header h1 {
+            margin: 0;
+            font-size: 36px;
+            font-weight: 800;
+            font-family: var(--font-primary);
+        }
+
+        .demo-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .demo-controls button {
+            background: var(--color-yellow-bright);
+            color: var(--color-black);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 16px;
+            font-family: var(--font-primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: background-color 0.3s ease;
+            margin: 0 5px;
+        }
+
+        .demo-controls button:hover {
+            background: var(--color-yellow);
+        }
+
+        .demo-controls button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status {
+            background: var(--color-white);
+            padding: 15px;
+            text-align: center;
+            font-size: 16px;
+            font-family: var(--font-primary);
+            font-weight: 600;
+            border-bottom: 5px solid var(--color-yellow);
+        }
+
+        .status.success {
+            background: var(--color-yellow);
+            color: var(--color-black);
+        }
+        .status.error {
+            background: #F53E3E;
+            color: var(--color-white);
+        }
+
+        .demo-content {
+            min-height: 60vh;
+            padding: 0;
+            background-color: var(--color-white);
+        }
+
+        .demo-footer {
+            background: var(--color-blue);
+            color: var(--color-white);
+            text-align: center;
+            padding: 20px;
+            font-family: var(--font-primary);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .demo-footer button {
+            background: var(--color-yellow-bright);
+            color: var(--color-black);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 14px;
+            font-family: var(--font-primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin: 0 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .demo-footer button:hover {
+            background: var(--color-yellow);
+        }
+    </style>
+</head>
+<body>
+    <header class="demo-header">
+        <h1>NZGDC Schedule Widget Demo</h1>
+        <div class="demo-controls">
+            <button id="loadBtn" onclick="loadWidget()">Load Widget</button>
+            <button id="testBtn" onclick="testWidget()">Test Widget</button>
+            <button id="clearBtn" onclick="clearWidget()">Clear Widget</button>
+            <button id="destroyBtn" onclick="destroyWidget()">Destroy Widget</button>
+            <button id="verifyBtn" onclick="verifyData()">Verify Data</button>
+            <button id="debugBtn" onclick="toggleDebug()">Enable Debug</button>
+        </div>
+    </header>
+
+    <div class="status" id="status">Loading NZGDC Thursday Schedule...</div>
+
+    <div class="demo-content">
+        <!-- Widget will be loaded here -->
+        <div id="widget-container" data-nzgdc-schedule style="display: none;"></div>
+    </div>
+
+    <footer class="demo-footer">
+        <span>Widget Status: <span id="widget-status">Not loaded</span></span>
+        <button onclick="showInfo()">Show Info</button>
+        <button onclick="showConsole()">Console</button>
+        <button onclick="location.reload()">Refresh</button>
+    </footer>
+
+    <script>
+        let widgetLoaded = false;
+        let currentWidget = null;
+        let debugEnabled = false;
+
+        function updateStatus(message, type = 'info') {
+            const statusEl = document.getElementById('status');
+            const widgetStatusEl = document.getElementById('widget-status');
+
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+
+            if (type === 'success') {
+                widgetStatusEl.textContent = 'Loaded';
+                widgetLoaded = true;
+            } else if (type === 'error') {
+                widgetStatusEl.textContent = 'Error';
+                widgetLoaded = false;
+            }
+
+            updateButtonStates();
+        }
+
+        function updateButtonStates() {
+            const loadBtn = document.getElementById('loadBtn');
+            const testBtn = document.getElementById('testBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const destroyBtn = document.getElementById('destroyBtn');
+            const verifyBtn = document.getElementById('verifyBtn');
+            const debugBtn = document.getElementById('debugBtn');
+
+            testBtn.disabled = !widgetLoaded;
+            clearBtn.disabled = !widgetLoaded;
+            destroyBtn.disabled = !widgetLoaded;
+            // Verify and debug buttons are always enabled
+            debugBtn.textContent = debugEnabled ? 'Disable Debug' : 'Enable Debug';
+        }
+
+        async function createWidget() {
+            // Create new widget instance
+            if (window.NZGDCWidget && window.NZGDCWidget.isReady()) {
+                const container = document.getElementById('widget-container');
+                container.innerHTML = '';
+                container.setAttribute('data-nzgdc-schedule', '');
+
+                try {
+                    // Create new widget instance using the modular API
+                    const widget = await NZGDCWidget.create(container, {
+                        showFilters: true,
+                        showFooter: true
+                    });
+                    container.style.display = 'block';
+                    return widget;
+                } catch (error) {
+                    console.error('Widget creation failed:', error);
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        async function loadWidget() {
+            if (widgetLoaded && document.getElementById('widget-container').style.display !== 'none') {
+                updateStatus('Widget already loaded', 'success');
+                return;
+            }
+
+            // Check if widget API is available
+            if (typeof window.NZGDCWidget !== 'undefined') {
+                updateStatus('Creating widget...', 'info');
+                window.NZGDCWidget.ready(async () => {
+                    currentWidget = await createWidget();
+                    if (currentWidget) {
+                        updateStatus('Widget loaded successfully!', 'success');
+                    } else {
+                        updateStatus('Failed to create widget', 'error');
+                    }
+                });
+                return;
+            }
+
+            updateStatus('Widget API not available - ensure script is loaded', 'error');
+        }
+
+        function testWidget() {
+            if (!widgetLoaded) {
+                updateStatus('Load widget first', 'error');
+                return;
+            }
+
+            const widgets = document.querySelectorAll('.nzgdc-schedule-widget');
+            const workshops = document.querySelectorAll('.nzgdc-event-panel-big');
+
+            console.log('Widget test results:', {
+                'Widget instances': widgets.length,
+                'Workshop panels': workshops.length,
+                'Widget API available': typeof window.NZGDCWidget !== 'undefined',
+                'Widget ready': window.NZGDCWidget ? window.NZGDCWidget.isReady() : false
+            });
+
+            updateStatus(`Test complete: ${widgets.length} widgets, ${workshops.length} workshops`, 'success');
+        }
+
+        function clearWidget() {
+            const container = document.getElementById('widget-container');
+            container.style.display = 'none';
+            container.innerHTML = '';
+            container.removeAttribute('data-nzgdc-schedule');
+            updateStatus('Widget cleared - click "Load Widget" to reload', 'info');
+            document.getElementById('widget-status').textContent = 'Cleared';
+            widgetLoaded = false;
+            currentWidget = null;
+        }
+
+        function destroyWidget() {
+            if (currentWidget && typeof currentWidget.destroy === 'function') {
+                try {
+                    currentWidget.destroy();
+                    updateStatus('Widget destroyed and resources cleaned up', 'info');
+                    document.getElementById('widget-status').textContent = 'Destroyed';
+
+                    const container = document.getElementById('widget-container');
+                    container.style.display = 'none';
+
+                    widgetLoaded = false;
+                    currentWidget = null;
+                } catch (error) {
+                    console.error('Error destroying widget:', error);
+                    updateStatus('Error destroying widget: ' + error.message, 'error');
+                }
+            } else {
+                updateStatus('No widget to destroy or destroy method not available', 'error');
+            }
+        }
+
+        function showInfo() {
+            if (window.NZGDCWidget) {
+                const debugInfo = window.NZGDCWidget.getDebugInfo();
+                const info = {
+                    'Widget ready': debugInfo.ready,
+                    'Schedule data loaded': debugInfo.modules.scheduleData,
+                    'Workshop events loaded': debugInfo.modules.workshopEvents,
+                    'Workshop loader available': debugInfo.modules.workshopLoader,
+                    'Generator available': debugInfo.modules.scheduleGenerator,
+                    'Widget core available': debugInfo.modules.widgetCore
+                };
+                console.table(info);
+                console.log('Full debug info:', debugInfo);
+                alert('Widget info logged to console (F12)');
+            } else {
+                alert('Widget not loaded');
+            }
+        }
+
+        function showConsole() {
+            alert('Press F12 to open browser console for detailed logs');
+        }
+
+        function toggleDebug() {
+            debugEnabled = !debugEnabled;
+            window.NZGDC_DEBUG = debugEnabled;
+
+            updateButtonStates();
+
+            if (debugEnabled) {
+                updateStatus('Debug mode enabled - check console for detailed logs', 'info');
+                console.log('%c[NZGDC Debug] Debug mode enabled', 'color: green; font-weight: bold;');
+                console.log('[NZGDC Debug] Available debug info:');
+                console.log('- Widget loader: Detailed module loading progress');
+                console.log('- Workshop loader: Element queries and data population');
+                console.log('- Schedule generator: Workshop container processing');
+                console.log('- Widget core: Initialization and lifecycle events');
+            } else {
+                updateStatus('Debug mode disabled', 'info');
+                console.log('%c[NZGDC Debug] Debug mode disabled', 'color: orange; font-weight: bold;');
+            }
+        }
+
+        function verifyData() {
+            console.log('%c=== NZGDC WIDGET DATA VERIFICATION ===', 'color: blue; font-weight: bold; font-size: 14px;');
+
+            // System status check
+            const systemStatus = {
+                scheduleData: typeof window.SCHEDULE_DATA !== 'undefined',
+                workshopEvents: typeof window.WORKSHOP_EVENTS !== 'undefined',
+                widgetAPI: typeof window.NZGDCWidget !== 'undefined',
+                widgetReady: window.NZGDCWidget ? window.NZGDCWidget.isReady() : false
+            };
+
+            console.log('System Status:', systemStatus);
+
+            // Data integrity check
+            if (window.SCHEDULE_DATA && window.WORKSHOP_EVENTS) {
+                let totalWorkshops = 0;
+                let workshopsWithData = 0;
+                let missingWorkshops = [];
+
+                window.SCHEDULE_DATA.timeSlots.forEach(timeSlot => {
+                    console.log(`\n--- ${timeSlot.title} (${timeSlot.workshops.length} workshops) ---`);
+                    timeSlot.workshops.forEach(workshop => {
+                        totalWorkshops++;
+                        const hasData = window.WORKSHOP_EVENTS[workshop.id];
+
+                        if (hasData) {
+                            workshopsWithData++;
+                            console.log(`✅ ${workshop.id}: ${hasData.title}`);
+                            console.log(`   Category: ${hasData.category} | Speakers: ${hasData.speakers?.length || 0}`);
+                        } else {
+                            missingWorkshops.push(workshop.id);
+                            console.log(`❌ ${workshop.id}: NO DATA FOUND`);
+                        }
+                    });
+                });
+
+                console.log(`\n📊 Summary: ${workshopsWithData}/${totalWorkshops} workshops have data`);
+                if (missingWorkshops.length > 0) {
+                    console.error('Missing workshop data for:', missingWorkshops);
+                }
+            }
+
+            // DOM verification
+            const containers = document.querySelectorAll('.nzgdc-event-panel-container[data-event-id]');
+            const widgets = document.querySelectorAll('.nzgdc-schedule-widget');
+
+            console.log(`\n🏗️ DOM Status:`);
+            console.log(`- Widget instances: ${widgets.length}`);
+            console.log(`- Workshop containers: ${containers.length}`);
+
+            if (containers.length > 0) {
+                console.log('Workshop container IDs:', Array.from(containers).map(c => c.dataset.eventId));
+            }
+
+            // Debug info if available
+            if (window.NZGDCWidget && typeof window.NZGDCWidget.getDebugInfo === 'function') {
+                console.log('\n🔧 Widget Debug Info:', window.NZGDCWidget.getDebugInfo());
+            }
+
+            updateStatus(`Data verification complete - check console for details`, 'success');
+        }
+
+
+    </script>
+
+    <!-- Auto-load widget -->
+    <script src="nzgdc-schedule-widget-modular.js"></script>
+
+    <script>
+        // Initialize button states
+        updateButtonStates();
+
+        // Auto-initialize when widget API is ready
+        if (window.NZGDCWidget) {
+            window.NZGDCWidget.ready(async () => {
+                currentWidget = await createWidget();
+                if (currentWidget) {
+                    updateStatus('NZGDC Thursday Schedule loaded successfully!', 'success');
+                } else {
+                    updateStatus('Failed to load schedule widget', 'error');
+                }
+            });
+        } else {
+            // Wait for widget API to become available
+            const checkWidget = () => {
+                if (window.NZGDCWidget) {
+                    window.NZGDCWidget.ready(async () => {
+                        currentWidget = await createWidget();
+                        if (currentWidget) {
+                            updateStatus('NZGDC Thursday Schedule loaded successfully!', 'success');
+                        } else {
+                            updateStatus('Failed to load schedule widget', 'error');
+                        }
+                    });
+                } else {
+                    setTimeout(checkWidget, 100);
+                }
+            };
+            setTimeout(checkWidget, 100);
+        }
+    </script>
+</body>
+</html>
