@@ -48,15 +48,62 @@
             position: relative;
         }
 
-        /* Morning Schedule Sub Navigation - Contains Filters */
+        /* Morning Schedule Sub Navigation - Contains Time Navigation and Filters */
         .nzgdc-morning-schedule-sub-navigation {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             align-items: center;
             width: 100%;
             max-width: var(--container-max-width);
             height: var(--navigation-height);
             background-color: var(--color-white);
+        }
+
+        /* Schedule Time Navigation */
+        .nzgdc-schedule-time-navigation {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            width: 739px;
+            height: 70px;
+        }
+
+        /* Morning Events Button */
+        .nzgdc-morning-events-button {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 342px;
+            height: 70px;
+            background-color: rgba(240, 223, 86, 1);
+            border: none;
+            cursor: pointer;
+            color: var(--color-black);
+            font-family: var(--font-primary);
+            font-size: 36px;
+            font-weight: 600;
+            font-style: heavy;
+            text-transform: uppercase;
+        }
+
+        /* Afternoon Events Button */
+        .nzgdc-afternoon-events-button {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 377px;
+            height: 70px;
+            background-color: rgba(23, 75, 235, 1);
+            border: none;
+            cursor: pointer;
+            color: var(--color-white);
+            font-family: var(--font-primary);
+            font-size: 36px;
+            font-weight: 600;
+            font-style: heavy;
+            text-transform: uppercase;
         }
 
         .nzgdc-morning-filters-section {
@@ -222,6 +269,36 @@
             background-color: inherit;
         }
 
+        /* Break Schedule Block */
+        .nzgdc-break-schedule {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            width: 1630px;
+            height: 233px;
+            background-color: rgba(0, 0, 0, 1);
+            margin: 0 auto;
+        }
+
+        .nzgdc-break-schedule h2 {
+            color: var(--color-white);
+            font-family: var(--font-primary);
+            font-size: 48px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin: 0;
+        }
+
+        .nzgdc-break-schedule p {
+            color: var(--color-white);
+            font-family: var(--font-medium);
+            font-size: 24px;
+            font-weight: 400;
+            margin: 0;
+        }
+
         /* Morning Event Rows - Flexible Layout */
         .nzgdc-morning-event-row {
             display: flex;
@@ -245,10 +322,26 @@
             height: var(--event-panel-height);
         }
 
+        /* Morning Event Main Container - For Square Panels */
+        .nzgdc-morning-event-main {
+            flex: 1;
+            max-width: 300px;
+            width: 300px;
+            height: 300px;
+        }
+
         /* Morning Event Panel Container - Optimized for Dynamic Content */
         .nzgdc-morning-event-panel-container {
             width: var(--event-panel-width);
             height: var(--event-panel-height);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Morning Event Panel Main Container - For Square Panels */
+        .nzgdc-morning-event-panel-main-container {
+            width: 300px;
+            height: 300px;
             overflow: hidden;
             position: relative;
         }
@@ -390,12 +483,23 @@
     <div class="nzgdc-morning-schedule-view">
         <!-- Static Navigation Section -->
         <div class="nzgdc-morning-schedule-sub-navigation">
+            <!-- Schedule Time Navigation -->
+            <div class="nzgdc-schedule-time-navigation">
+                <button class="nzgdc-morning-events-button">
+                    <span style="width: 312px; height: 46px; color: rgba(0, 0, 0, 1); font-family: Futura PT Heavy; font-size: 36px; font-weight: 600; font-style: heavy;">Morning Events</span>
+                </button>
+                <button class="nzgdc-afternoon-events-button">
+                    <span style="width: 347px; height: 46px; color: rgba(255, 255, 255, 1); font-family: Futura PT Heavy; font-size: 36px; font-weight: 600; font-style: heavy;">Afternoon Events</span>
+                </button>
+            </div>
+
+            <!-- Filters Section -->
             <div class="nzgdc-morning-filters-section">
                 <div class="nzgdc-morning-filters-label">
                     <span class="nzgdc-morning-filters-label-text">Filters:</span>
                 </div>
                 <div class="nzgdc-morning-filters-value">
-                    <span class="nzgdc-morning-filters-value-text">None ▶</span>
+                    <span class="nzgdc-morning-filters-value-text">NONE ▶</span>
                 </div>
             </div>
         </div>
@@ -722,6 +826,179 @@
             line-height: 21px;
             overflow-wrap: break-word;
         }
+
+        /*
+        ====================================================================
+        MAIN EVENT PANEL STYLES - For square format panels
+        ====================================================================
+        */
+
+        .nzgdc-event-panel-main {
+            --font-family-demi: 'Futura PT Demi', 'Futura', Arial, sans-serif;
+            --font-family-bold: 'Futura PT Bold', 'Futura', Arial, sans-serif;
+            --font-family-heavy: 'Futura PT Heavy', 'Futura', Arial, sans-serif;
+            --font-family-medium: 'Futura PT Medium', 'Futura', Arial, sans-serif;
+            --color-primary: #F53E3E;
+            --color-bg: rgba(255, 255, 255, 1);
+            --color-overlay: rgba(0, 0, 0, 0.75);
+            --color-title: rgba(0, 0, 0, 1);
+            --color-category-text: rgba(255, 255, 255, 1);
+            --color-speaker: rgba(255, 255, 255, 1);
+            --color-speaker-secondary: rgba(204, 204, 204, 1);
+
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 300px;
+            height: 300px;
+            background-color: var(--color-bg);
+            font-family: var(--font-family-demi);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Event Category */
+        .nzgdc-event-category-main {
+            width: 300px;
+            height: 30px;
+            background-color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            padding-left: 12px;
+            flex-shrink: 0;
+        }
+
+        .nzgdc-category-text-main {
+            width: 100%;
+            height: 22px;
+            color: var(--color-category-text);
+            font-family: var(--font-family-demi);
+            font-size: 18px;
+            font-weight: 500;
+            text-transform: uppercase;
+            line-height: 22px;
+            overflow-wrap: break-word;
+        }
+
+        /* Event Panel Title */
+        .nzgdc-event-panel-title-main {
+            width: 300px;
+            min-height: 70px;
+            background-color: var(--color-bg);
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            flex-shrink: 0;
+        }
+
+        .nzgdc-title-text-main {
+            width: 100%;
+            min-height: 54px;
+            color: var(--color-title);
+            font-family: var(--font-family-bold);
+            font-size: 21px;
+            font-weight: 700;
+            line-height: 27px;
+            display: flex;
+            align-items: center;
+            overflow-wrap: break-word;
+        }
+
+        /* Event Panel Thumbnail */
+        .nzgdc-event-panel-thumbnail-main {
+            width: 300px;
+            height: 200px;
+            position: relative;
+            background-image: url('');
+            background-size: cover;
+            background-position: center;
+            flex: 1;
+        }
+
+        .nzgdc-session-thumbnail-main {
+            width: 300px;
+            height: 200px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .nzgdc-event-panel-overlay-main {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            gap: 5px;
+            padding: 20px;
+            width: 300px;
+            height: 200px;
+            background-color: var(--color-overlay);
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .nzgdc-speaker-details-main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 260px;
+            height: 46px;
+            text-align: center;
+        }
+
+        .nzgdc-speaker-name-main {
+            width: 260px;
+            height: 23px;
+            color: var(--color-speaker);
+            font-family: var(--font-family-demi);
+            font-size: 18px;
+            font-weight: 500;
+            font-style: italic;
+            line-height: 23px;
+            overflow-wrap: break-word;
+        }
+
+        .nzgdc-speaker-position-company-main {
+            width: 260px;
+            height: 23px;
+            color: var(--color-speaker-secondary);
+            font-family: var(--font-family-medium);
+            font-size: 18px;
+            font-weight: 400;
+            line-height: 23px;
+            overflow-wrap: break-word;
+        }
+
+        .nzgdc-call-to-action-main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 200px;
+            height: 61px;
+            cursor: pointer;
+        }
+
+        .nzgdc-open-marker-main {
+            width: 25px;
+            height: 20px;
+            background-color: var(--color-category-text);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .nzgdc-cta-text-main {
+            width: 200px;
+            height: 21px;
+            color: var(--color-category-text);
+            font-family: var(--font-family-heavy);
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 21px;
+            overflow-wrap: break-word;
+        }
     </style>
 
     <script>
@@ -743,29 +1020,55 @@
             timeSlots: [
                 {
                     id: 'early-morning',
-                    timeRange: '8.00am - 10.00am',
+                    timeRange: '10.00am - 10.30am',
                     title: 'Early Morning Panels',
                     theme: 'early', // Controls styling (yellow theme)
                     events: [
-                        { id: 'panel-e1', category: 'Industry Insights', title: 'The Future of New Zealand Game Development' },
-                        { id: 'panel-e2', category: 'Career Development', title: 'Breaking Into Game Development' },
-                        { id: 'panel-e3', category: 'Industry Trends', title: 'Indie Success Stories from NZ' },
-                        { id: 'panel-e4', category: 'Technology', title: 'AI in Game Development' }
+                        { id: 'panel-e1', category: 'Industry Insights', title: 'The Future of New Zealand Game Development', type: 'big' },
+                        { id: 'panel-e2', category: 'Career Development', title: 'Breaking Into Game Development', type: 'big' },
+                        { id: 'panel-e3', category: 'Industry Trends', title: 'Indie Success Stories from NZ', type: 'big' },
+                        { id: 'panel-e4', category: 'Technology', title: 'AI in Game Development', type: 'big' },
+                        { id: 'panel-e5', category: 'Workshop', title: 'Unity Basics Workshop', type: 'big' }
                     ]
                 },
                 {
+                    id: 'morning-break',
+                    type: 'break',
+                    title: 'Morning Break',
+                    timeRange: '10.30am - 10.55am (25 mins)'
+                },
+                {
                     id: 'mid-morning',
-                    timeRange: '10.30am - 12.30pm',
+                    timeRange: '10.55am - 11.45am',
                     title: 'Mid Morning Sessions',
                     theme: 'mid', // Controls styling (bright yellow theme)
                     events: [
-                        { id: 'panel-m1', category: 'Business & Strategy', title: 'Publishing in the Pacific Region' },
-                        { id: 'panel-m2', category: 'Community Building', title: 'Growing Game Development Communities' },
-                        { id: 'panel-m3', category: 'Diversity & Inclusion', title: 'Building Inclusive Game Teams' },
-                        { id: 'panel-m4', category: 'Innovation', title: 'Emerging Technologies in Games' },
-                        { id: 'panel-m5', category: 'Education', title: 'Game Development Education in NZ' },
-                        { id: 'panel-m6', category: 'Sustainability', title: 'Sustainable Game Development Practices' }
+                        { id: 'panel-m1', category: 'Business & Strategy', title: 'Publishing in the Pacific Region', type: 'main' },
+                        { id: 'panel-m2', category: 'Community Building', title: 'Growing Game Development Communities', type: 'main' },
+                        { id: 'panel-m3', category: 'Diversity & Inclusion', title: 'Building Inclusive Game Teams', type: 'big' },
+                        { id: 'panel-m4', category: 'Innovation', title: 'Emerging Technologies in Games', type: 'big' },
+                        { id: 'panel-m5', category: 'Education', title: 'Game Development Education in NZ', type: 'big' }
                     ]
+                },
+                {
+                    id: 'late-morning',
+                    timeRange: '11.55am - 12.25pm',
+                    title: 'Late Morning Sessions',
+                    theme: 'early',
+                    events: [
+                        { id: 'panel-l1', category: 'Technical', title: 'Advanced Programming Techniques', type: 'big' },
+                        { id: 'panel-l2', category: 'Art & Design', title: 'Visual Design for Indie Games', type: 'big' },
+                        { id: 'panel-l3', category: 'Marketing', title: 'Social Media for Game Developers', type: 'big' },
+                        { id: 'panel-l4', category: 'Business', title: 'Funding Your Game Studio', type: 'big' },
+                        { id: 'panel-l5', category: 'Career', title: 'Portfolio Building Workshop', type: 'main' },
+                        { id: 'panel-l6', category: 'Networking', title: 'Industry Connections', type: 'main' }
+                    ]
+                },
+                {
+                    id: 'lunch-break',
+                    type: 'break',
+                    title: 'Lunch Break',
+                    timeRange: '12.25pm - 1.25pm (1 hour)'
                 }
             ]
         };
@@ -778,8 +1081,8 @@
             'panel-e1': {
                 category: 'Industry Insights',
                 title: 'The Future of New Zealand Game Development',
-                timeframe: '2 hours',
-                thumbnail: '', // Path to thumbnail image
+                timeframe: '30 minutes',
+                thumbnail: '',
                 speakers: [
                     { name: 'Sarah Mitchell', position: 'CEO at Kiwi Games Studio' },
                     { name: 'David Thompson', position: 'Industry Analyst at GameTech NZ' }
@@ -788,7 +1091,7 @@
             'panel-e2': {
                 category: 'Career Development',
                 title: 'Breaking Into Game Development',
-                timeframe: '2 hours',
+                timeframe: '30 minutes',
                 thumbnail: '',
                 speakers: [
                     { name: 'Jessica Chen', position: 'HR Director at Pacific Game Studios' }
@@ -797,7 +1100,7 @@
             'panel-e3': {
                 category: 'Industry Trends',
                 title: 'Indie Success Stories from NZ',
-                timeframe: '2 hours',
+                timeframe: '30 minutes',
                 thumbnail: '',
                 speakers: [
                     { name: 'Marcus Williams', position: 'Founder at Indie Studios NZ' }
@@ -806,16 +1109,25 @@
             'panel-e4': {
                 category: 'Technology',
                 title: 'AI in Game Development',
-                timeframe: '2 hours',
+                timeframe: '30 minutes',
                 thumbnail: '',
                 speakers: [
                     { name: 'Dr. Emily Roberts', position: 'AI Researcher at Victoria University' }
                 ]
             },
+            'panel-e5': {
+                category: 'Workshop',
+                title: 'Unity Basics Workshop',
+                timeframe: '30 minutes',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Mike Johnson', position: 'Unity Developer at GameTech' }
+                ]
+            },
             'panel-m1': {
                 category: 'Business & Strategy',
                 title: 'Publishing in the Pacific Region',
-                timeframe: '2 hours',
+                timeframe: '50 minutes',
                 thumbnail: '',
                 speakers: [
                     { name: 'James Taylor', position: 'Publishing Director at Pacific Interactive' }
@@ -824,7 +1136,7 @@
             'panel-m2': {
                 category: 'Community Building',
                 title: 'Growing Game Development Communities',
-                timeframe: '2 hours',
+                timeframe: '50 minutes',
                 thumbnail: '',
                 speakers: [
                     { name: 'Lisa Park', position: 'Community Manager at NZ Game Developers' }
@@ -833,7 +1145,7 @@
             'panel-m3': {
                 category: 'Diversity & Inclusion',
                 title: 'Building Inclusive Game Teams',
-                timeframe: '2 hours',
+                timeframe: '50 minutes',
                 thumbnail: '',
                 speakers: [
                     { name: 'Maya Patel', position: 'Diversity Consultant at Inclusive Gaming' }
@@ -842,7 +1154,7 @@
             'panel-m4': {
                 category: 'Innovation',
                 title: 'Emerging Technologies in Games',
-                timeframe: '2 hours',
+                timeframe: '50 minutes',
                 thumbnail: '',
                 speakers: [
                     { name: 'Alex Kim', position: 'Tech Lead at Future Games Studio' }
@@ -851,19 +1163,64 @@
             'panel-m5': {
                 category: 'Education',
                 title: 'Game Development Education in NZ',
-                timeframe: '2 hours',
+                timeframe: '50 minutes',
                 thumbnail: '',
                 speakers: [
                     { name: 'Prof. Rachel Green', position: 'Head of Games Program at Auckland University' }
                 ]
             },
-            'panel-m6': {
-                category: 'Sustainability',
-                title: 'Sustainable Game Development Practices',
-                timeframe: '2 hours',
+            'panel-l1': {
+                category: 'Technical',
+                title: 'Advanced Programming Techniques',
+                timeframe: '30 minutes',
                 thumbnail: '',
                 speakers: [
-                    { name: 'Tom Anderson', position: 'Sustainability Officer at EcoGames NZ' }
+                    { name: 'Robert Chen', position: 'Senior Developer at TechCorp' }
+                ]
+            },
+            'panel-l2': {
+                category: 'Art & Design',
+                title: 'Visual Design for Indie Games',
+                timeframe: '30 minutes',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Emma Wilson', position: 'Art Director at Creative Studios' }
+                ]
+            },
+            'panel-l3': {
+                category: 'Marketing',
+                title: 'Social Media for Game Developers',
+                timeframe: '30 minutes',
+                thumbnail: '',
+                speakers: [
+                    { name: 'David Smith', position: 'Marketing Manager at Indie Games' }
+                ]
+            },
+            'panel-l4': {
+                category: 'Business',
+                title: 'Funding Your Game Studio',
+                timeframe: '30 minutes',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Sarah Lee', position: 'Investment Advisor at Game Fund' }
+                ]
+            },
+            'panel-l5': {
+                category: 'Career',
+                title: 'Portfolio Building Workshop',
+                timeframe: '30 minutes',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Jason Park', position: 'Portfolio Consultant' }
+                ]
+            },
+            'panel-l6': {
+                category: 'Networking',
+                title: 'Industry Connections',
+                timeframe: '30 minutes',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Maria Rodriguez', position: 'Industry Relations Manager' }
                 ]
             }
         };
@@ -942,7 +1299,7 @@
             }
 
             // Create customized event panel from template
-            createEventPanel(eventData) {
+            createEventPanel(eventData, eventType = 'big') {
                 if (!this.template) {
                     throw new Error('Template not loaded. Call loadTemplate() first.');
                 }
@@ -950,6 +1307,11 @@
                 const clone = this.template.cloneNode(true);
 
                 try {
+                    // If we need main panel style, try to load that template instead
+                    if (eventType === 'main') {
+                        return this.createMainEventPanel(eventData);
+                    }
+
                     // Customize the content based on eventData
                     this.updateEventContent(clone, eventData);
                     return clone;
@@ -957,6 +1319,37 @@
                     console.error('Failed to create event panel:', error, eventData);
                     return this.createErrorPanel(error.message);
                 }
+            }
+
+            // Create main event panel (square format)
+            createMainEventPanel(eventData) {
+                // Create a basic main panel structure if external template isn't available
+                const mainPanel = document.createElement('div');
+                mainPanel.className = 'nzgdc-event-panel-main';
+
+                mainPanel.innerHTML = `
+                    <div class="nzgdc-event-category-main">
+                        <div class="nzgdc-category-text-main">${eventData.category}</div>
+                    </div>
+                    <div class="nzgdc-event-panel-title-main">
+                        <div class="nzgdc-title-text-main">${eventData.title}</div>
+                    </div>
+                    <div class="nzgdc-event-panel-thumbnail-main">
+                        <div class="nzgdc-session-thumbnail-main"></div>
+                        <div class="nzgdc-event-panel-overlay-main">
+                            <div class="nzgdc-speaker-details-main">
+                                <div class="nzgdc-speaker-name-main">${eventData.speakers?.[0]?.name || 'Speaker Name'}</div>
+                                <div class="nzgdc-speaker-position-company-main">${eventData.speakers?.[0]?.position || 'Position + Company'}</div>
+                            </div>
+                            <div class="nzgdc-call-to-action-main">
+                                <div class="nzgdc-open-marker-main"></div>
+                                <div class="nzgdc-cta-text-main">Click for More Event Details</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                return mainPanel;
             }
 
             // Update event panel content with specific data
@@ -1048,6 +1441,11 @@
 
             // Generate complete time slot HTML structure
             generateTimeSlot(timeSlot) {
+                // Handle break blocks differently
+                if (timeSlot.type === 'break') {
+                    return this.generateBreakBlock(timeSlot);
+                }
+
                 const timeSlotEl = document.createElement('div');
                 timeSlotEl.className = `nzgdc-morning-time-category nzgdc-morning-time-category-${timeSlot.theme}`;
                 timeSlotEl.setAttribute('data-time-slot', timeSlot.id);
@@ -1071,6 +1469,20 @@
                 return timeSlotEl;
             }
 
+            // Generate break block HTML structure
+            generateBreakBlock(breakSlot) {
+                const breakEl = document.createElement('div');
+                breakEl.className = 'nzgdc-break-schedule';
+                breakEl.setAttribute('data-break-slot', breakSlot.id);
+
+                breakEl.innerHTML = `
+                    <h2>${breakSlot.title}</h2>
+                    <p>${breakSlot.timeRange}</p>
+                `;
+
+                return breakEl;
+            }
+
             // Generate event rows (2 events per row by default)
             generateEventRows(events) {
                 const rows = [];
@@ -1091,10 +1503,15 @@
 
             // Generate individual morning event container
             generateMorningEvent(event) {
+                const eventType = event.type || 'big';
+                const containerClass = eventType === 'main' ? 'nzgdc-morning-event-main' : 'nzgdc-morning-event';
+                const panelContainerClass = eventType === 'main' ? 'nzgdc-morning-event-panel-main-container' : 'nzgdc-morning-event-panel-container';
+
                 return `
-                    <div class="nzgdc-morning-event">
-                        <div class="nzgdc-morning-event-panel-container"
+                    <div class="${containerClass}">
+                        <div class="${panelContainerClass}"
                              data-event-id="${event.id}"
+                             data-event-type="${eventType}"
                              data-category="${event.category}"
                              data-title="${event.title}">
                             <div class="nzgdc-morning-loading-placeholder">Loading ${event.title}...</div>
@@ -1135,7 +1552,7 @@
                     await this.eventLoader.loadTemplate();
 
                     // Find all event containers
-                    const containers = this.container.querySelectorAll('.nzgdc-morning-event-panel-container[data-event-id]');
+                    const containers = this.container.querySelectorAll('.nzgdc-morning-event-panel-container[data-event-id], .nzgdc-morning-event-panel-main-container[data-event-id]');
                     console.log(`Loading content for ${containers.length} morning event containers`);
 
                     // Load each event
@@ -1155,6 +1572,7 @@
             // Load content for a single event container
             async loadSingleEvent(container) {
                 const eventId = container.dataset.eventId;
+                const eventType = container.dataset.eventType || 'big';
                 const eventData = morningEvents[eventId];
 
                 try {
@@ -1162,7 +1580,7 @@
                         throw new Error(`No data found for morning event: ${eventId}`);
                     }
 
-                    const eventPanel = this.eventLoader.createEventPanel(eventData);
+                    const eventPanel = this.eventLoader.createEventPanel(eventData, eventType);
                     container.innerHTML = '';
                     container.appendChild(eventPanel);
 
