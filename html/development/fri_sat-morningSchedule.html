@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friday & Saturday Morning Schedule - NZGDC 2025</title>
+    <style>
+        /*
+        ====================================================================
+        CSS SECTION - To be extracted to morningSchedule.css in the future
+        ====================================================================
+        */
+
+        /* CSS Custom Properties (Variables) - Optimization Implementation */
+        :root {
+            --color-yellow: rgba(255, 236, 81, 1);
+            --color-yellow-bright: rgba(240, 223, 86, 1);
+            --color-yellow-hover: rgba(255, 226, 61, 1);
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-gray-light: #f0f0f0;
+            --color-gray-medium: #666;
+            --color-gray-border: #ddd;
+
+            --font-primary: 'Futura PT Heavy', 'Futura', Arial, sans-serif;
+            --font-medium: 'Futura PT Medium', 'Futura', Arial, sans-serif;
+
+            --container-max-width: 1630px;
+            --event-panel-width: 620px;
+            --event-panel-height: 300px;
+            --navigation-height: 70px;
+        }
+
+        /* Scoped reset for the morning schedule component only */
+        .nzgdc-morning-schedule-view * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .nzgdc-morning-schedule-view {
+            font-family: var(--font-primary);
+            background-color: var(--color-yellow);
+            width: 100%;
+            max-width: var(--container-max-width);
+            height: auto;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Morning Schedule Sub Navigation - Contains Filters */
+        .nzgdc-morning-schedule-sub-navigation {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            width: 100%;
+            max-width: var(--container-max-width);
+            height: var(--navigation-height);
+            background-color: var(--color-white);
+        }
+
+        .nzgdc-morning-filters-section {
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .nzgdc-morning-filters-label {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 136px;
+            height: var(--navigation-height);
+            background-color: var(--color-yellow-bright);
+        }
+
+        .nzgdc-morning-filters-label-text {
+            color: var(--color-black);
+            font-family: var(--font-primary);
+            font-size: 36px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        .nzgdc-morning-filters-value {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            width: 170px;
+            height: var(--navigation-height);
+            background-color: var(--color-white);
+        }
+
+        .nzgdc-morning-filters-value-text {
+            color: var(--color-black);
+            font-family: var(--font-primary);
+            font-size: 36px;
+            font-weight: 600;
+            text-align: center;
+            text-transform: uppercase;
+            line-height: 1;
+        }
+
+        /* Morning Time Categories - Base Styles */
+        .nzgdc-morning-time-category {
+            width: 100%;
+            max-width: var(--container-max-width);
+        }
+
+        .nzgdc-morning-time-category-early {
+            background-color: var(--color-yellow);
+        }
+
+        .nzgdc-morning-time-category-mid {
+            background-color: var(--color-yellow);
+        }
+
+        /* Morning Session Schedule Header - Consolidated Base Styles */
+        .nzgdc-morning-session-schedule {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            height: 46px;
+            margin: 17px 0 10px 0;
+            padding: 0 25px;
+        }
+
+        /* Base text styling - Consolidated */
+        .nzgdc-morning-session-text {
+            font-family: var(--font-primary);
+            font-size: 36px;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        /* Theme-specific colors */
+        .nzgdc-morning-time-category-early .nzgdc-morning-session-text {
+            color: var(--color-black);
+        }
+
+        .nzgdc-morning-time-category-mid .nzgdc-morning-session-text {
+            color: var(--color-black);
+        }
+
+        /* Apply base text styling to specific elements */
+        .nzgdc-morning-session-times,
+        .nzgdc-morning-session-title {
+            @extend .nzgdc-morning-session-text; /* Note: This would work with SCSS, using classes directly for now */
+        }
+
+        .nzgdc-morning-time-category-early .nzgdc-morning-session-times,
+        .nzgdc-morning-time-category-early .nzgdc-morning-session-title {
+            color: var(--color-black);
+            font-family: var(--font-primary);
+            font-size: 36px;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .nzgdc-morning-time-category-mid .nzgdc-morning-session-times,
+        .nzgdc-morning-time-category-mid .nzgdc-morning-session-title {
+            color: var(--color-black);
+            font-family: var(--font-primary);
+            font-size: 36px;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        /* Underline elements */
+        .nzgdc-morning-underline {
+            width: calc(100% - 50px);
+            height: 5px;
+            margin: 0 auto;
+            display: block;
+            flex-shrink: 0;
+        }
+
+        .nzgdc-morning-event-times-early .nzgdc-morning-underline {
+            background-color: var(--color-black);
+        }
+
+        .nzgdc-morning-event-times-mid .nzgdc-morning-underline {
+            background-color: var(--color-black);
+        }
+
+        /* Morning Event Times Containers */
+        .nzgdc-morning-event-times-early {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            width: 100%;
+            max-width: var(--container-max-width);
+            height: 81px;
+            background-color: var(--color-yellow);
+        }
+
+        .nzgdc-morning-event-times-mid {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            width: 100%;
+            max-width: var(--container-max-width);
+            height: 81px;
+            background-color: var(--color-yellow);
+        }
+
+        /* Scheduled Morning Events Container */
+        .nzgdc-scheduled-morning-events {
+            width: 100%;
+            max-width: var(--container-max-width);
+            padding: 40px;
+            background-color: inherit;
+        }
+
+        /* Morning Event Rows - Flexible Layout */
+        .nzgdc-morning-event-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            min-height: var(--event-panel-height);
+            margin: 0 0 40px 0;
+        }
+
+        .nzgdc-morning-event-row:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Morning Event Containers - Flexible Sizing */
+        .nzgdc-morning-event {
+            flex: 1;
+            max-width: var(--event-panel-width);
+            width: var(--event-panel-width);
+            height: var(--event-panel-height);
+        }
+
+        /* Morning Event Panel Container - Optimized for Dynamic Content */
+        .nzgdc-morning-event-panel-container {
+            width: var(--event-panel-width);
+            height: var(--event-panel-height);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Morning Schedule Footer Navigation */
+        .nzgdc-morning-schedule-footer-navigation {
+            display: flex;
+            justify-content: flex-start;
+            align-items: flex-start;
+            width: 100%;
+            max-width: var(--container-max-width);
+            height: var(--navigation-height);
+            background-color: var(--color-white);
+        }
+
+        /* Back to Top Button - Yellow Theme */
+        .nzgdc-morning-back-to-top {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 249px;
+            height: 56px;
+            background-color: var(--color-yellow);
+            border: none;
+            cursor: pointer;
+            color: var(--color-black);
+            font-family: var(--font-primary);
+            font-size: 36px;
+            font-weight: 600;
+            text-transform: uppercase;
+            transition: background-color 0.3s ease;
+        }
+
+        .nzgdc-morning-back-to-top:hover {
+            background-color: var(--color-yellow-bright);
+        }
+
+        /* Loading and Error States */
+        .nzgdc-morning-loading-placeholder {
+            width: var(--event-panel-width);
+            height: var(--event-panel-height);
+            background-color: var(--color-gray-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-medium);
+            color: var(--color-gray-medium);
+            border: 1px solid var(--color-gray-border);
+            font-size: 16px;
+        }
+
+        .nzgdc-morning-error-placeholder {
+            width: var(--event-panel-width);
+            height: var(--event-panel-height);
+            background-color: #ffe6e6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-medium);
+            color: #cc0000;
+            border: 1px solid #ffcccc;
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Responsive Breakpoints - Optimized */
+        @media (max-width: 1680px) {
+            .nzgdc-morning-schedule-view {
+                padding: 0;
+            }
+        }
+
+        @media (max-width: 1300px) {
+            .nzgdc-morning-event-row {
+                flex-direction: column;
+                height: auto;
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nzgdc-morning-session-schedule {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+                height: auto;
+                padding: 10px;
+            }
+
+            .nzgdc-morning-time-category-early .nzgdc-morning-session-times,
+            .nzgdc-morning-time-category-early .nzgdc-morning-session-title,
+            .nzgdc-morning-time-category-mid .nzgdc-morning-session-times,
+            .nzgdc-morning-time-category-mid .nzgdc-morning-session-title {
+                font-size: 24px;
+            }
+
+            .nzgdc-scheduled-morning-events {
+                padding: 20px;
+            }
+
+            .nzgdc-morning-event-row {
+                margin-bottom: 20px;
+            }
+
+            .nzgdc-morning-back-to-top {
+                font-size: 24px;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .nzgdc-morning-schedule-view {
+                padding: 0;
+            }
+
+            .nzgdc-scheduled-morning-events {
+                padding: 10px;
+            }
+
+            .nzgdc-morning-filters-section {
+                padding: 10px 15px;
+            }
+
+            .nzgdc-morning-filters-label {
+                font-size: 16px;
+            }
+
+            .nzgdc-morning-filters-value {
+                font-size: 14px;
+                padding: 3px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="nzgdc-morning-schedule-view">
+        <!-- Static Navigation Section -->
+        <div class="nzgdc-morning-schedule-sub-navigation">
+            <div class="nzgdc-morning-filters-section">
+                <div class="nzgdc-morning-filters-label">
+                    <span class="nzgdc-morning-filters-label-text">Filters:</span>
+                </div>
+                <div class="nzgdc-morning-filters-value">
+                    <span class="nzgdc-morning-filters-value-text">None ▶</span>
+                </div>
+            </div>
+        </div>
+
+        <!--
+        ====================================================================
+        DYNAMIC CONTENT SECTION - Generated by JavaScript
+        This replaces the static HTML structure with data-driven generation
+        ====================================================================
+        -->
+        <div id="morning-schedule-content">
+            <!-- Time slots and morning events will be dynamically inserted here -->
+        </div>
+
+        <!-- Static Footer Section -->
+        <div class="nzgdc-morning-schedule-footer-navigation">
+            <button class="nzgdc-morning-back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                BACK TO TOP
+            </button>
+        </div>
+    </div>
+
+    <!--
+    ====================================================================
+    EMBEDDED EVENT PANEL TEMPLATE - For local file compatibility
+    This template is used as fallback when eventPanel_Big.html can't be loaded
+    ====================================================================
+    -->
+    <template id="morning-event-panel-template">
+        <div class="nzgdc-morning-event-panel-big">
+            <!-- Event Panel Thumbnail (Left Side) -->
+            <div class="nzgdc-morning-event-panel-big-thumbnail">
+                <!-- Session Thumbnail (Background) -->
+                <div class="nzgdc-morning-session-thumbnail-big"></div>
+
+                <!-- Event Detail Overlay -->
+                <div class="nzgdc-morning-event-detail-overlay-big">
+                    <!-- Call To Action -->
+                    <div class="nzgdc-morning-call-to-action-big">
+                        <div class="nzgdc-morning-open-marker-big"></div>
+                        <div class="nzgdc-morning-cta-text-big">Click for More Event Details</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Panel Details (Right Side) -->
+            <div class="nzgdc-morning-event-panel-big-details">
+                <!-- Event Category (Top) -->
+                <div class="nzgdc-morning-event-category-big">
+                    <div class="nzgdc-morning-category-text-big">Morning Panels & Events</div>
+                </div>
+
+                <!-- Event Title (Middle) -->
+                <div class="nzgdc-morning-event-title-big">
+                    <div class="nzgdc-morning-title-text-big">This is a Placeholder Title occupying two lines of space</div>
+                </div>
+
+                <!-- Event Speaker Details (Bottom) -->
+                <div class="nzgdc-morning-event-speaker-details-big">
+                    <!-- Introduction text -->
+                    <div class="nzgdc-morning-introduction-text-big">NZGDC 2025 Morning Event by</div>
+
+                    <!-- Speaker Details -->
+                    <div class="nzgdc-morning-speaker-details-big">
+                        <!-- Speaker 1 -->
+                        <div class="nzgdc-morning-speaker-biolines-big">
+                            <div class="nzgdc-morning-speaker-bioName-big">Speaker Name</div>
+                            <div class="nzgdc-morning-speaker-bioPosition-big">Position + Company</div>
+                        </div>
+
+                        <!-- Speaker 2 -->
+                        <div class="nzgdc-morning-speaker-biolines-big">
+                            <div class="nzgdc-morning-speaker-bioName-big">Speaker Name</div>
+                            <div class="nzgdc-morning-speaker-bioPosition-big">Position + Company</div>
+                        </div>
+
+                        <!-- Speaker 3 -->
+                        <div class="nzgdc-morning-speaker-biolines-big">
+                            <div class="nzgdc-morning-speaker-bioName-big">Speaker Name</div>
+                            <div class="nzgdc-morning-speaker-bioPosition-big">Position + Company</div>
+                        </div>
+                    </div>
+
+                    <!-- Timeframe -->
+                    <div class="nzgdc-morning-timeframe-big">
+                        <div class="nzgdc-morning-timeframe-text-big">Timeframe (Duration)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <style>
+        /*
+        ====================================================================
+        EMBEDDED EVENT PANEL STYLES - For local file compatibility
+        These styles are copied from eventPanel_Big.html with morning theme
+        ====================================================================
+        */
+
+        .nzgdc-morning-event-panel-big {
+            --font-family-demi: 'Futura PT Demi', 'Futura', Arial, sans-serif;
+            --font-family-bold: 'Futura PT Bold', 'Futura', Arial, sans-serif;
+            --font-family-heavy: 'Futura PT Heavy', 'Futura', Arial, sans-serif;
+            --font-family-medium: 'Futura PT Medium', 'Futura', Arial, sans-serif;
+            --color-primary: #F53E3E;
+            --color-bg: rgba(255, 255, 255, 1);
+            --color-overlay: rgba(0, 0, 0, 0.75);
+            --color-title: rgba(0, 0, 0, 1);
+            --color-category-text: rgba(255, 255, 255, 1);
+            --color-intro: rgba(245, 45, 49, 1);
+            --color-speaker: rgba(255, 255, 255, 1);
+            --color-speaker-secondary: rgba(160, 160, 160, 1);
+
+            display: flex;
+            align-items: center;
+            width: 620px;
+            height: 300px;
+            background-color: var(--color-bg);
+            font-family: var(--font-family-demi);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Event Panel Thumbnail (Left Side) */
+        .nzgdc-morning-event-panel-big-thumbnail {
+            width: 300px;
+            height: 300px;
+            position: relative;
+            background-image: url('');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .nzgdc-morning-session-thumbnail-big {
+            width: 300px;
+            height: 300px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .nzgdc-morning-event-detail-overlay-big {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 30px;
+            width: 300px;
+            height: 300px;
+            background-color: var(--color-overlay);
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .nzgdc-morning-call-to-action-big {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            width: 200px;
+            height: 61px;
+            cursor: pointer;
+        }
+
+        .nzgdc-morning-open-marker-big {
+            width: 25px;
+            height: 20px;
+            background-color: var(--color-category-text);
+            clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+        }
+
+        .nzgdc-morning-cta-text-big {
+            width: 200px;
+            height: 21px;
+            color: var(--color-category-text);
+            font-family: var(--font-family-heavy);
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 21px;
+            overflow-wrap: break-word;
+        }
+
+        /* Event Panel Details (Right Side) */
+        .nzgdc-morning-event-panel-big-details {
+            width: 320px;
+            height: 300px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Event Category */
+        .nzgdc-morning-event-category-big {
+            width: 320px;
+            min-height: 30px;
+            background-color: var(--color-primary);
+            display: flex;
+            align-items: center;
+            padding-left: 12px;
+            flex-shrink: 0;
+        }
+
+        .nzgdc-morning-category-text-big {
+            width: 100%;
+            min-height: 22px;
+            color: var(--color-category-text);
+            font-family: var(--font-family-demi);
+            font-size: 18px;
+            font-weight: 500;
+            text-transform: uppercase;
+            line-height: 22px;
+            overflow-wrap: break-word;
+        }
+
+        /* Event Title */
+        .nzgdc-morning-event-title-big {
+            width: 320px;
+            min-height: 70px;
+            background-color: var(--color-bg);
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            flex-shrink: 0;
+        }
+
+        .nzgdc-morning-title-text-big {
+            width: 100%;
+            min-height: 54px;
+            color: var(--color-title);
+            font-family: var(--font-family-bold);
+            font-size: 21px;
+            font-weight: 700;
+            line-height: 27px;
+            display: flex;
+            align-items: center;
+            overflow-wrap: break-word;
+        }
+
+        /* Event Speaker Details */
+        .nzgdc-morning-event-speaker-details-big {
+            width: 320px;
+            flex: 1;
+            min-height: 100px;
+            background-color: #000;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .nzgdc-morning-introduction-text-big {
+            width: 100%;
+            min-height: 18px;
+            color: var(--color-intro);
+            font-family: var(--font-family-heavy);
+            font-size: 14px;
+            font-weight: 600;
+            text-align: left;
+        }
+
+        .nzgdc-morning-speaker-details-big {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            overflow: hidden;
+            min-height: 0;
+            gap: 0.5rem;
+        }
+
+        .nzgdc-morning-speaker-biolines-big {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 36px;
+            flex: 1;
+        }
+
+        .nzgdc-morning-speaker-bioName-big {
+            width: 100%;
+            min-height: 18px;
+            color: var(--color-speaker);
+            font-family: var(--font-family-demi);
+            font-size: 14px;
+            font-weight: 500;
+            font-style: italic;
+            line-height: 18px;
+            text-align: left;
+            overflow-wrap: break-word;
+        }
+
+        .nzgdc-morning-speaker-bioPosition-big {
+            width: 100%;
+            min-height: 18px;
+            color: var(--color-speaker-secondary);
+            font-family: var(--font-family-medium);
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 18px;
+            text-align: left;
+            overflow-wrap: break-word;
+        }
+
+        .nzgdc-morning-timeframe-big {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            min-height: 21px;
+            flex-shrink: 0;
+        }
+
+        .nzgdc-morning-timeframe-text-big {
+            width: 100%;
+            min-height: 21px;
+            color: var(--color-intro);
+            font-family: var(--font-family-heavy);
+            font-size: 16px;
+            font-weight: 600;
+            text-align: left;
+            line-height: 21px;
+            overflow-wrap: break-word;
+        }
+    </style>
+
+    <script>
+        /*
+        ====================================================================
+        JAVASCRIPT SECTION - To be extracted to separate files in the future:
+        - morning-schedule-data.js (Schedule configuration data)
+        - morning-event-data.js (Morning event details)
+        - morning-event-loader.js (Template loading functionality)
+        - morning-schedule-generator.js (HTML generation logic)
+        ====================================================================
+        */
+
+        // ===================================================================
+        // MORNING SCHEDULE DATA CONFIGURATION
+        // Future file: morning-schedule-data.js
+        // ===================================================================
+        const morningScheduleData = {
+            timeSlots: [
+                {
+                    id: 'early-morning',
+                    timeRange: '8.00am - 10.00am',
+                    title: 'Early Morning Panels',
+                    theme: 'early', // Controls styling (yellow theme)
+                    events: [
+                        { id: 'panel-e1', category: 'Industry Insights', title: 'The Future of New Zealand Game Development' },
+                        { id: 'panel-e2', category: 'Career Development', title: 'Breaking Into Game Development' },
+                        { id: 'panel-e3', category: 'Industry Trends', title: 'Indie Success Stories from NZ' },
+                        { id: 'panel-e4', category: 'Technology', title: 'AI in Game Development' }
+                    ]
+                },
+                {
+                    id: 'mid-morning',
+                    timeRange: '10.30am - 12.30pm',
+                    title: 'Mid Morning Sessions',
+                    theme: 'mid', // Controls styling (bright yellow theme)
+                    events: [
+                        { id: 'panel-m1', category: 'Business & Strategy', title: 'Publishing in the Pacific Region' },
+                        { id: 'panel-m2', category: 'Community Building', title: 'Growing Game Development Communities' },
+                        { id: 'panel-m3', category: 'Diversity & Inclusion', title: 'Building Inclusive Game Teams' },
+                        { id: 'panel-m4', category: 'Innovation', title: 'Emerging Technologies in Games' },
+                        { id: 'panel-m5', category: 'Education', title: 'Game Development Education in NZ' },
+                        { id: 'panel-m6', category: 'Sustainability', title: 'Sustainable Game Development Practices' }
+                    ]
+                }
+            ]
+        };
+
+        // ===================================================================
+        // MORNING EVENT DETAILS
+        // Future file: morning-event-data.js
+        // ===================================================================
+        const morningEvents = {
+            'panel-e1': {
+                category: 'Industry Insights',
+                title: 'The Future of New Zealand Game Development',
+                timeframe: '2 hours',
+                thumbnail: '', // Path to thumbnail image
+                speakers: [
+                    { name: 'Sarah Mitchell', position: 'CEO at Kiwi Games Studio' },
+                    { name: 'David Thompson', position: 'Industry Analyst at GameTech NZ' }
+                ]
+            },
+            'panel-e2': {
+                category: 'Career Development',
+                title: 'Breaking Into Game Development',
+                timeframe: '2 hours',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Jessica Chen', position: 'HR Director at Pacific Game Studios' }
+                ]
+            },
+            'panel-e3': {
+                category: 'Industry Trends',
+                title: 'Indie Success Stories from NZ',
+                timeframe: '2 hours',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Marcus Williams', position: 'Founder at Indie Studios NZ' }
+                ]
+            },
+            'panel-e4': {
+                category: 'Technology',
+                title: 'AI in Game Development',
+                timeframe: '2 hours',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Dr. Emily Roberts', position: 'AI Researcher at Victoria University' }
+                ]
+            },
+            'panel-m1': {
+                category: 'Business & Strategy',
+                title: 'Publishing in the Pacific Region',
+                timeframe: '2 hours',
+                thumbnail: '',
+                speakers: [
+                    { name: 'James Taylor', position: 'Publishing Director at Pacific Interactive' }
+                ]
+            },
+            'panel-m2': {
+                category: 'Community Building',
+                title: 'Growing Game Development Communities',
+                timeframe: '2 hours',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Lisa Park', position: 'Community Manager at NZ Game Developers' }
+                ]
+            },
+            'panel-m3': {
+                category: 'Diversity & Inclusion',
+                title: 'Building Inclusive Game Teams',
+                timeframe: '2 hours',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Maya Patel', position: 'Diversity Consultant at Inclusive Gaming' }
+                ]
+            },
+            'panel-m4': {
+                category: 'Innovation',
+                title: 'Emerging Technologies in Games',
+                timeframe: '2 hours',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Alex Kim', position: 'Tech Lead at Future Games Studio' }
+                ]
+            },
+            'panel-m5': {
+                category: 'Education',
+                title: 'Game Development Education in NZ',
+                timeframe: '2 hours',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Prof. Rachel Green', position: 'Head of Games Program at Auckland University' }
+                ]
+            },
+            'panel-m6': {
+                category: 'Sustainability',
+                title: 'Sustainable Game Development Practices',
+                timeframe: '2 hours',
+                thumbnail: '',
+                speakers: [
+                    { name: 'Tom Anderson', position: 'Sustainability Officer at EcoGames NZ' }
+                ]
+            }
+        };
+
+        // ===================================================================
+        // MORNING EVENT TEMPLATE LOADER
+        // Future file: morning-event-loader.js
+        // Implements single template loading optimization
+        // ===================================================================
+        class MorningEventLoader {
+            constructor() {
+                this.template = null;
+                this.isLoading = false;
+                this.loadError = null;
+            }
+
+            // Load the template once and cache it
+            async loadTemplate() {
+                if (this.template) return this.template;
+                if (this.isLoading) {
+                    // Wait for existing load to complete
+                    while (this.isLoading) {
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
+                    return this.template;
+                }
+
+                this.isLoading = true;
+
+                try {
+                    console.log('Loading morning event panel template...');
+
+                    // Try to load external file first (for server environments)
+                    try {
+                        const response = await fetch('eventPanel_Big.html');
+                        if (response.ok) {
+                            const html = await response.text();
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+                            this.template = doc.querySelector('.nzgdc-morning-event-panel-big');
+
+                            if (this.template) {
+                                console.log('External template loaded successfully');
+                                return this.template;
+                            }
+                        }
+                    } catch (fetchError) {
+                        console.log('External template failed, trying embedded template:', fetchError.message);
+                    }
+
+                    // Fallback to embedded template (for local file environments)
+                    const embeddedTemplate = document.querySelector('#morning-event-panel-template');
+                    if (embeddedTemplate) {
+                        this.template = embeddedTemplate.content.querySelector('.nzgdc-morning-event-panel-big');
+                        if (this.template) {
+                            console.log('Embedded template loaded successfully');
+                            return this.template;
+                        }
+                    }
+
+                    throw new Error('No morning event panel template found (neither external nor embedded)');
+
+                } catch (error) {
+                    console.error('Failed to load template:', error);
+                    this.loadError = error;
+
+                    // Provide helpful error message for local file usage
+                    if (window.location.protocol === 'file:') {
+                        console.info('💡 Local file detected: Using embedded template as fallback should work automatically');
+                    }
+
+                    throw error;
+                } finally {
+                    this.isLoading = false;
+                }
+            }
+
+            // Create customized event panel from template
+            createEventPanel(eventData) {
+                if (!this.template) {
+                    throw new Error('Template not loaded. Call loadTemplate() first.');
+                }
+
+                const clone = this.template.cloneNode(true);
+
+                try {
+                    // Customize the content based on eventData
+                    this.updateEventContent(clone, eventData);
+                    return clone;
+                } catch (error) {
+                    console.error('Failed to create event panel:', error, eventData);
+                    return this.createErrorPanel(error.message);
+                }
+            }
+
+            // Update event panel content with specific data
+            updateEventContent(clone, eventData) {
+                // Update category
+                const categoryEl = clone.querySelector('.nzgdc-morning-category-text-big');
+                if (categoryEl && eventData.category) {
+                    categoryEl.textContent = eventData.category;
+                }
+
+                // Update title
+                const titleEl = clone.querySelector('.nzgdc-morning-title-text-big');
+                if (titleEl && eventData.title) {
+                    titleEl.textContent = eventData.title;
+                }
+
+                // Update thumbnail
+                const thumbnailEl = clone.querySelector('.nzgdc-morning-session-thumbnail-big');
+                if (thumbnailEl && eventData.thumbnail) {
+                    thumbnailEl.style.backgroundImage = `url('${eventData.thumbnail}')`;
+                }
+
+                // Update timeframe
+                const timeframeEl = clone.querySelector('.nzgdc-morning-timeframe-text-big');
+                if (timeframeEl && eventData.timeframe) {
+                    timeframeEl.textContent = eventData.timeframe;
+                }
+
+                // Update speaker information
+                this.updateSpeakers(clone, eventData.speakers);
+            }
+
+            // Update speaker information in the panel
+            updateSpeakers(clone, speakers) {
+                const speakerContainers = clone.querySelectorAll('.nzgdc-morning-speaker-biolines-big');
+
+                if (!speakers || speakers.length === 0) return;
+
+                speakers.forEach((speaker, index) => {
+                    if (index < speakerContainers.length) {
+                        const container = speakerContainers[index];
+                        const nameEl = container.querySelector('.nzgdc-morning-speaker-bioName-big');
+                        const positionEl = container.querySelector('.nzgdc-morning-speaker-bioPosition-big');
+
+                        if (nameEl) nameEl.textContent = speaker.name || '';
+                        if (positionEl) positionEl.textContent = speaker.position || '';
+                    }
+                });
+
+                // Hide unused speaker containers
+                for (let i = speakers.length; i < speakerContainers.length; i++) {
+                    speakerContainers[i].style.display = 'none';
+                }
+            }
+
+            // Create error panel for failed loads
+            createErrorPanel(errorMessage) {
+                const errorPanel = document.createElement('div');
+                errorPanel.className = 'nzgdc-morning-error-placeholder';
+
+                const isLocalFile = window.location.protocol === 'file:';
+                const helpText = isLocalFile
+                    ? 'For local files: Make sure both HTML files are in the same folder'
+                    : 'Please try refreshing the page or contact support';
+
+                errorPanel.innerHTML = `
+                    <strong>Failed to load morning event</strong>
+                    <small>${errorMessage}</small>
+                    <small>${helpText}</small>
+                `;
+                return errorPanel;
+            }
+        }
+
+        // ===================================================================
+        // MORNING SCHEDULE GENERATOR
+        // Future file: morning-schedule-generator.js
+        // Implements data-driven HTML generation
+        // ===================================================================
+        class MorningScheduleGenerator {
+            constructor(containerSelector) {
+                this.container = document.querySelector(containerSelector);
+                this.eventLoader = new MorningEventLoader();
+
+                if (!this.container) {
+                    throw new Error(`Container element '${containerSelector}' not found`);
+                }
+            }
+
+            // Generate complete time slot HTML structure
+            generateTimeSlot(timeSlot) {
+                const timeSlotEl = document.createElement('div');
+                timeSlotEl.className = `nzgdc-morning-time-category nzgdc-morning-time-category-${timeSlot.theme}`;
+                timeSlotEl.setAttribute('data-time-slot', timeSlot.id);
+
+                timeSlotEl.innerHTML = `
+                    <!-- Event Times Container -->
+                    <div class="nzgdc-morning-event-times-${timeSlot.theme}">
+                        <div class="nzgdc-morning-session-schedule">
+                            <div class="nzgdc-morning-session-times">${timeSlot.timeRange}</div>
+                            <div class="nzgdc-morning-session-title">${timeSlot.title}</div>
+                        </div>
+                        <div class="nzgdc-morning-underline"></div>
+                    </div>
+
+                    <!-- Scheduled Morning Events -->
+                    <div class="nzgdc-scheduled-morning-events">
+                        ${this.generateEventRows(timeSlot.events)}
+                    </div>
+                `;
+
+                return timeSlotEl;
+            }
+
+            // Generate event rows (2 events per row by default)
+            generateEventRows(events) {
+                const rows = [];
+                const eventsPerRow = 2;
+
+                for (let i = 0; i < events.length; i += eventsPerRow) {
+                    const eventsInRow = events.slice(i, i + eventsPerRow);
+                    const rowHtml = `
+                        <div class="nzgdc-morning-event-row" data-row="${Math.floor(i / eventsPerRow) + 1}">
+                            ${eventsInRow.map(event => this.generateMorningEvent(event)).join('')}
+                        </div>
+                    `;
+                    rows.push(rowHtml);
+                }
+
+                return rows.join('');
+            }
+
+            // Generate individual morning event container
+            generateMorningEvent(event) {
+                return `
+                    <div class="nzgdc-morning-event">
+                        <div class="nzgdc-morning-event-panel-container"
+                             data-event-id="${event.id}"
+                             data-category="${event.category}"
+                             data-title="${event.title}">
+                            <div class="nzgdc-morning-loading-placeholder">Loading ${event.title}...</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Render the complete morning schedule from data
+            async renderSchedule(data) {
+                try {
+                    console.log('Rendering morning schedule with data:', data);
+
+                    // Clear existing content
+                    this.container.innerHTML = '';
+
+                    // Generate and append time slots
+                    data.timeSlots.forEach(timeSlot => {
+                        const timeSlotEl = this.generateTimeSlot(timeSlot);
+                        this.container.appendChild(timeSlotEl);
+                    });
+
+                    // Load event content after DOM is updated
+                    await this.loadEventContent();
+
+                    console.log('Morning schedule rendering completed');
+
+                } catch (error) {
+                    console.error('Failed to render morning schedule:', error);
+                    this.showScheduleError(error);
+                }
+            }
+
+            // Load event content using the template loader
+            async loadEventContent() {
+                try {
+                    // Load the template once
+                    await this.eventLoader.loadTemplate();
+
+                    // Find all event containers
+                    const containers = this.container.querySelectorAll('.nzgdc-morning-event-panel-container[data-event-id]');
+                    console.log(`Loading content for ${containers.length} morning event containers`);
+
+                    // Load each event
+                    const loadPromises = Array.from(containers).map(container =>
+                        this.loadSingleEvent(container)
+                    );
+
+                    await Promise.allSettled(loadPromises);
+                    console.log('All morning event content loaded');
+
+                } catch (error) {
+                    console.error('Failed to load morning event content:', error);
+                    this.showEventLoadError(error);
+                }
+            }
+
+            // Load content for a single event container
+            async loadSingleEvent(container) {
+                const eventId = container.dataset.eventId;
+                const eventData = morningEvents[eventId];
+
+                try {
+                    if (!eventData) {
+                        throw new Error(`No data found for morning event: ${eventId}`);
+                    }
+
+                    const eventPanel = this.eventLoader.createEventPanel(eventData);
+                    container.innerHTML = '';
+                    container.appendChild(eventPanel);
+
+                } catch (error) {
+                    console.error(`Failed to load morning event ${eventId}:`, error);
+                    container.innerHTML = '';
+                    container.appendChild(this.eventLoader.createErrorPanel(error.message));
+                }
+            }
+
+            // Show schedule-level error
+            showScheduleError(error) {
+                this.container.innerHTML = `
+                    <div class="nzgdc-morning-error-placeholder" style="width: 100%; height: 200px; max-width: none;">
+                        <strong>Failed to load morning schedule</strong>
+                        <small>${error.message}</small>
+                        <small>Please refresh the page or contact support</small>
+                    </div>
+                `;
+            }
+
+            // Show event loading error
+            showEventLoadError(error) {
+                const containers = this.container.querySelectorAll('.nzgdc-morning-loading-placeholder');
+                containers.forEach(container => {
+                    container.className = 'nzgdc-morning-error-placeholder';
+                    container.innerHTML = `
+                        <strong>Failed to load morning events</strong>
+                        <small>${error.message}</small>
+                    `;
+                });
+            }
+        }
+
+        // ===================================================================
+        // INITIALIZATION SCRIPT
+        // Main application logic - coordinates everything
+        // ===================================================================
+        class MorningScheduleApp {
+            constructor() {
+                this.generator = null;
+                this.initialized = false;
+            }
+
+            async init() {
+                if (this.initialized) return;
+
+                try {
+                    console.log('Initializing NZGDC Friday & Saturday Morning Schedule...');
+
+                    // Initialize the schedule generator
+                    this.generator = new MorningScheduleGenerator('#morning-schedule-content');
+
+                    // Render the schedule
+                    await this.generator.renderSchedule(morningScheduleData);
+
+                    this.initialized = true;
+                    console.log('Morning schedule initialization completed successfully');
+
+                } catch (error) {
+                    console.error('Failed to initialize morning schedule:', error);
+                    this.showInitializationError(error);
+                }
+            }
+
+            showInitializationError(error) {
+                const container = document.querySelector('#morning-schedule-content');
+                if (container) {
+                    const isLocalFile = window.location.protocol === 'file:';
+                    const helpText = isLocalFile
+                        ? 'Local file detected - using embedded templates'
+                        : 'Please refresh the page or contact support';
+
+                    container.innerHTML = `
+                        <div class="nzgdc-morning-error-placeholder" style="width: 100%; height: 300px; max-width: none;">
+                            <strong>Failed to initialize morning schedule</strong>
+                            <small>${error.message}</small>
+                            <small>${helpText}</small>
+                            <button onclick="location.reload()" style="margin-top: 10px; padding: 5px 10px;">Refresh Page</button>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // ===================================================================
+        // APPLICATION STARTUP
+        // ===================================================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            const app = new MorningScheduleApp();
+            await app.init();
+        });
+
+        // Expose app for debugging (can be removed in production)
+        window.MorningScheduleApp = MorningScheduleApp;
+        window.MorningEventLoader = MorningEventLoader;
+        window.MorningScheduleGenerator = MorningScheduleGenerator;
+    </script>
+</body>
+</html>
