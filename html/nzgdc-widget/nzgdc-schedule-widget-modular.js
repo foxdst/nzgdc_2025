@@ -81,8 +81,10 @@
           "NZGDC Schedule Widget ready - all modules loaded successfully",
         );
 
-        // Auto-initialize any existing widgets on the page
-        this.autoInitialize();
+        // Auto-initialization is DISABLED - widgets load manually only
+        debugLog(
+          "Auto-initialization disabled - widgets must be created manually",
+        );
 
         // Execute ready callbacks
         readyCallbacks.forEach((callback) => {
@@ -233,31 +235,11 @@
     }
 
     autoInitialize() {
-      const autoElements = document.querySelectorAll("[data-nzgdc-schedule]");
-
-      if (autoElements.length === 0) {
-        debugLog("No auto-initialize elements found");
-        return;
-      }
-
-      debugLog("Auto-initializing", autoElements.length, "widgets");
-
-      autoElements.forEach((el, index) => {
-        try {
-          debugLog(`Auto-initializing widget ${index + 1}`);
-          new window.NZGDCScheduleWidget(el, {
-            showFilters: el.dataset.showFilters !== "false",
-            showFooter: el.dataset.showFooter !== "false",
-            theme: el.dataset.theme || "default",
-          });
-          debugLog(`Widget ${index + 1} auto-initialized successfully`);
-        } catch (error) {
-          console.error(
-            `[NZGDC Widget] Failed to auto-initialize widget ${index + 1}:`,
-            error,
-          );
-        }
-      });
+      // Auto-initialization is DISABLED for demo purposes
+      // Widgets must be created manually using NZGDCWidget.create()
+      debugLog(
+        "Auto-initialization disabled - use NZGDCWidget.create() instead",
+      );
     }
   }
 
