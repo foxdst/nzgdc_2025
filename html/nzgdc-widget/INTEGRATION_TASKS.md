@@ -64,7 +64,7 @@ nzgdc-widget/
 
 **Tip:** Use CSS variables for all colors. Add new variables if needed (e.g., `--color-blue-bright`, `--color-blue-hover`).
 
-**CSS Variable Naming:**  
+**CSS Variable Naming:**
 All new CSS variables must use the `--color-` or `--font-` prefix and be documented in the CSS file header and in the README.md color variable summary section. Do not use ambiguous or widget-specific names for shared variables.
 
 ### 2.2. CSS Scoping
@@ -74,7 +74,7 @@ All new CSS variables must use the `--color-` or `--font-` prefix and be documen
 
 ---
 
-**Utility Class Prefixes:**  
+**Utility Class Prefixes:**
 If a utility class or variable is needed across widgets, prefix it with `.nzgdc-util-` and document its usage in README.md. Otherwise, all classes must be widget-specific and use the `.nzgdc-afternoon-*` prefix.
 
 ## 3. HTML Template
@@ -86,7 +86,7 @@ If a utility class or variable is needed across widgets, prefix it with `.nzgdc-
 - **Adjust:** Ensure all class names use the `nzgdc-afternoon-` prefix where appropriate.
 - **Colors:** Remove any inline styles; rely on CSS classes and variables.
 
-**Break Block & Special Section Handling:**  
+**Break Block & Special Section Handling:**
 For any new non-event section (e.g., lunch, announcements), consult the reference design for unique styling. Do not assume all such sections use the break block style. Document any new section types and their styling in README.md.
 
 ---
@@ -99,12 +99,12 @@ For any new non-event section (e.g., lunch, announcements), consult the referenc
 - **Structure:** Mirror the structure of the morning equivalents.
 - **Naming:** Use `AFTERNOON_SCHEDULE_DATA` and `AFTERNOON_EVENTS` as global variables.
 
-**Global Namespace Rule:**  
+**Global Namespace Rule:**
 All global variables and APIs for the Afternoon widget must use the `AFTERNOON_` prefix (e.g., `window.AFTERNOON_SCHEDULE_DATA`). Do not use generic or duplicate names. Avoid polluting the global namespace.
 
 ### 4.2. Loader & Generator Classes
 
-- **Create:** 
+- **Create:**
   - `js/afternoon-event-loader.js`
   - `js/afternoon-schedule-generator.js`
   - `js/afternoon-widget-core.js`
@@ -118,12 +118,12 @@ All global variables and APIs for the Afternoon widget must use the `AFTERNOON_`
 
 - **Create:** `nzgdc-afternoon-schedule-widget-modular.js`
 - **Base:** Copy from `nzgdc-morning-schedule-widget-modular.js`
-- **Update:** 
+- **Update:**
   - All references to "morning" → "afternoon"
   - CSS, JS, and template paths
   - Global API: `window.NZGDCAfternoonWidget` (and alias `window.NZGDCAfternoonSchedule`)
 
-**Data Structure & Event Mapping:**  
+**Data Structure & Event Mapping:**
 If the Afternoon schedule requires a different data structure or new fields, document the changes in README.md and update all relevant JS modules and templates accordingly. Do not force-fit data into the morning structure.
 
  ---
@@ -136,7 +136,7 @@ If the Afternoon schedule requires a different data structure or new fields, doc
 - **Add:** A new toggle state for the Afternoon schedule.
 - **Controls:** Update the toggle button to cycle through Thursday, Friday/Saturday Morning, and Friday/Saturday Afternoon schedules.
 
-**Demo Toggle Logic:**  
+**Demo Toggle Logic:**
 The demo toggle button must cycle in this order: Thursday → Friday/Saturday Morning → Friday/Saturday Afternoon → Thursday. The initial state is Thursday. If a widget fails to load, display an error and do not attempt to load the next widget automatically. Always ensure only one widget is visible at a time.
 - **Containers:** Add a new container:
   ```html
@@ -149,7 +149,7 @@ The demo toggle button must cycle in this order: Thursday → Friday/Saturday Mo
 
 ---
 
-**Documentation Updates:**  
+**Documentation Updates:**
 Whenever a new widget, variable, or feature is added, update both `INTEGRATION_TASKS.md` and `README.md` with: file structure, API, configuration options, color variables, and any new data fields. Be explicit and thorough in documenting changes.
 
 ## 6. Best Practices, Warnings & Common Mistakes to Avoid
@@ -162,57 +162,57 @@ The following issues were encountered or narrowly avoided during the Morning Sch
 
 #### **Critical Implementation Errors**
 
-- **Incorrect event ordering and grouping:**  
-  The original integration did not match the event order and grouping from the reference design, resulting in a layout that did not reflect the intended schedule.  
-  **Always ensure the event data structure and rendering logic produce the exact same order and grouping as the original schedule view.**  
+- **Incorrect event ordering and grouping:**
+  The original integration did not match the event order and grouping from the reference design, resulting in a layout that did not reflect the intended schedule.
+  **Always ensure the event data structure and rendering logic produce the exact same order and grouping as the original schedule view.**
   *Poor thinking process:* Assuming that simply rendering all events in a flat list or using a generic loop would match the design, rather than analyzing the grouping and order in the reference file.
 
-- **Panel dimension mismatches:**  
-  Main event panels were sometimes not square (300x300px) or had incorrect thumbnail heights.  
-  **Double-check all panel dimensions and thumbnail heights against the reference design. Do not assume the morning and afternoon layouts are identical.**  
+- **Panel dimension mismatches:**
+  Main event panels were sometimes not square (300x300px) or had incorrect thumbnail heights.
+  **Double-check all panel dimensions and thumbnail heights against the reference design. Do not assume the morning and afternoon layouts are identical.**
   *Poor thinking process:* Copy-pasting panel markup or CSS from another widget without verifying the actual pixel dimensions and aspect ratios required by the design.
 
-- **Break block styling mismatches:**  
-  Break blocks must have the correct background and text color as in the reference.  
-  **Always verify break block styling matches the original schedule view.**  
+- **Break block styling mismatches:**
+  Break blocks must have the correct background and text color as in the reference.
+  **Always verify break block styling matches the original schedule view.**
   *Poor thinking process:* Overlooking break sections as "just another div" and not checking their unique styling requirements.
 
 ---
 
-- **Mixing or reusing CSS classes between widgets:**  
-  The initial integration reused or overlapped class names, causing style conflicts.  
+- **Mixing or reusing CSS classes between widgets:**
+  The initial integration reused or overlapped class names, causing style conflicts.
   **Always use unique `.nzgdc-afternoon-*` class prefixes and never reuse `.nzgdc-morning-*` or `.nzgdc-schedule-*` classes.**
 
-- **Incorrect color assignments:**  
-  There were inconsistencies in yellow shades and background colors, especially for time categories and buttons.  
+- **Incorrect color assignments:**
+  There were inconsistencies in yellow shades and background colors, especially for time categories and buttons.
   **Double-check all color variables and ensure backgrounds, buttons, and text use the correct blue/yellow/white as per design.**
 
-- **Not updating all states for new color schemes:**  
-  Some hover/focus/active states were missed or left with old colors.  
+- **Not updating all states for new color schemes:**
+  Some hover/focus/active states were missed or left with old colors.
   **Update all button and filter states to match the new blue theme.**
 
-- **Hardcoding colors instead of using variables:**  
-  Some colors were hardcoded, making future changes difficult.  
+- **Hardcoding colors instead of using variables:**
+  Some colors were hardcoded, making future changes difficult.
   **Always use CSS variables for all colors.**
 
-- **Forgetting to scope new CSS:**  
-  Some styles leaked out of the widget due to missing scoping.  
+- **Forgetting to scope new CSS:**
+  Some styles leaked out of the widget due to missing scoping.
   **Ensure all CSS is properly scoped to `.nzgdc-afternoon-schedule-widget`.**
 
-- **Not updating template or JS class names:**  
-  Some template and JS code used the wrong class or variable names, causing rendering bugs.  
+- **Not updating template or JS class names:**
+  Some template and JS code used the wrong class or variable names, causing rendering bugs.
   **Audit all template and JS code for correct `.nzgdc-afternoon-*` usage.**
 
-- **Not cleaning up/destroying widgets properly:**  
-  Old widgets sometimes remained in the DOM, causing double-rendering or event leaks.  
+- **Not cleaning up/destroying widgets properly:**
+  Old widgets sometimes remained in the DOM, causing double-rendering or event leaks.
   **Always destroy/hide the previous widget before showing a new one.**
 
-- **Not updating the demo toggle logic:**  
-  The toggle button logic and labels were initially confusing or mismatched.  
+- **Not updating the demo toggle logic:**
+  The toggle button logic and labels were initially confusing or mismatched.
   **Ensure the demo toggle button and state logic are clear and cycle through all three widgets correctly.**
 
-- **Not updating documentation:**  
-  Documentation was sometimes left outdated after changes.  
+- **Not updating documentation:**
+  Documentation was sometimes left outdated after changes.
   **Update README and this integration guide with every new widget or architectural change.**
 
 ---
