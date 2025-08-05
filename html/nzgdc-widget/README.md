@@ -1,6 +1,6 @@
 # NZGDC Schedule Widgets Documentation
 
-A modular, self-contained JavaScript widget system for displaying NZGDC schedules with event panels, speakers, and interactive features. Includes both Thursday Workshop Schedule and Friday/Saturday Morning Schedule widgets.
+A modular, self-contained JavaScript widget system for displaying NZGDC schedules with event panels, speakers, and interactive features. Includes Thursday Workshop Schedule, Friday/Saturday Morning Schedule, and Friday/Saturday Afternoon Schedule widgets.
 
 ## 📁 Project Structure
 
@@ -8,10 +8,12 @@ A modular, self-contained JavaScript widget system for displaying NZGDC schedule
 nzgdc-widget/
 ├── css/
 │   ├── widget-bundle.css                        # Thursday widget CSS bundle
-│   └── morning-schedule-bundle.css              # Morning widget CSS bundle
+│   ├── morning-schedule-bundle.css              # Morning widget CSS bundle
+│   └── afternoon-schedule-bundle.css            # Afternoon widget CSS bundle
 ├── templates/
 │   ├── event-panel.html                         # Thursday workshop event template
-│   └── morning-event-panel.html                 # Morning event panel template
+│   ├── morning-event-panel.html                 # Morning event panel template
+│   └── afternoon-event-panel.html               # Afternoon event panel template
 ├── js/
 │   ├── schedule-data.js                         # Thursday schedule configuration
 │   ├── workshop-events.js                      # Thursday workshop details
@@ -22,10 +24,16 @@ nzgdc-widget/
 │   ├── morning-events.js                       # Morning event details
 │   ├── morning-event-loader.js                 # Morning template loader
 │   ├── morning-schedule-generator.js           # Morning DOM generator
-│   └── morning-widget-core.js                  # Morning widget core
+│   ├── morning-widget-core.js                  # Morning widget core
+│   ├── afternoon-schedule-data.js              # Afternoon schedule configuration
+│   ├── afternoon-events.js                     # Afternoon event details
+│   ├── afternoon-event-loader.js               # Afternoon template loader
+│   ├── afternoon-schedule-generator.js         # Afternoon DOM generator
+│   └── afternoon-widget-core.js                # Afternoon widget core
 ├── nzgdc-schedule-widget-modular.js            # Thursday widget entry point
 ├── nzgdc-morning-schedule-widget-modular.js    # Morning widget entry point
-├── widget-demo.html                            # Demo page for both widgets
+├── nzgdc-afternoon-schedule-widget-modular.js  # Afternoon widget entry point
+├── widget-demo.html                            # Demo page for all widgets
 └── README.md                                   # This documentation file
 ```
 
@@ -59,13 +67,29 @@ nzgdc-widget/
 </html>
 ```
 
-### Both Widgets (Advanced Implementation)
+### Afternoon Events Schedule (Basic Implementation)
+```html
+<!DOCTYPE html>
+<html>
+<body>
+    <!-- Afternoon widget container -->
+    <div data-nzgdc-afternoon-schedule></div>
+    
+    <!-- Load Afternoon widget -->
+    <script src="nzgdc-widget/nzgdc-afternoon-schedule-widget-modular.js"></script>
+</body>
+</html>
+```
+
+### All Three Widgets (Advanced Implementation)
 ```html
 <div id="thursday-schedule"></div>
 <div id="morning-schedule"></div>
+<div id="afternoon-schedule"></div>
 
 <script src="nzgdc-widget/nzgdc-schedule-widget-modular.js"></script>
 <script src="nzgdc-widget/nzgdc-morning-schedule-widget-modular.js"></script>
+<script src="nzgdc-widget/nzgdc-afternoon-schedule-widget-modular.js"></script>
 
 <script>
 // Thursday Widget
@@ -80,6 +104,16 @@ NZGDCWidget.ready(() => {
 // Morning Widget
 NZGDCMorningWidget.ready(() => {
     NZGDCMorningWidget.create('morning-schedule', {
+        showFilters: true,
+        showFooter: true,
+        showTimeNavigation: true,
+        theme: 'default'
+    });
+});
+
+// Afternoon Widget
+NZGDCAfternoonWidget.ready(() => {
+    NZGDCAfternoonWidget.create('afternoon-schedule', {
         showFilters: true,
         showFooter: true,
         showTimeNavigation: true,
@@ -137,6 +171,30 @@ NZGDCMorningWidget.ready(() => {
 
 #### 5. Template Layer (Loaded Fourth)
 **File**: `templates/morning-event-panel.html`
+**Fallback**: Embedded template in modular loader
+
+### Afternoon Widget Dependencies
+
+#### 1. Entry Point
+**File**: `nzgdc-afternoon-schedule-widget-modular.js`
+- **Purpose**: Orchestrates loading of Afternoon widget modules
+- **Dependencies**: None (standalone entry point)
+- **Loads**: All Afternoon CSS, JS, and HTML files in correct order
+
+#### 2. Styling Layer (Loaded First)
+**File**: `css/afternoon-schedule-bundle.css` (complete afternoon widget styles with blue theme)
+**Dependencies**: None (pure CSS)
+
+#### 3. Data Layer (Loaded Second)
+**Files**: `js/afternoon-schedule-data.js`, `js/afternoon-events.js`
+**Exports**: `AFTERNOON_SCHEDULE_DATA`, `AFTERNOON_EVENTS` (global)
+
+#### 4. Logic Layer (Loaded Third)
+**Files**: `js/afternoon-event-loader.js`, `js/afternoon-schedule-generator.js`, `js/afternoon-widget-core.js`
+**Dependencies**: Afternoon data layer must be loaded first
+
+#### 5. Template Layer (Loaded Fourth)
+**File**: `templates/afternoon-event-panel.html`
 **Fallback**: Embedded template in modular loader
 
 ## 🔧 Component Architecture
@@ -235,11 +293,59 @@ class NZGDCMorningScheduleWidget {
 }
 ```
 
+### Afternoon Widget Classes & Responsibilities
+
+#### 1. `NZGDCAfternoonWidgetLoader` (Afternoon Entry Point)
+```javascript
+// Location: nzgdc-afternoon-schedule-widget-modular.js
+class NZGDCAfternoonWidgetLoader {
+    loadWidget()      // Orchestrates Afternoon widget loading
+    loadCSS(path)     // Loads CSS files
+    loadScript(path)  // Loads JavaScript files
+    loadTemplate()    // Loads HTML template
+}
+```
+
+#### 2. `AfternoonEventLoader` (Afternoon Template Handler)
+```javascript
+// Location: js/afternoon-event-loader.js
+class AfternoonEventLoader {
+    loadTemplate()                    // Loads afternoon template once
+    createEventPanel(data, type)      // Creates event panel (big or main)
+    createMainEventPanel(data)        // Creates main (square) panel
+    updateEventContent()              // Updates panel with event data
+}
+```
+
+#### 3. `AfternoonScheduleGenerator` (Afternoon DOM Builder)
+```javascript
+// Location: js/afternoon-schedule-generator.js
+class AfternoonScheduleGenerator {
+    renderSchedule(data)        // Main rendering function
+    generateTimeSlot()          // Creates time slot sections
+    generateBreakBlock()        // Creates break sections
+    generateEventRows()         // Creates event grid layout (5 main, 2 big per row)
+    loadEventContent()          // Populates event details
+}
+```
+
+#### 4. `NZGDCAfternoonScheduleWidget` (Afternoon Main Controller)
+```javascript
+// Location: js/afternoon-widget-core.js
+class NZGDCAfternoonScheduleWidget {
+    constructor(element, options)  // Initialize Afternoon widget
+    init()                        // Setup widget
+    render()                      // Create widget structure
+    initializeSchedule()          // Start schedule rendering
+    addEventHandlers()            // Add navigation handlers
+}
+```
+
 ### Widget Independence
 - **Separate Namespaces**: Each widget uses distinct CSS classes and global variables
 - **Independent Loading**: Widgets can be loaded separately or together
-- **No Conflicts**: Morning widget uses `nzgdc-morning-*` classes, Thursday uses `nzgdc-*`
-- **Isolated APIs**: `window.NZGDCWidget` vs `window.NZGDCMorningWidget`
+- **No Conflicts**: Morning widget uses `nzgdc-morning-*` classes, Thursday uses `nzgdc-*`, Afternoon uses `nzgdc-afternoon-*`
+- **Isolated APIs**: `window.NZGDCWidget` vs `window.NZGDCMorningWidget` vs `window.NZGDCAfternoonWidget`
 
 ## 📊 Data Flow
 
@@ -323,6 +429,11 @@ SCHEDULE_DATA → ScheduleGenerator → WorkshopEventLoader → WORKSHOP_EVENTS 
 MORNING_SCHEDULE_DATA → MorningScheduleGenerator → MorningEventLoader → MORNING_EVENTS → MORNING_EVENT_PANEL_TEMPLATE → Rendered Events
 ```
 
+#### Afternoon Widget
+```
+AFTERNOON_SCHEDULE_DATA → AfternoonScheduleGenerator → AfternoonEventLoader → AFTERNOON_EVENTS → AFTERNOON_EVENT_PANEL_TEMPLATE → Rendered Events
+```
+
 ## 🎨 Styling Architecture
 
 ### Thursday Widget CSS Variables
@@ -356,6 +467,23 @@ MORNING_SCHEDULE_DATA → MorningScheduleGenerator → MorningEventLoader → MO
 }
 ```
 
+### Afternoon Widget CSS Variables
+```css
+/* Defined in: css/afternoon-schedule-bundle.css */
+.nzgdc-afternoon-schedule-widget {
+    --color-blue: rgba(23, 75, 235, 1);
+    --color-blue-bright: rgba(20, 65, 200, 1);
+    --color-blue-hover: rgba(15, 55, 180, 1);
+    --color-yellow: rgba(255, 236, 81, 1);
+    --color-white: rgba(255, 255, 255, 1);
+    --color-black: rgba(0, 0, 0, 1);
+    --font-primary: 'Futura PT Heavy', 'Futura', Arial, sans-serif;
+    --container-max-width: 1630px;
+    --event-panel-width: 620px;
+    --event-panel-height: 300px;
+}
+```
+
 ### Style Hierarchy
 #### Thursday Widget (widget-bundle.css)
 1. **Core Styles**: Base layout, navigation, time categories
@@ -367,9 +495,15 @@ MORNING_SCHEDULE_DATA → MorningScheduleGenerator → MorningEventLoader → MO
 2. **Event Panel Styles**: Big panels (620x300) and Main panels (300x300)
 3. **Responsive Styles**: Mobile breakpoints, flexible layouts
 
+#### Afternoon Widget (afternoon-schedule-bundle.css)
+1. **Core Styles**: Base layout with blue theme, time navigation, break sections
+2. **Event Panel Styles**: Big panels (620x300) and Main panels (300x300) with blue styling
+3. **Responsive Styles**: Mobile breakpoints, flexible layouts
+
 ### Scoping Strategy
 - **Thursday Widget**: All styles scoped to `.nzgdc-schedule-widget`
 - **Morning Widget**: All styles scoped to `.nzgdc-morning-schedule-widget`
+- **Afternoon Widget**: All styles scoped to `.nzgdc-afternoon-schedule-widget`
 - **No Conflicts**: Completely separate CSS namespaces prevent style conflicts
 
 ## 🔧 Configuration Options
@@ -384,6 +518,16 @@ MORNING_SCHEDULE_DATA → MorningScheduleGenerator → MorningEventLoader → MO
 ```
 
 ### Morning Widget Options
+```javascript
+{
+    showFilters: true,         // Show/hide filter section
+    showFooter: true,          // Show/hide back-to-top footer
+    showTimeNavigation: true,  // Show/hide morning/afternoon navigation
+    theme: 'default'           // Future theme support
+}
+```
+
+### Afternoon Widget Options
 ```javascript
 {
     showFilters: true,         // Show/hide filter section
@@ -420,6 +564,19 @@ MORNING_SCHEDULE_DATA → MorningScheduleGenerator → MorningEventLoader → MO
      data-theme="compact"></div>
 ```
 
+#### Afternoon Widget
+```html
+<!-- Basic auto-init -->
+<div data-nzgdc-afternoon-schedule></div>
+
+<!-- With options -->
+<div data-nzgdc-afternoon-schedule 
+     data-show-filters="false" 
+     data-show-footer="true"
+     data-show-time-navigation="true"
+     data-theme="compact"></div>
+```
+
 ## 🐛 Debugging Guide
 
 ### Common Issues & Solutions
@@ -449,6 +606,17 @@ console.log(window.MORNING_SCHEDULE_DATA);
 console.log(window.MORNING_EVENTS);
 ```
 
+**Afternoon Widget Debug Steps**:
+```javascript
+// Check if Afternoon loader initialized
+console.log(window.NZGDCAfternoonWidget);
+console.log(NZGDCAfternoonWidget.getDebugInfo());
+
+// Check Afternoon data availability
+console.log(window.AFTERNOON_SCHEDULE_DATA);
+console.log(window.AFTERNOON_EVENTS);
+```
+
 **Common Causes**:
 - Incorrect file paths
 - CORS issues (local file access)
@@ -462,10 +630,12 @@ console.log(window.MORNING_EVENTS);
 // Check if CSS files loaded
 console.log(document.querySelectorAll('link[href*="widget-bundle"]'));
 console.log(document.querySelectorAll('link[href*="morning-schedule-bundle"]'));
+console.log(document.querySelectorAll('link[href*="afternoon-schedule-bundle"]'));
 
 // Check for CSS conflicts
 console.log(document.querySelectorAll('.nzgdc-schedule-widget'));
 console.log(document.querySelectorAll('.nzgdc-morning-schedule-widget'));
+console.log(document.querySelectorAll('.nzgdc-afternoon-schedule-widget'));
 ```
 
 **Common Causes**:
@@ -488,6 +658,14 @@ console.log(window.EVENT_PANEL_TEMPLATE);
 console.log(window.MORNING_SCHEDULE_DATA);
 console.log(window.MORNING_EVENTS);
 console.log(window.MORNING_EVENT_PANEL_TEMPLATE);
+```
+
+**Afternoon Widget**:
+```javascript
+// Check Afternoon data
+console.log(window.AFTERNOON_SCHEDULE_DATA);
+console.log(window.AFTERNOON_EVENTS);
+console.log(window.AFTERNOON_EVENT_PANEL_TEMPLATE);
 ```
 
 **Common Causes**:
@@ -522,6 +700,10 @@ console.table(thursdayStatus);
 // Morning Widget Status
 const morningStatus = NZGDCMorningWidget.getDebugInfo();
 console.table(morningStatus);
+
+// Afternoon Widget Status
+const afternoonStatus = NZGDCAfternoonWidget.getDebugInfo();
+console.table(afternoonStatus);
 ```
 
 #### Check Module Loading
@@ -536,9 +718,15 @@ NZGDCMorningWidget.ready(() => {
     console.log('Morning widget ready!');
 });
 
+// Afternoon Widget
+NZGDCAfternoonWidget.ready(() => {
+    console.log('Afternoon widget ready!');
+});
+
 // Check ready states
 console.log('Thursday ready:', NZGDCWidget.isReady());
 console.log('Morning ready:', NZGDCMorningWidget.isReady());
+console.log('Afternoon ready:', NZGDCAfternoonWidget.isReady());
 ```
 
 #### Manual Widget Creation
@@ -552,6 +740,11 @@ NZGDCWidget.create('thursday-container', { showFilters: false })
 NZGDCMorningWidget.create('morning-container', { showTimeNavigation: true })
     .then(widget => console.log('Morning widget created:', widget))
     .catch(error => console.error('Morning widget creation failed:', error));
+
+// Afternoon Widget
+NZGDCAfternoonWidget.create('afternoon-container', { showTimeNavigation: true })
+    .then(widget => console.log('Afternoon widget created:', widget))
+    .catch(error => console.error('Afternoon widget creation failed:', error));
 ```
 
 ## 🚀 Performance Optimizations
@@ -586,10 +779,17 @@ NZGDCMorningWidget.create('morning-container', { showTimeNavigation: true })
 - **Entry Point**: ~9KB
 - **Total**: ~62KB (15KB gzipped)
 
+#### Afternoon Widget
+- **CSS Bundle**: ~22KB (afternoon-schedule-bundle.css)
+- **JavaScript Files**: ~31KB total (data: 6KB, classes: 25KB)
+- **HTML Template**: ~2KB
+- **Entry Point**: ~9KB
+- **Total**: ~64KB (16KB gzipped)
+
 #### Combined System
-- **Total Both Widgets**: ~112KB (27KB gzipped)
+- **Total All Three Widgets**: ~176KB (43KB gzipped)
 - **Shared Dependencies**: None (fully independent)
-- **Load Time**: <2 seconds on 3G, <0.5 seconds on broadband
+- **Load Time**: <3 seconds on 3G, <1 second on broadband
 
 ### Performance Optimizations (v1.1)
 - **Reduced HTTP Requests**: CSS bundled from 3 files to 1 (67% reduction)
@@ -613,6 +813,12 @@ NZGDCMorningWidget.create('morning-container', { showTimeNavigation: true })
 3. Specify event type: `'big'` (620x300) or `'main'` (300x300)
 4. No code changes needed - widget auto-generates
 
+### Adding New Afternoon Events
+1. Edit `js/afternoon-events.js` - Add event data
+2. Edit `js/afternoon-schedule-data.js` - Add to time slot
+3. Specify event type: `'big'` (620x300) or `'main'` (300x300)
+4. No code changes needed - widget auto-generates
+
 ### Modifying Styles
 #### Thursday Widget
 1. **All Styles**: Edit `css/widget-bundle.css`
@@ -621,6 +827,10 @@ NZGDCMorningWidget.create('morning-container', { showTimeNavigation: true })
 #### Morning Widget
 1. **All Styles**: Edit `css/morning-schedule-bundle.css`
 2. **CSS Classes**: All prefixed with `.nzgdc-morning-schedule-widget`
+
+#### Afternoon Widget
+1. **All Styles**: Edit `css/afternoon-schedule-bundle.css`
+2. **CSS Classes**: All prefixed with `.nzgdc-afternoon-schedule-widget`
 
 ### Adding New Features
 #### Thursday Widget
@@ -633,8 +843,13 @@ NZGDCMorningWidget.create('morning-container', { showTimeNavigation: true })
 2. Add to loading sequence in `nzgdc-morning-schedule-widget-modular.js`
 3. Update dependencies in this README
 
+#### Afternoon Widget
+1. Create new JS file in `js/` folder (use `afternoon-` prefix)
+2. Add to loading sequence in `nzgdc-afternoon-schedule-widget-modular.js`
+3. Update dependencies in this README
+
 ### Testing Changes
-1. Use `widget-demo.html` for testing both widgets
+1. Use `widget-demo.html` for testing all three widgets
 2. Test widgets separately and together
 3. Check browser console for errors
 4. Test on different screen sizes
@@ -663,9 +878,14 @@ wp_enqueue_script('nzgdc-morning-widget',
     get_template_directory_uri() . '/nzgdc-widget/nzgdc-morning-schedule-widget-modular.js', 
     array(), '1.0', true);
 
+wp_enqueue_script('nzgdc-afternoon-widget', 
+    get_template_directory_uri() . '/nzgdc-widget/nzgdc-afternoon-schedule-widget-modular.js', 
+    array(), '1.0', true);
+
 // In template file
 echo '<div data-nzgdc-schedule></div>';
 echo '<div data-nzgdc-morning-schedule></div>';
+echo '<div data-nzgdc-afternoon-schedule></div>';
 ```
 
 #### React/Vue/Angular
@@ -680,12 +900,18 @@ useEffect(() => {
     const morningScript = document.createElement('script');
     morningScript.src = '/assets/nzgdc-widget/nzgdc-morning-schedule-widget-modular.js';
     document.head.appendChild(morningScript);
+
+    // Load Afternoon widget
+    const afternoonScript = document.createElement('script');
+    afternoonScript.src = '/assets/nzgdc-widget/nzgdc-afternoon-schedule-widget-modular.js';
+    document.head.appendChild(afternoonScript);
 }, []);
 
 return (
     <>
         <div data-nzgdc-schedule></div>
         <div data-nzgdc-morning-schedule></div>
+        <div data-nzgdc-afternoon-schedule></div>
     </>
 );
 ```
@@ -777,8 +1003,12 @@ verifyData(); // Shows workshop data mapping
 
 #### Check Active Instances
 ```javascript
-const widgets = NZGDCWidget.getActiveWidgets();
-console.log('Active widgets:', widgets.length);
+const thursdayWidgets = NZGDCWidget.getActiveWidgets();
+const morningWidgets = NZGDCMorningWidget.getActiveWidgets();
+const afternoonWidgets = NZGDCAfternoonWidget.getActiveWidgets();
+console.log('Active Thursday widgets:', thursdayWidgets.length);
+console.log('Active Morning widgets:', morningWidgets.length);
+console.log('Active Afternoon widgets:', afternoonWidgets.length);
 ```
 
 ### Production Deployment Notes
@@ -818,12 +1048,13 @@ console.log('Active widgets:', widgets.length);
 ### Pre-Deployment Verification
 - [ ] **Test all Thursday workshops load** - Use "Verify Data" in demo page
 - [ ] **Test all Morning events load** - Check both big and main panels
-- [ ] **Check responsive design** - Test both widgets on mobile, tablet, desktop
+- [ ] **Test all Afternoon events load** - Check both big and main panels with blue theme
+- [ ] **Check responsive design** - Test all three widgets on mobile, tablet, desktop
 - [ ] **Verify fallback systems** - Test with slow/failed network requests
-- [ ] **Test error states** - Ensure graceful degradation for both widgets
+- [ ] **Test error states** - Ensure graceful degradation for all widgets
 - [ ] **Performance check** - All resources load within 10 seconds
 - [ ] **Widget independence** - Test loading each widget separately
-- [ ] **Widget coexistence** - Test loading both widgets together
+- [ ] **Widget coexistence** - Test loading all three widgets together
 
 ### File Setup
 - [ ] **Upload complete nzgdc-widget folder** to your server
@@ -857,27 +1088,41 @@ console.log('Active widgets:', widgets.length);
    <div data-nzgdc-morning-schedule></div>
    ```
 
-#### Both Widgets
-1. **Include both widget scripts**:
+#### Afternoon Widget Only
+1. **Include widget script** in your page:
+   ```html
+   <script src="path/to/nzgdc-widget/nzgdc-afternoon-schedule-widget-modular.js"></script>
+   ```
+
+2. **Add widget container**:
+   ```html
+   <div data-nzgdc-afternoon-schedule></div>
+   ```
+
+#### All Three Widgets
+1. **Include all widget scripts**:
    ```html
    <script src="path/to/nzgdc-widget/nzgdc-schedule-widget-modular.js"></script>
    <script src="path/to/nzgdc-widget/nzgdc-morning-schedule-widget-modular.js"></script>
+   <script src="path/to/nzgdc-widget/nzgdc-afternoon-schedule-widget-modular.js"></script>
    ```
 
-2. **Add both containers**:
+2. **Add all containers**:
    ```html
    <div data-nzgdc-schedule></div>
    <div data-nzgdc-morning-schedule></div>
+   <div data-nzgdc-afternoon-schedule></div>
    ```
 
 ### Post-Deployment Testing
-- [ ] **Load test page** - Both widgets should appear automatically
+- [ ] **Load test page** - All three widgets should appear when toggled
 - [ ] **Check console** - No error messages (warnings are OK)
 - [ ] **Test all Thursday workshops** - All 10 events should display data
 - [ ] **Test all Morning events** - All 17 events should display data (mix of big/main)
-- [ ] **Test responsive** - Check mobile/tablet views for both widgets
+- [ ] **Test all Afternoon events** - All 17 events should display data with blue theme
+- [ ] **Test responsive** - Check mobile/tablet views for all three widgets
 - [ ] **Test interactions** - Back to top buttons work, navigation buttons respond
-- [ ] **Test widget separation** - Verify styles don't conflict
+- [ ] **Test widget separation** - Verify styles don't conflict between all widgets
 
 ### Troubleshooting Live Issues
 1. **Enable debug mode**: Add `?debug=true` to URL
@@ -896,6 +1141,7 @@ window.NZGDC_DEBUG = true;
 // Check specific widget status
 console.log('Thursday:', window.NZGDCWidget?.getDebugInfo());
 console.log('Morning:', window.NZGDCMorningWidget?.getDebugInfo());
+console.log('Afternoon:', window.NZGDCAfternoonWidget?.getDebugInfo());
 ```
 
 ## 📞 Support
@@ -912,9 +1158,10 @@ When reporting issues, please include:
 1. Browser and version
 2. Console error messages (with debug mode enabled)
 3. Network tab showing failed requests
-4. Debug API output: 
+4. **Debug API output**: 
    - `NZGDCWidget.getDebugInfo()` (Thursday widget)
    - `NZGDCMorningWidget.getDebugInfo()` (Morning widget)
+   - `NZGDCAfternoonWidget.getDebugInfo()` (Afternoon widget)
 5. Which widget(s) are affected
 6. Whether widgets are loaded separately or together
 7. Steps to reproduce the issue
@@ -972,35 +1219,36 @@ Footer Controls:
 
 #### Expected Behavior
 ```
-✅ Auto-load: Both widgets appear immediately with events
-✅ Clear: Both widgets disappear, status shows "cleared"
+✅ Toggle: Three-way cycle through Thursday → Morning → Afternoon → Thursday
+✅ Clear: All widgets disappear, status shows "cleared"
 ✅ Individual Load: Each widget loads independently
 ✅ Test: Shows correct counts:
    - Thursday: 1 widget, 10 workshops
    - Morning: 1 widget, 17 events (mix of big/main panels)
-✅ No Conflicts: Widgets coexist without style/JS conflicts
+   - Afternoon: 1 widget, 17 events (mix of big/main panels, blue theme)
+✅ No Conflicts: All widgets coexist without style/JS conflicts
 ```
 
 #### Troubleshooting with Demo
 - **Blank page**: Check browser console for file loading errors
-- **Unstyled content**: Verify CSS files are loading correctly for both widgets
-- **Missing events**: Check data file availability for both widgets
+- **Unstyled content**: Verify CSS files are loading correctly for all widgets
+- **Missing events**: Check data file availability for all widgets
 - **Widget conflicts**: Verify CSS namespaces are properly scoped
 - **Error messages**: Use `Show Info` to identify failed modules
 
 ### Demo File Integration
-The demo page uses both modular widget systems and demonstrates:
+The demo page uses all three modular widget systems and demonstrates:
 - **Independent loading** with separate modular entry points
-- **Widget coexistence** showing both widgets on same page
-- **Error handling** with user-friendly messages for both widgets
-- **API usage** showing auto-init and manual creation for both widgets
+- **Widget coexistence** showing all widgets on same page with toggle functionality
+- **Error handling** with user-friendly messages for all widgets
+- **API usage** showing auto-init and manual creation for all widgets
 - **Debug capabilities** for comprehensive system inspection
-- **Data verification** for both Thursday and Morning schedules
+- **Data verification** for Thursday, Morning, and Afternoon schedules
 
 **File Location**: `nzgdc-widget/widget-demo.html`
-**Dependencies**: All files in nzgdc-widget folder (both widget systems)
+**Dependencies**: All files in nzgdc-widget folder (all three widget systems)
 **Usage**: Open directly in browser or host on web server
-**Testing**: Comprehensive testing environment for both widgets
+**Testing**: Comprehensive testing environment for all three widgets
 
 ---
 
@@ -1020,12 +1268,19 @@ The demo page uses both modular widget systems and demonstrates:
 - **Theme**: Yellow/Yellow-bright color scheme with time navigation
 - **Entry Point**: `nzgdc-morning-schedule-widget-modular.js`
 
+### Friday/Saturday Afternoon Schedule Widget  
+- **Purpose**: Display NZGDC Friday & Saturday afternoon event schedule
+- **Events**: 17 events across 4 time slots + breaks
+- **Layout**: Mixed layout - 5 main (300x300px) or 2 big (620x300px) per row
+- **Theme**: Blue/Blue-bright color scheme with time navigation
+- **Entry Point**: `nzgdc-afternoon-schedule-widget-modular.js`
+
 ### System Features
 - **Complete Independence**: Widgets can be used separately or together
 - **No Conflicts**: Separate CSS namespaces and JavaScript globals
-- **Unified Demo**: Single demo page tests both widgets
+- **Unified Demo**: Single demo page tests all three widgets with toggle functionality
 - **Production Ready**: Comprehensive error handling and debugging
-- **Responsive Design**: Mobile-friendly layouts for both widgets
+- **Responsive Design**: Mobile-friendly layouts for all widgets
 
 ---
 

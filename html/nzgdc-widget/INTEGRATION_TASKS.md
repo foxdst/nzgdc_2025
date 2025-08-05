@@ -177,6 +177,12 @@ The following issues were encountered or narrowly avoided during the Morning Sch
   **Always verify break block styling matches the original schedule view.**
   *Poor thinking process:* Overlooking break sections as "just another div" and not checking their unique styling requirements.
 
+- **Function scoping errors in demo integration:**
+  Widget creation functions can be incorrectly nested inside other functions, causing "function is not defined" errors when called from outside their scope.
+  **Always declare widget creation functions (e.g., `createAfternoonWidget()`) at the same scope level as other widget functions like `createMorningWidget()` and `createWidget()`.**
+  *Poor thinking process:* Copy-pasting function definitions without understanding JavaScript scope, or accidentally nesting functions during code editing.
+  *Example error:* `Uncaught (in promise) ReferenceError: createAfternoonWidget is not defined` - occurs when `createAfternoonWidget()` is defined inside `createWidget()` but called from `showAfternoonWidget()`.
+
 ---
 
 - **Mixing or reusing CSS classes between widgets:**
