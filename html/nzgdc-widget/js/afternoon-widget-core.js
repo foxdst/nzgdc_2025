@@ -82,8 +82,8 @@ class NZGDCAfternoonScheduleWidget {
     if (typeof window.AFTERNOON_EVENTS === "undefined") {
       missing.push("AFTERNOON_EVENTS");
     }
-    if (typeof window.AfternoonEventLoader === "undefined") {
-      missing.push("AfternoonEventLoader");
+    if (typeof window.UnifiedEventLoader === "undefined") {
+      missing.push("UnifiedEventLoader");
     }
     if (typeof window.AfternoonScheduleGenerator === "undefined") {
       missing.push("AfternoonScheduleGenerator");
@@ -120,10 +120,10 @@ class NZGDCAfternoonScheduleWidget {
     return `
       <div class="nzgdc-schedule-time-navigation">
         <button class="nzgdc-morning-events-button" data-nav="morning">
-          <span style="width: 312px; height: 46px; color: rgba(0, 0, 0, 1); font-family: Futura PT Heavy; font-size: 36px; font-weight: 600; font-style: heavy;">Morning Events</span>
+          Morning Events
         </button>
         <button class="nzgdc-afternoon-events-button" data-nav="afternoon">
-          <span style="width: 347px; height: 46px; color: rgba(255, 255, 255, 1); font-family: Futura PT Heavy; font-size: 36px; font-weight: 600; font-style: heavy;">Afternoon Events</span>
+          Afternoon Events
         </button>
       </div>
     `;
@@ -166,8 +166,12 @@ class NZGDCAfternoonScheduleWidget {
         throw new Error("Afternoon schedule data not found");
       }
 
-      this.scheduleGenerator = new AfternoonScheduleGenerator(scheduleContainer);
-      await this.scheduleGenerator.renderSchedule(window.AFTERNOON_SCHEDULE_DATA);
+      this.scheduleGenerator = new AfternoonScheduleGenerator(
+        scheduleContainer,
+      );
+      await this.scheduleGenerator.renderSchedule(
+        window.AFTERNOON_SCHEDULE_DATA,
+      );
 
       // Add event handlers
       this.addEventHandlers();

@@ -77,8 +77,8 @@ class NZGDCScheduleWidget {
     if (typeof window.WORKSHOP_EVENTS === "undefined") {
       missing.push("WORKSHOP_EVENTS");
     }
-    if (typeof window.WorkshopEventLoader === "undefined") {
-      missing.push("WorkshopEventLoader");
+    if (typeof window.UnifiedEventLoader === "undefined") {
+      missing.push("UnifiedEventLoader");
     }
     if (typeof window.ScheduleGenerator === "undefined") {
       missing.push("ScheduleGenerator");

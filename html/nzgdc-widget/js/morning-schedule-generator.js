@@ -3,7 +3,7 @@
 class MorningScheduleGenerator {
   constructor(container) {
     this.container = container;
-    this.eventLoader = new MorningEventLoader();
+    this.eventLoader = new UnifiedEventLoader();
     this.loadedEvents = new Set(); // Track loaded events for cleanup
     this.isDestroyed = false;
   }
@@ -17,7 +17,7 @@ class MorningScheduleGenerator {
 
   generateTimeSlot(timeSlot) {
     // Handle break blocks differently
-    if (timeSlot.type === 'break') {
+    if (timeSlot.type === "break") {
       return this.generateBreakBlock(timeSlot);
     }
 
@@ -61,7 +61,7 @@ class MorningScheduleGenerator {
     const rows = [];
 
     // Check if all events are main type for special layout
-    const allMainType = events.every(event => event.type === 'main');
+    const allMainType = events.every((event) => event.type === "main");
 
     if (allMainType) {
       // All main panels - 5 per row
@@ -69,7 +69,7 @@ class MorningScheduleGenerator {
         const eventsInRow = events.slice(i, i + 5);
         const rowHtml = `
           <div class="nzgdc-morning-event-row" data-row="${Math.floor(i / 5) + 1}">
-            ${eventsInRow.map(event => this.generateMorningEvent(event)).join('')}
+            ${eventsInRow.map((event) => this.generateMorningEvent(event)).join("")}
           </div>
         `;
         rows.push(rowHtml);
@@ -77,15 +77,15 @@ class MorningScheduleGenerator {
     } else {
       // Mixed layout or all big panels
       // First, handle big panels (2 per row, left-aligned)
-      const bigEvents = events.filter(event => event.type === 'big');
-      const mainEvents = events.filter(event => event.type === 'main');
+      const bigEvents = events.filter((event) => event.type === "big");
+      const mainEvents = events.filter((event) => event.type === "main");
 
       if (bigEvents.length > 0) {
         for (let i = 0; i < bigEvents.length; i += 2) {
           const eventsInRow = bigEvents.slice(i, i + 2);
           const rowHtml = `
             <div class="nzgdc-morning-event-row" data-row="big-${Math.floor(i / 2) + 1}">
-              ${eventsInRow.map(event => this.generateMorningEvent(event)).join('')}
+              ${eventsInRow.map((event) => this.generateMorningEvent(event)).join("")}
             </div>
           `;
           rows.push(rowHtml);
@@ -98,7 +98,7 @@ class MorningScheduleGenerator {
           const eventsInRow = mainEvents.slice(i, i + 5);
           const rowHtml = `
             <div class="nzgdc-morning-event-row" data-row="main-${Math.floor(i / 5) + 1}">
-              ${eventsInRow.map(event => this.generateMorningEvent(event)).join('')}
+              ${eventsInRow.map((event) => this.generateMorningEvent(event)).join("")}
             </div>
           `;
           rows.push(rowHtml);
@@ -106,13 +106,17 @@ class MorningScheduleGenerator {
       }
     }
 
-    return rows.join('');
+    return rows.join("");
   }
 
   generateMorningEvent(event) {
-    const eventType = event.type || 'big';
-    const containerClass = eventType === 'main' ? 'nzgdc-morning-event-main' : 'nzgdc-morning-event';
-    const panelContainerClass = eventType === 'main' ? 'nzgdc-morning-event-panel-main-container' : 'nzgdc-morning-event-panel-container';
+    const eventType = event.type || "big";
+    const containerClass =
+      eventType === "main" ? "nzgdc-morning-event-main" : "nzgdc-morning-event";
+    const panelContainerClass =
+      eventType === "main"
+        ? "nzgdc-morning-event-panel-main-container"
+        : "nzgdc-morning-event-panel-container";
 
     return `
       <div class="${containerClass}">
@@ -212,7 +216,10 @@ class MorningScheduleGenerator {
 
       this.debug("All morning event content loaded successfully");
     } catch (error) {
-      console.error("[NZGDC Morning Widget] Failed to load event content:", error);
+      console.error(
+        "[NZGDC Morning Widget] Failed to load event content:",
+        error,
+      );
       this.showEventLoadError(error);
     }
   }
@@ -223,7 +230,7 @@ class MorningScheduleGenerator {
     }
 
     const eventId = container.dataset.eventId;
-    const eventType = container.dataset.eventType || 'big';
+    const eventType = container.dataset.eventType || "big";
     this.debug("Loading morning event:", eventId);
 
     const eventData = window.MORNING_EVENTS
@@ -247,7 +254,11 @@ class MorningScheduleGenerator {
       }
 
       this.debug("Creating morning event panel for:", eventId);
-      const eventPanel = this.eventLoader.createEventPanel(eventData, eventType);
+      const eventPanel = this.eventLoader.createEventPanel(
+        eventData,
+        eventType,
+        "morning",
+      );
 
       // Check if still valid before DOM update
       if (!this.isDestroyed && container.parentNode) {
@@ -263,9 +274,7 @@ class MorningScheduleGenerator {
 
       if (!this.isDestroyed && container.parentNode) {
         container.innerHTML = "";
-        container.appendChild(
-          this.eventLoader.createErrorPanel(error.message),
-        );
+        container.appendChild(this.eventLoader.createErrorPanel(error.message));
       }
     }
   }
@@ -304,10 +313,7 @@ class MorningScheduleGenerator {
       this.loadedEvents.clear();
 
       // Destroy event loader if it has cleanup methods
-      if (
-        this.eventLoader &&
-        typeof this.eventLoader.destroy === "function"
-      ) {
+      if (this.eventLoader && typeof this.eventLoader.destroy === "function") {
         this.eventLoader.destroy();
       }
       this.eventLoader = null;

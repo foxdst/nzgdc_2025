@@ -178,6 +178,7 @@
             flex-direction: column;
             justify-content: space-between;
             overflow: hidden;
+            gap: 0.5rem;
         }
 
         .nzgdc-introduction-text-big {
@@ -190,20 +191,13 @@
             text-align: left;
         }
 
-        .nzgdc-speaker-details-big {
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            overflow: hidden;
-            min-height: 0;
-            gap: 0.5rem;
-        }
-
         .nzgdc-speaker-biolines-big {
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
             width: 100%;
-            min-height: 36px;
+            overflow: hidden;
+            min-height: 0;
             flex: 1;
         }
 
@@ -251,6 +245,14 @@
             line-height: 21px;
             overflow-wrap: break-word;
         }
+
+        .nzgdc-speaker-bio-entry {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 100%;
+            min-height: 36px;
+        }
     </style>
 </head>
 <body>
@@ -287,22 +289,22 @@
                 <!-- Introduction text -->
                 <div class="nzgdc-introduction-text-big">NZGDC 2025 Panel by</div>
 
-                <!-- Speaker Details -->
-                <div class="nzgdc-speaker-details-big">
+                <!-- Speaker Biolines -->
+                <div class="nzgdc-speaker-biolines-big">
                     <!-- Speaker 1 -->
-                    <div class="nzgdc-speaker-biolines-big">
+                    <div class="nzgdc-speaker-bio-entry">
                         <div class="nzgdc-speaker-bioName-big">Speaker Name</div>
                         <div class="nzgdc-speaker-bioPosition-big">Position + Company</div>
                     </div>
 
                     <!-- Speaker 2 -->
-                    <div class="nzgdc-speaker-biolines-big">
+                    <div class="nzgdc-speaker-bio-entry">
                         <div class="nzgdc-speaker-bioName-big">Speaker Name</div>
                         <div class="nzgdc-speaker-bioPosition-big">Position + Company</div>
                     </div>
 
                     <!-- Speaker 3 -->
-                    <div class="nzgdc-speaker-biolines-big">
+                    <div class="nzgdc-speaker-bio-entry">
                         <div class="nzgdc-speaker-bioName-big">Speaker Name</div>
                         <div class="nzgdc-speaker-bioPosition-big">Position + Company</div>
                     </div>

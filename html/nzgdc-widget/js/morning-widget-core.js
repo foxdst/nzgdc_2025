@@ -82,8 +82,8 @@ class NZGDCMorningScheduleWidget {
     if (typeof window.MORNING_EVENTS === "undefined") {
       missing.push("MORNING_EVENTS");
     }
-    if (typeof window.MorningEventLoader === "undefined") {
-      missing.push("MorningEventLoader");
+    if (typeof window.UnifiedEventLoader === "undefined") {
+      missing.push("UnifiedEventLoader");
     }
     if (typeof window.MorningScheduleGenerator === "undefined") {
       missing.push("MorningScheduleGenerator");
@@ -120,10 +120,10 @@ class NZGDCMorningScheduleWidget {
     return `
       <div class="nzgdc-schedule-time-navigation">
         <button class="nzgdc-morning-events-button" data-nav="morning">
-          <span style="width: 312px; height: 46px; color: rgba(0, 0, 0, 1); font-family: Futura PT Heavy; font-size: 36px; font-weight: 600; font-style: heavy;">Morning Events</span>
+          Morning Events
         </button>
         <button class="nzgdc-afternoon-events-button" data-nav="afternoon">
-          <span style="width: 347px; height: 46px; color: rgba(255, 255, 255, 1); font-family: Futura PT Heavy; font-size: 36px; font-weight: 600; font-style: heavy;">Afternoon Events</span>
+          Afternoon Events
         </button>
       </div>
     `;

@@ -7,13 +7,12 @@ A modular, self-contained JavaScript widget system for displaying NZGDC schedule
 ```
 nzgdc-widget/
 ├── css/
-│   ├── widget-bundle.css                        # Thursday widget CSS bundle
+│   ├── unified-event-panel.css                  # Unified event panel styles (all widgets)
+│   ├── thursday-schedule-bundle.css             # Thursday widget CSS bundle
 │   ├── morning-schedule-bundle.css              # Morning widget CSS bundle
 │   └── afternoon-schedule-bundle.css            # Afternoon widget CSS bundle
 ├── templates/
-│   ├── event-panel.html                         # Thursday workshop event template
-│   ├── morning-event-panel.html                 # Morning event panel template
-│   └── afternoon-event-panel.html               # Afternoon event panel template
+│   └── unified-event-panel.html                 # Unified event panel template (all widgets)
 ├── js/
 │   ├── schedule-data.js                         # Thursday schedule configuration
 │   ├── workshop-events.js                      # Thursday workshop details
@@ -134,7 +133,7 @@ NZGDCAfternoonWidget.ready(() => {
 - **Loads**: All Thursday CSS, JS, and HTML files in correct order
 
 #### 2. Styling Layer (Loaded First)
-**File**: `css/widget-bundle.css` (combined core + event-panel + responsive styles)
+**File**: `css/unified-event-panel.css` + `css/thursday-schedule-bundle.css`
 **Dependencies**: None (pure CSS)
 
 #### 3. Data Layer (Loaded Second)
@@ -355,13 +354,13 @@ class NZGDCAfternoonScheduleWidget {
 ```
 Thursday Entry Point (nzgdc-schedule-widget-modular.js)
     ↓
-CSS Bundle (widget-bundle.css)
+CSS Bundles (unified-event-panel.css + thursday-schedule-bundle.css)
     ↓
 Data Files (schedule-data.js, workshop-events.js)
     ↓
-JavaScript Classes (workshop-loader.js, schedule-generator.js, widget-core.js)
+JavaScript Classes (unified-event-loader.js, schedule-generator.js, widget-core.js)
     ↓
-HTML Template (event-panel.html)
+HTML Template (unified-event-panel.html)
     ↓
 Thursday Widget Ready
 ```
@@ -438,7 +437,7 @@ AFTERNOON_SCHEDULE_DATA → AfternoonScheduleGenerator → AfternoonEventLoader 
 
 ### Thursday Widget CSS Variables
 ```css
-/* Defined in: css/widget-bundle.css */
+/* Defined in: css/thursday-schedule-bundle.css */
 .nzgdc-schedule-widget {
     --color-yellow: rgba(255, 236, 81, 1);
     --color-blue: rgba(23, 75, 235, 1);
@@ -485,7 +484,7 @@ AFTERNOON_SCHEDULE_DATA → AfternoonScheduleGenerator → AfternoonEventLoader 
 ```
 
 ### Style Hierarchy
-#### Thursday Widget (widget-bundle.css)
+#### Thursday Widget (unified-event-panel.css + thursday-schedule-bundle.css)
 1. **Core Styles**: Base layout, navigation, time categories
 2. **Event Panel Styles**: Workshop panel styling, speakers, thumbnails
 3. **Responsive Styles**: Mobile breakpoints, responsive behavior
@@ -628,7 +627,8 @@ console.log(window.AFTERNOON_EVENTS);
 **Debug Steps**:
 ```javascript
 // Check if CSS files loaded
-console.log(document.querySelectorAll('link[href*="widget-bundle"]'));
+console.log(document.querySelectorAll('link[href*="unified-event-panel"]'));
+console.log(document.querySelectorAll('link[href*="thursday-schedule-bundle"]'));
 console.log(document.querySelectorAll('link[href*="morning-schedule-bundle"]'));
 console.log(document.querySelectorAll('link[href*="afternoon-schedule-bundle"]'));
 
@@ -766,7 +766,7 @@ NZGDCAfternoonWidget.create('afternoon-container', { showTimeNavigation: true })
 ### File Size Breakdown
 
 #### Thursday Widget
-- **CSS Bundle**: ~15KB (widget-bundle.css)
+- **CSS Bundles**: ~15KB (unified-event-panel.css + thursday-schedule-bundle.css)
 - **JavaScript Files**: ~25KB total (data: 5KB, classes: 20KB)
 - **HTML Template**: ~2KB
 - **Entry Point**: ~8KB
@@ -821,7 +821,8 @@ NZGDCAfternoonWidget.create('afternoon-container', { showTimeNavigation: true })
 
 ### Modifying Styles
 #### Thursday Widget
-1. **All Styles**: Edit `css/widget-bundle.css`
+1. **Event Panel Styles**: Edit `css/unified-event-panel.css`
+2. **Schedule Styles**: Edit `css/thursday-schedule-bundle.css`
 2. **CSS Classes**: All prefixed with `.nzgdc-schedule-widget`
 
 #### Morning Widget

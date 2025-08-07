@@ -3,7 +3,7 @@
 class AfternoonScheduleGenerator {
   constructor(container) {
     this.container = container;
-    this.eventLoader = new AfternoonEventLoader();
+    this.eventLoader = new UnifiedEventLoader();
     this.loadedEvents = new Set(); // Track loaded events for cleanup
     this.isDestroyed = false;
   }
@@ -17,7 +17,7 @@ class AfternoonScheduleGenerator {
 
   generateTimeSlot(timeSlot) {
     // Handle break blocks differently
-    if (timeSlot.type === 'break') {
+    if (timeSlot.type === "break") {
       return this.generateBreakBlock(timeSlot);
     }
 
@@ -61,7 +61,7 @@ class AfternoonScheduleGenerator {
     const rows = [];
 
     // Check if all events are main type for special layout
-    const allMainType = events.every(event => event.type === 'main');
+    const allMainType = events.every((event) => event.type === "main");
 
     if (allMainType) {
       // All main panels - 5 per row
@@ -69,7 +69,7 @@ class AfternoonScheduleGenerator {
         const eventsInRow = events.slice(i, i + 5);
         const rowHtml = `
           <div class="nzgdc-afternoon-event-row" data-row="${Math.floor(i / 5) + 1}">
-            ${eventsInRow.map(event => this.generateAfternoonEvent(event)).join('')}
+            ${eventsInRow.map((event) => this.generateAfternoonEvent(event)).join("")}
           </div>
         `;
         rows.push(rowHtml);
@@ -77,15 +77,15 @@ class AfternoonScheduleGenerator {
     } else {
       // Mixed layout or all big panels
       // First, handle big panels (2 per row, left-aligned)
-      const bigEvents = events.filter(event => event.type === 'big');
-      const mainEvents = events.filter(event => event.type === 'main');
+      const bigEvents = events.filter((event) => event.type === "big");
+      const mainEvents = events.filter((event) => event.type === "main");
 
       if (bigEvents.length > 0) {
         for (let i = 0; i < bigEvents.length; i += 2) {
           const eventsInRow = bigEvents.slice(i, i + 2);
           const rowHtml = `
             <div class="nzgdc-afternoon-event-row" data-row="big-${Math.floor(i / 2) + 1}">
-              ${eventsInRow.map(event => this.generateAfternoonEvent(event)).join('')}
+              ${eventsInRow.map((event) => this.generateAfternoonEvent(event)).join("")}
             </div>
           `;
           rows.push(rowHtml);
@@ -98,7 +98,7 @@ class AfternoonScheduleGenerator {
           const eventsInRow = mainEvents.slice(i, i + 5);
           const rowHtml = `
             <div class="nzgdc-afternoon-event-row" data-row="main-${Math.floor(i / 5) + 1}">
-              ${eventsInRow.map(event => this.generateAfternoonEvent(event)).join('')}
+              ${eventsInRow.map((event) => this.generateAfternoonEvent(event)).join("")}
             </div>
           `;
           rows.push(rowHtml);
@@ -106,13 +106,19 @@ class AfternoonScheduleGenerator {
       }
     }
 
-    return rows.join('');
+    return rows.join("");
   }
 
   generateAfternoonEvent(event) {
-    const eventType = event.type || 'big';
-    const containerClass = eventType === 'main' ? 'nzgdc-afternoon-event-main' : 'nzgdc-afternoon-event';
-    const panelContainerClass = eventType === 'main' ? 'nzgdc-afternoon-event-panel-main-container' : 'nzgdc-afternoon-event-panel-container';
+    const eventType = event.type || "big";
+    const containerClass =
+      eventType === "main"
+        ? "nzgdc-afternoon-event-main"
+        : "nzgdc-afternoon-event";
+    const panelContainerClass =
+      eventType === "main"
+        ? "nzgdc-afternoon-event-panel-main-container"
+        : "nzgdc-afternoon-event-panel-container";
 
     return `
       <div class="${containerClass}">
@@ -130,7 +136,9 @@ class AfternoonScheduleGenerator {
   async renderSchedule(data) {
     try {
       if (this.isDestroyed) {
-        console.warn("Cannot render afternoon schedule - generator is destroyed");
+        console.warn(
+          "Cannot render afternoon schedule - generator is destroyed",
+        );
         return;
       }
 
@@ -165,7 +173,10 @@ class AfternoonScheduleGenerator {
 
       this.debug("Afternoon schedule rendering completed successfully");
     } catch (error) {
-      console.error("[NZGDC Afternoon Widget] Failed to render schedule:", error);
+      console.error(
+        "[NZGDC Afternoon Widget] Failed to render schedule:",
+        error,
+      );
       this.showScheduleError(error);
     }
   }
@@ -212,7 +223,10 @@ class AfternoonScheduleGenerator {
 
       this.debug("All afternoon event content loaded successfully");
     } catch (error) {
-      console.error("[NZGDC Afternoon Widget] Failed to load event content:", error);
+      console.error(
+        "[NZGDC Afternoon Widget] Failed to load event content:",
+        error,
+      );
       this.showEventLoadError(error);
     }
   }
@@ -223,7 +237,7 @@ class AfternoonScheduleGenerator {
     }
 
     const eventId = container.dataset.eventId;
-    const eventType = container.dataset.eventType || 'big';
+    const eventType = container.dataset.eventType || "big";
     this.debug("Loading afternoon event:", eventId);
 
     const eventData = window.AFTERNOON_EVENTS
@@ -247,7 +261,11 @@ class AfternoonScheduleGenerator {
       }
 
       this.debug("Creating afternoon event panel for:", eventId);
-      const eventPanel = this.eventLoader.createEventPanel(eventData, eventType);
+      const eventPanel = this.eventLoader.createEventPanel(
+        eventData,
+        eventType,
+        "afternoon",
+      );
 
       // Check if still valid before DOM update
       if (!this.isDestroyed && container.parentNode) {
@@ -263,9 +281,7 @@ class AfternoonScheduleGenerator {
 
       if (!this.isDestroyed && container.parentNode) {
         container.innerHTML = "";
-        container.appendChild(
-          this.eventLoader.createErrorPanel(error.message),
-        );
+        container.appendChild(this.eventLoader.createErrorPanel(error.message));
       }
     }
   }
@@ -304,10 +320,7 @@ class AfternoonScheduleGenerator {
       this.loadedEvents.clear();
 
       // Destroy event loader if it has cleanup methods
-      if (
-        this.eventLoader &&
-        typeof this.eventLoader.destroy === "function"
-      ) {
+      if (this.eventLoader && typeof this.eventLoader.destroy === "function") {
         this.eventLoader.destroy();
       }
       this.eventLoader = null;

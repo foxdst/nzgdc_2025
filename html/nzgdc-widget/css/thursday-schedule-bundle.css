@@ -1,0 +1,323 @@
+/* NZGDC Thursday Schedule Widget - CSS Bundle */
+/* Updated to work with unified event panel system */
+
+/* ===== THURSDAY WIDGET CORE STYLES ===== */
+
+/* CSS Custom Properties (Variables) */
+.nzgdc-schedule-widget {
+    --color-yellow: rgba(255, 236, 81, 1);
+    --color-blue: rgba(23, 75, 235, 1);
+    --color-blue-hover: rgba(20, 65, 200, 1);
+    --color-white: rgba(255, 255, 255, 1);
+    --color-black: rgba(0, 0, 0, 1);
+    --color-gray-light: #f0f0f0;
+    --color-gray-medium: #666;
+    --color-gray-border: #ddd;
+
+    --font-primary: "Futura PT Heavy", "Futura", Arial, sans-serif;
+    --font-medium: "Futura PT Medium", "Futura", Arial, sans-serif;
+
+    --container-max-width: 1630px;
+    --event-panel-width: 620px;
+    --event-panel-height: 300px;
+}
+
+/* Scoped reset for the Thursday schedule component only */
+.nzgdc-schedule-widget * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Main container */
+.nzgdc-schedule-widget {
+    font-family: var(--font-primary);
+    background-color: var(--color-white);
+    width: 100%;
+    max-width: var(--container-max-width);
+    height: auto;
+    margin: 0 auto;
+    position: relative;
+}
+
+/* Schedule Sub Navigation - Contains Filters */
+.nzgdc-schedule-widget .nzgdc-schedule-sub-navigation {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    width: 100%;
+    max-width: var(--container-max-width);
+    background-color: var(--color-white);
+}
+
+.nzgdc-schedule-widget .nzgdc-filters-section {
+    display: flex;
+    align-items: center;
+}
+
+.nzgdc-schedule-widget .nzgdc-filters-label {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 15px;
+    box-sizing: border-box;
+    background-color: var(--color-yellow);
+}
+
+.nzgdc-schedule-widget .nzgdc-filters-label-text {
+    color: var(--color-black);
+    font-family: var(--font-primary);
+    font-size: 28px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.nzgdc-schedule-widget .nzgdc-filters-value {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 15px;
+    box-sizing: border-box;
+    background-color: var(--color-white);
+}
+
+.nzgdc-schedule-widget .nzgdc-filters-value-text {
+    color: var(--color-black);
+    font-family: var(--font-primary);
+    font-size: 28px;
+    font-weight: 600;
+    text-align: center;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+/* Time Categories - Base Styles */
+.nzgdc-schedule-widget .nzgdc-time-category {
+    width: 100%;
+    max-width: var(--container-max-width);
+}
+
+.nzgdc-schedule-widget .nzgdc-time-category-a {
+    background-color: var(--color-yellow);
+}
+
+.nzgdc-schedule-widget .nzgdc-time-category-b {
+    background-color: var(--color-blue);
+}
+
+/* Session Schedule Header - Consolidated Base Styles */
+.nzgdc-schedule-widget .nzgdc-session-schedule {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 46px;
+    margin: 17px 0 10px 0;
+    padding: 0 25px;
+}
+
+/* Theme-specific colors */
+.nzgdc-schedule-widget .nzgdc-time-category-a .nzgdc-session-times,
+.nzgdc-schedule-widget .nzgdc-time-category-a .nzgdc-session-title {
+    color: var(--color-black);
+    font-family: var(--font-primary);
+    font-size: 36px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.nzgdc-schedule-widget .nzgdc-time-category-b .nzgdc-session-times,
+.nzgdc-schedule-widget .nzgdc-time-category-b .nzgdc-session-title {
+    color: var(--color-white);
+    font-family: var(--font-primary);
+    font-size: 36px;
+    font-weight: 800;
+    text-align: center;
+}
+
+/* Underline elements */
+.nzgdc-schedule-widget .nzgdc-underline {
+    width: calc(100% - 50px);
+    height: 5px;
+    margin: 0 auto;
+    display: block;
+    flex-shrink: 0;
+}
+
+.nzgdc-schedule-widget .nzgdc-event-times-a .nzgdc-underline {
+    background-color: var(--color-black);
+}
+
+.nzgdc-schedule-widget .nzgdc-event-times-b .nzgdc-underline {
+    background-color: var(--color-white);
+}
+
+/* Event Times Containers */
+.nzgdc-schedule-widget .nzgdc-event-times-a {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    max-width: var(--container-max-width);
+    height: 81px;
+    background-color: var(--color-yellow);
+}
+
+.nzgdc-schedule-widget .nzgdc-event-times-b {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    max-width: var(--container-max-width);
+    height: 81px;
+    background-color: var(--color-blue);
+}
+
+/* Scheduled Workshops Container */
+.nzgdc-schedule-widget .nzgdc-scheduled-workshops {
+    width: 100%;
+    max-width: var(--container-max-width);
+    padding: 40px;
+    background-color: inherit;
+}
+
+/* Workshop Rows - Flexible Layout */
+.nzgdc-schedule-widget .nzgdc-workshop-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    min-height: var(--event-panel-height);
+    margin: 0 0 40px 0;
+}
+
+.nzgdc-schedule-widget .nzgdc-workshop-row:last-child {
+    margin-bottom: 0;
+}
+
+/* Workshop Event Containers - Flexible Sizing */
+.nzgdc-schedule-widget .nzgdc-workshop-event {
+    flex: 1;
+    max-width: var(--event-panel-width);
+    width: var(--event-panel-width);
+    height: var(--event-panel-height);
+}
+
+/* Event Panel Container - Optimized for Dynamic Content */
+.nzgdc-schedule-widget .nzgdc-event-panel-container {
+    width: var(--event-panel-width);
+    height: var(--event-panel-height);
+    overflow: hidden;
+    position: relative;
+}
+
+/* Schedule Footer Navigation */
+.nzgdc-schedule-widget .nzgdc-schedule-footer-navigation {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%;
+    max-width: var(--container-max-width);
+    background-color: var(--color-white);
+}
+
+/* Back to Top Button */
+.nzgdc-schedule-widget .nzgdc-back-to-top {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 15px;
+    background-color: var(--color-blue);
+    border: none;
+    cursor: pointer;
+    color: var(--color-white);
+    font-family: var(--font-primary);
+    font-size: 28px;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+}
+
+.nzgdc-schedule-widget .nzgdc-back-to-top:hover {
+    background-color: var(--color-blue-hover);
+}
+
+/* ===== RESPONSIVE STYLES ===== */
+
+/* Responsive Breakpoints */
+@media (max-width: 1680px) {
+    .nzgdc-schedule-widget {
+        padding: 0;
+    }
+}
+
+@media (max-width: 1300px) {
+    .nzgdc-schedule-widget .nzgdc-workshop-row {
+        flex-direction: column;
+        height: auto;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .nzgdc-schedule-widget .nzgdc-session-schedule {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+        height: auto;
+        padding: 10px;
+    }
+
+    .nzgdc-schedule-widget .nzgdc-time-category-a .nzgdc-session-times,
+    .nzgdc-schedule-widget .nzgdc-time-category-a .nzgdc-session-title,
+    .nzgdc-schedule-widget .nzgdc-time-category-b .nzgdc-session-times,
+    .nzgdc-schedule-widget .nzgdc-time-category-b .nzgdc-session-title {
+        font-size: 24px;
+    }
+
+    .nzgdc-schedule-widget .nzgdc-scheduled-workshops {
+        padding: 20px;
+    }
+
+    .nzgdc-schedule-widget .nzgdc-workshop-row {
+        margin-bottom: 20px;
+    }
+
+    .nzgdc-schedule-widget .nzgdc-back-to-top {
+        font-size: 24px;
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .nzgdc-schedule-widget {
+        padding: 0;
+    }
+
+    .nzgdc-schedule-widget .nzgdc-scheduled-workshops {
+        padding: 10px;
+    }
+
+    .nzgdc-schedule-widget .nzgdc-filters-section {
+        padding: 10px 15px;
+    }
+
+    .nzgdc-schedule-widget .nzgdc-filters-label-text {
+        font-size: 24px;
+    }
+
+    .nzgdc-schedule-widget .nzgdc-filters-value-text {
+        font-size: 22px;
+    }
+}

@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NZGDC Schedule Widgets Demo</title>
+    <link rel="stylesheet" href="css/unified-event-panel.css">
+    <link rel="stylesheet" href="css/thursday-schedule-bundle.css">
+    <link rel="stylesheet" href="css/morning-schedule-bundle.css">
+    <link rel="stylesheet" href="css/afternoon-schedule-bundle.css">
     <style>
         /* NZGDC Color Variables */
         :root {
@@ -246,6 +250,7 @@
             -->
             <button id="toggleBtn" onclick="toggleWidget()">Show Thursday Schedule</button>
             <button id="testBtn" onclick="testWidget()">Test Widgets</button>
+            <button id="testUnifiedBtn" onclick="testUnifiedSystem()">Test Unified System</button>
             <button id="clearBtn" onclick="clearWidget()">Clear All</button>
             <button id="destroyBtn" onclick="destroyWidget()">Destroy All</button>
             <button id="verifyBtn" onclick="verifyData()">Verify Data</button>
@@ -425,7 +430,7 @@
         }
 
         async function createAfternoonWidget() {
-            // Create new Afternoon widget instance
+            // Create new Afternoon widget instance using afternoon API
             if (window.NZGDCAfternoonWidget && window.NZGDCAfternoonWidget.isReady()) {
                 const container = document.getElementById('afternoon-container');
 
@@ -439,7 +444,7 @@
                         container.innerHTML = '<h2>Friday & Saturday Afternoon Schedule</h2>';
                     }
 
-                    // Create new widget instance using the modular API
+                    // Create new widget instance using the afternoon API
                     const widget = await NZGDCAfternoonWidget.create(container, {
                         showFilters: true,
                         showFooter: true,
@@ -457,7 +462,7 @@
         }
 
         async function createMorningWidget() {
-            // Create new Morning widget instance
+            // Create new Morning widget instance using morning API
             if (window.NZGDCMorningWidget && window.NZGDCMorningWidget.isReady()) {
                 const container = document.getElementById('morning-container');
 
@@ -471,7 +476,7 @@
                         container.innerHTML = '<h2>Friday & Saturday Morning Schedule</h2>';
                     }
 
-                    // Create new widget instance using the modular API
+                    // Create new widget instance using the morning API
                     const widget = await NZGDCMorningWidget.create(container, {
                         showFilters: true,
                         showFooter: true,
@@ -563,9 +568,9 @@
                afternoonContainer.innerHTML = '<h2>Friday & Saturday Afternoon Schedule</h2>';
            }
 
-           // Show Morning widget
+           // Show morning widget using morning API
            if (typeof window.NZGDCMorningWidget !== 'undefined') {
-               updateStatus('Creating Morning widget...', 'info');
+               updateStatus('Creating morning widget...', 'info');
                window.NZGDCMorningWidget.ready(async () => {
                    currentMorningWidget = await createMorningWidget();
                    if (currentMorningWidget) {
@@ -574,12 +579,12 @@
                        updateStatus('Morning widget loaded successfully!', 'success');
                        updateButtonStates();
                    } else {
-                       updateStatus('Failed to create Morning widget', 'error');
+                       updateStatus('Failed to create morning widget', 'error');
                    }
                });
                return;
            }
-           updateStatus('Morning widget API not available - ensure script is loaded', 'error');
+           updateStatus('Morning widget API not available - ensure morning script is loaded', 'error');
        }
 
        /**
@@ -616,9 +621,9 @@
                morningContainer.innerHTML = '<h2>Friday & Saturday Morning Schedule</h2>';
            }
 
-           // Show Afternoon widget
+           // Show afternoon widget using afternoon API
            if (typeof window.NZGDCAfternoonWidget !== 'undefined') {
-               updateStatus('Creating Afternoon widget...', 'info');
+               updateStatus('Creating afternoon widget...', 'info');
                window.NZGDCAfternoonWidget.ready(async () => {
                    currentAfternoonWidget = await createAfternoonWidget();
                    if (currentAfternoonWidget) {
@@ -627,12 +632,12 @@
                        updateStatus('Afternoon widget loaded successfully!', 'success');
                        updateButtonStates();
                    } else {
-                       updateStatus('Failed to create Afternoon widget', 'error');
+                       updateStatus('Failed to create afternoon widget', 'error');
                    }
                });
                return;
            }
-           updateStatus('Afternoon widget API not available - ensure script is loaded', 'error');
+           updateStatus('Afternoon widget API not available - ensure afternoon script is loaded', 'error');
        }
 
         async function toggleWidget() {
@@ -1035,9 +1040,237 @@
 
         // Note: Auto-loading is DISABLED - widgets only load when manually requested
         // This ensures users see the background message and can choose which widgets to load
+
+        // Debugging function for testing unified system
+        function testUnifiedSystem() {
+            console.log('🧪 Testing NZGDC Unified Widget System...\n');
+
+            // Test UnifiedEventLoader availability
+            console.log('1. UnifiedEventLoader availability:', typeof window.UnifiedEventLoader);
+
+            if (window.UnifiedEventLoader) {
+                try {
+                    const loader = new UnifiedEventLoader();
+                    console.log('2. UnifiedEventLoader instantiation: ✅ Success');
+
+                    // Test template loading
+                    loader.loadTemplate().then(() => {
+                        console.log('3. Template loading: ✅ Success');
+                        console.log('   Template loaded:', loader.template ? 'Yes' : 'No');
+
+                        // Test event panel creation with sample data
+                        const sampleEventData = {
+                            category: 'Test Category',
+                            title: 'Test Event Title',
+                            timeframe: '30 minutes',
+                            speakers: [
+                                { name: 'Test Speaker', position: 'Test Position at Test Company' }
+                            ]
+                        };
+
+                        try {
+                            // Test big panel creation for each widget type
+                            const thursdayPanel = loader.createEventPanel(sampleEventData, 'big', 'thursday');
+                            const morningPanel = loader.createEventPanel(sampleEventData, 'big', 'morning');
+                            const afternoonPanel = loader.createEventPanel(sampleEventData, 'big', 'afternoon');
+
+                            console.log('4. Event panel creation:');
+                            console.log('   Thursday big panel: ✅ Success');
+                            console.log('   Morning big panel: ✅ Success');
+                            console.log('   Afternoon big panel: ✅ Success');
+
+                            // Test main panel creation
+                            const mainPanel = loader.createEventPanel(sampleEventData, 'main', 'morning');
+                            console.log('   Main panel: ✅ Success');
+
+                        } catch (panelError) {
+                            console.error('4. Event panel creation: ❌ Failed', panelError);
+                        }
+
+                    }).catch(templateError => {
+                        console.error('3. Template loading: ❌ Failed', templateError);
+                    });
+
+                } catch (loaderError) {
+                    console.error('2. UnifiedEventLoader instantiation: ❌ Failed', loaderError);
+                }
+            } else {
+                console.error('1. UnifiedEventLoader not found - check if scripts loaded correctly');
+            }
+
+            // Test widget APIs
+            console.log('\n5. Widget API availability:');
+            console.log('   NZGDCWidget (Thursday):', typeof window.NZGDCWidget);
+            console.log('   NZGDCMorningWidget:', typeof window.NZGDCMorningWidget);
+            console.log('   NZGDCAfternoonWidget:', typeof window.NZGDCAfternoonWidget);
+
+            // Test data availability
+            console.log('\n6. Data availability:');
+            console.log('   WORKSHOP_EVENTS:', typeof window.WORKSHOP_EVENTS);
+            console.log('   MORNING_EVENTS:', typeof window.MORNING_EVENTS);
+            console.log('   AFTERNOON_EVENTS:', typeof window.AFTERNOON_EVENTS);
+            console.log('   SCHEDULE_DATA:', typeof window.SCHEDULE_DATA);
+            console.log('   MORNING_SCHEDULE_DATA:', typeof window.MORNING_SCHEDULE_DATA);
+            console.log('   AFTERNOON_SCHEDULE_DATA:', typeof window.AFTERNOON_SCHEDULE_DATA);
+
+            // Test template availability
+            console.log('\n7. Template availability:');
+            console.log('   UNIFIED_EVENT_PANEL_TEMPLATE:', typeof window.UNIFIED_EVENT_PANEL_TEMPLATE);
+
+            console.log('\n🧪 Unified system test complete - check results above');
+        }
+
+        // Make function available globally for console testing
+        window.testUnifiedSystem = testUnifiedSystem;
+
+        /**
+         * Test Main Event Panel CSS availability and fix verification
+         * Verifies that the CSS fix for missing main panel styles is working
+         */
+        function testMainEventPanelCSS() {
+            console.log('\n🔧 === Main Event Panel CSS Verification Test ===');
+
+            // Test CSS rule availability for both widget types
+            const testResults = {
+                morning: {},
+                afternoon: {}
+            };
+
+            // Check if critical main panel CSS classes are available
+            const criticalClasses = [
+                '.nzgdc-event-panel-main',
+                '.nzgdc-event-category-main',
+                '.nzgdc-category-text-main',
+                '.nzgdc-event-panel-title-main',
+                '.nzgdc-title-text-main',
+                '.nzgdc-event-panel-thumbnail-main',
+                '.nzgdc-session-thumbnail-main',
+                '.nzgdc-event-panel-overlay-main',
+                '.nzgdc-speaker-details-main',
+                '.nzgdc-speaker-name-main',
+                '.nzgdc-speaker-position-company-main',
+                '.nzgdc-call-to-action-main',
+                '.nzgdc-open-marker-main',
+                '.nzgdc-cta-text-main'
+            ];
+
+            // Create test elements to verify CSS is applied
+            console.log('\n1. Testing Morning Widget CSS:');
+            const morningTestContainer = document.createElement('div');
+            morningTestContainer.className = 'nzgdc-morning-schedule-widget';
+            morningTestContainer.style.position = 'absolute';
+            morningTestContainer.style.left = '-9999px';
+            morningTestContainer.style.top = '-9999px';
+
+            const morningTestPanel = document.createElement('div');
+            morningTestPanel.className = 'nzgdc-event-panel-main';
+            morningTestContainer.appendChild(morningTestPanel);
+            document.body.appendChild(morningTestContainer);
+
+            // Test computed styles
+            const morningStyles = window.getComputedStyle(morningTestPanel);
+            testResults.morning.width = morningStyles.width;
+            testResults.morning.height = morningStyles.height;
+            testResults.morning.display = morningStyles.display;
+
+            console.log('   Morning main panel width:', testResults.morning.width);
+            console.log('   Morning main panel height:', testResults.morning.height);
+            console.log('   Morning main panel display:', testResults.morning.display);
+
+            // Test afternoon widget
+            console.log('\n2. Testing Afternoon Widget CSS:');
+            const afternoonTestContainer = document.createElement('div');
+            afternoonTestContainer.className = 'nzgdc-afternoon-schedule-widget';
+            afternoonTestContainer.style.position = 'absolute';
+            afternoonTestContainer.style.left = '-9999px';
+            afternoonTestContainer.style.top = '-9999px';
+
+            const afternoonTestPanel = document.createElement('div');
+            afternoonTestPanel.className = 'nzgdc-event-panel-main';
+            afternoonTestContainer.appendChild(afternoonTestPanel);
+            document.body.appendChild(afternoonTestContainer);
+
+            const afternoonStyles = window.getComputedStyle(afternoonTestPanel);
+            testResults.afternoon.width = afternoonStyles.width;
+            testResults.afternoon.height = afternoonStyles.height;
+            testResults.afternoon.display = afternoonStyles.display;
+
+            console.log('   Afternoon main panel width:', testResults.afternoon.width);
+            console.log('   Afternoon main panel height:', testResults.afternoon.height);
+            console.log('   Afternoon main panel display:', testResults.afternoon.display);
+
+            // Clean up test elements
+            document.body.removeChild(morningTestContainer);
+            document.body.removeChild(afternoonTestContainer);
+
+            // Analyze results
+            console.log('\n3. Test Results Analysis:');
+            const morningValid = testResults.morning.width === '300px' &&
+                                 testResults.morning.height === '300px' &&
+                                 testResults.morning.display === 'flex';
+            const afternoonValid = testResults.afternoon.width === '300px' &&
+                                   testResults.afternoon.height === '300px' &&
+                                   testResults.afternoon.display === 'flex';
+
+            console.log('   Morning widget CSS fix status:', morningValid ? '✅ WORKING' : '❌ FAILED');
+            console.log('   Afternoon widget CSS fix status:', afternoonValid ? '✅ WORKING' : '❌ FAILED');
+
+            // Test CSS specificity
+            console.log('\n4. CSS Specificity Test:');
+            const stylesheets = Array.from(document.styleSheets);
+            let foundMorningRules = 0;
+            let foundAfternoonRules = 0;
+
+            stylesheets.forEach((sheet, index) => {
+                try {
+                    const rules = Array.from(sheet.cssRules || []);
+                    rules.forEach(rule => {
+                        if (rule.selectorText) {
+                            if (rule.selectorText.includes('.nzgdc-morning-schedule-widget .nzgdc-event-panel-main')) {
+                                foundMorningRules++;
+                            }
+                            if (rule.selectorText.includes('.nzgdc-afternoon-schedule-widget .nzgdc-event-panel-main')) {
+                                foundAfternoonRules++;
+                            }
+                        }
+                    });
+                } catch (e) {
+                    // Skip stylesheets that can't be accessed (CORS)
+                }
+            });
+
+            console.log('   Morning main panel CSS rules found:', foundMorningRules);
+            console.log('   Afternoon main panel CSS rules found:', foundAfternoonRules);
+
+            // Final assessment
+            console.log('\n5. Final Assessment:');
+            const overallSuccess = morningValid && afternoonValid && foundMorningRules > 0 && foundAfternoonRules > 0;
+
+            if (overallSuccess) {
+                console.log('   🎉 SUCCESS: Main Event Panel CSS fix is working correctly!');
+                console.log('   ✅ Both Morning and Afternoon widgets have proper main panel styles');
+                console.log('   ✅ CSS specificity conflicts have been resolved');
+            } else {
+                console.log('   ⚠️  WARNING: Main Event Panel CSS fix may have issues');
+                if (!morningValid) console.log('   - Morning widget main panel styles not applied correctly');
+                if (!afternoonValid) console.log('   - Afternoon widget main panel styles not applied correctly');
+                if (foundMorningRules === 0) console.log('   - Morning main panel CSS rules not found');
+                if (foundAfternoonRules === 0) console.log('   - Afternoon main panel CSS rules not found');
+            }
+
+            return {
+                success: overallSuccess,
+                morning: { valid: morningValid, rules: foundMorningRules },
+                afternoon: { valid: afternoonValid, rules: foundAfternoonRules },
+                results: testResults
+            };
+        }
+
+        // Make testing functions available globally
+        window.testMainEventPanelCSS = testMainEventPanelCSS;
     </script>
 
-    <!-- Load widget scripts but do NOT auto-initialize -->
+    <!-- Load all three widget scripts -->
     <script src="nzgdc-schedule-widget-modular.js"></script>
     <script src="nzgdc-morning-schedule-widget-modular.js"></script>
     <script src="nzgdc-afternoon-schedule-widget-modular.js"></script>

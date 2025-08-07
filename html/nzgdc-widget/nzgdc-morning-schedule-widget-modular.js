@@ -44,8 +44,11 @@
           debug: DEBUG_MODE,
         });
 
-        // Load bundled CSS file
-        await this.loadCSS("css/morning-schedule-bundle.css");
+        // Load bundled CSS files
+        await Promise.all([
+          this.loadCSS("css/unified-event-panel.css"),
+          this.loadCSS("css/morning-schedule-bundle.css"),
+        ]);
         this.cssLoaded = true;
         debugLog("Morning CSS bundle loaded successfully");
 
@@ -58,15 +61,15 @@
 
         // Load core JavaScript files
         await Promise.all([
-          this.loadScript("js/morning-event-loader.js"),
+          this.loadScript("js/unified-event-loader.js"),
           this.loadScript("js/morning-schedule-generator.js"),
           this.loadScript("js/morning-widget-core.js"),
         ]);
         this.jsLoaded = true;
         debugLog("Morning JavaScript modules loaded successfully");
 
-        // Load HTML template
-        await this.loadTemplate();
+        // Load unified HTML template
+        await this.loadUnifiedTemplate();
         this.templateLoaded = true;
         debugLog("Morning template loaded successfully");
 
@@ -166,11 +169,11 @@
       });
     }
 
-    async loadTemplate() {
+    async loadUnifiedTemplate() {
       try {
         const templatePath =
-          WIDGET_BASE_PATH + "templates/morning-event-panel.html";
-        debugLog("Loading morning template:", templatePath);
+          WIDGET_BASE_PATH + "templates/unified-event-panel.html";
+        debugLog("Loading unified template:", templatePath);
 
         // Create AbortController for timeout
         const controller = new AbortController();
@@ -189,25 +192,25 @@
         }
 
         const html = await response.text();
-        debugLog("External morning template loaded successfully");
+        debugLog("External unified template loaded successfully");
 
-        // Store template globally for the widget to access
-        window.MORNING_EVENT_PANEL_TEMPLATE = html;
+        // Store template globally for the unified widget system
+        window.UNIFIED_EVENT_PANEL_TEMPLATE = html;
 
         return true;
       } catch (error) {
         if (error.name === "AbortError") {
-          debugLog("Morning template loading timeout, using fallback");
+          debugLog("Unified template loading timeout, using fallback");
         } else {
           debugLog(
-            "Morning template loading failed, using fallback:",
+            "Unified template loading failed, using fallback:",
             error.message,
           );
         }
 
-        // Embedded template fallback (minified for production)
-        window.MORNING_EVENT_PANEL_TEMPLATE =
-          '<div class="nzgdc-morning-event-panel-big"><div class="nzgdc-morning-event-panel-big-thumbnail"><div class="nzgdc-morning-session-thumbnail-big"></div><div class="nzgdc-morning-event-detail-overlay-big"><div class="nzgdc-morning-call-to-action-big"><div class="nzgdc-morning-open-marker-big"></div><div class="nzgdc-morning-cta-text-big">Click for More Event Details</div></div></div></div><div class="nzgdc-morning-event-panel-big-details"><div class="nzgdc-morning-event-category-big"><div class="nzgdc-morning-category-text-big">Morning Panels & Events</div></div><div class="nzgdc-morning-event-title-big"><div class="nzgdc-morning-title-text-big">This is a Placeholder Title occupying two lines of space</div></div><div class="nzgdc-morning-event-speaker-details-big"><div class="nzgdc-morning-introduction-text-big">NZGDC 2025 Morning Event by</div><div class="nzgdc-morning-speaker-details-big"><div class="nzgdc-morning-speaker-biolines-big"><div class="nzgdc-morning-speaker-bioName-big">Speaker Name</div><div class="nzgdc-morning-speaker-bioPosition-big">Position + Company</div></div><div class="nzgdc-morning-speaker-biolines-big"><div class="nzgdc-morning-speaker-bioName-big">Speaker Name</div><div class="nzgdc-morning-speaker-bioPosition-big">Position + Company</div></div><div class="nzgdc-morning-speaker-biolines-big"><div class="nzgdc-morning-speaker-bioName-big">Speaker Name</div><div class="nzgdc-morning-speaker-bioPosition-big">Position + Company</div></div></div><div class="nzgdc-morning-timeframe-big"><div class="nzgdc-morning-timeframe-text-big">Timeframe (Duration)</div></div></div></div></div>';
+        // Embedded unified template fallback (minified for production)
+        window.UNIFIED_EVENT_PANEL_TEMPLATE =
+          '<div class="nzgdc-event-panel-big"><div class="nzgdc-event-panel-big-thumbnail"><div class="nzgdc-session-thumbnail-big"></div><div class="nzgdc-event-detail-overlay-big"><div class="nzgdc-call-to-action-big"><div class="nzgdc-open-marker-big"></div><div class="nzgdc-cta-text-big">Click for More Event Details</div></div></div></div><div class="nzgdc-event-panel-big-details"><div class="nzgdc-event-category-big"><div class="nzgdc-category-text-big"></div></div><div class="nzgdc-event-title-big"><div class="nzgdc-title-text-big"></div></div><div class="nzgdc-event-speaker-details-big"><div class="nzgdc-introduction-text-big">NZGDC 2025 Event by</div><div class="nzgdc-speaker-details-big"><div class="nzgdc-speaker-biolines-big"><div class="nzgdc-speaker-bioName-big"></div><div class="nzgdc-speaker-bioPosition-big"></div></div><div class="nzgdc-speaker-biolines-big"><div class="nzgdc-speaker-bioName-big"></div><div class="nzgdc-speaker-bioPosition-big"></div></div><div class="nzgdc-speaker-biolines-big"><div class="nzgdc-speaker-bioName-big"></div><div class="nzgdc-speaker-bioPosition-big"></div></div></div><div class="nzgdc-timeframe-big"><div class="nzgdc-timeframe-text-big"></div></div></div></div></div>';
         return true;
       }
     }
@@ -333,7 +336,7 @@
           morningScheduleData:
             typeof window.MORNING_SCHEDULE_DATA !== "undefined",
           morningEvents: typeof window.MORNING_EVENTS !== "undefined",
-          morningEventLoader: typeof window.MorningEventLoader !== "undefined",
+          unifiedEventLoader: typeof window.UnifiedEventLoader !== "undefined",
           morningScheduleGenerator:
             typeof window.MorningScheduleGenerator !== "undefined",
           morningWidgetCore:

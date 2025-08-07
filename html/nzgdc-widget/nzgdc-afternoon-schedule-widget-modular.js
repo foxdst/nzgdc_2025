@@ -44,8 +44,11 @@
           debug: DEBUG_MODE,
         });
 
-        // Load bundled CSS file
-        await this.loadCSS("css/afternoon-schedule-bundle.css");
+        // Load bundled CSS files
+        await Promise.all([
+          this.loadCSS("css/unified-event-panel.css"),
+          this.loadCSS("css/afternoon-schedule-bundle.css"),
+        ]);
         this.cssLoaded = true;
         debugLog("Afternoon CSS bundle loaded successfully");
 
@@ -58,15 +61,15 @@
 
         // Load core JavaScript files
         await Promise.all([
-          this.loadScript("js/afternoon-event-loader.js"),
+          this.loadScript("js/unified-event-loader.js"),
           this.loadScript("js/afternoon-schedule-generator.js"),
           this.loadScript("js/afternoon-widget-core.js"),
         ]);
         this.jsLoaded = true;
         debugLog("Afternoon JavaScript modules loaded successfully");
 
-        // Load HTML template
-        await this.loadTemplate();
+        // Load unified HTML template
+        await this.loadUnifiedTemplate();
         this.templateLoaded = true;
         debugLog("Afternoon template loaded successfully");
 
@@ -159,18 +162,21 @@
         };
         script.onerror = () => {
           clearTimeout(timeoutId);
-          console.error("[NZGDC Afternoon Widget] Script loading failed:", path);
+          console.error(
+            "[NZGDC Afternoon Widget] Script loading failed:",
+            path,
+          );
           reject(new Error(`Failed to load afternoon script: ${path}`));
         };
         document.head.appendChild(script);
       });
     }
 
-    async loadTemplate() {
+    async loadUnifiedTemplate() {
       try {
         const templatePath =
-          WIDGET_BASE_PATH + "templates/afternoon-event-panel.html";
-        debugLog("Loading afternoon template:", templatePath);
+          WIDGET_BASE_PATH + "templates/unified-event-panel.html";
+        debugLog("Loading unified template:", templatePath);
 
         // Create AbortController for timeout
         const controller = new AbortController();
@@ -189,25 +195,25 @@
         }
 
         const html = await response.text();
-        debugLog("External afternoon template loaded successfully");
+        debugLog("External unified template loaded successfully");
 
-        // Store template globally for the widget to access
-        window.AFTERNOON_EVENT_PANEL_TEMPLATE = html;
+        // Store template globally for the unified widget system
+        window.UNIFIED_EVENT_PANEL_TEMPLATE = html;
 
         return true;
       } catch (error) {
         if (error.name === "AbortError") {
-          debugLog("Afternoon template loading timeout, using fallback");
+          debugLog("Unified template loading timeout, using fallback");
         } else {
           debugLog(
-            "Afternoon template loading failed, using fallback:",
+            "Unified template loading failed, using fallback:",
             error.message,
           );
         }
 
-        // Embedded template fallback (minified for production)
-        window.AFTERNOON_EVENT_PANEL_TEMPLATE =
-          '<div class="nzgdc-afternoon-event-panel-big"><div class="nzgdc-afternoon-event-panel-big-thumbnail"><div class="nzgdc-afternoon-session-thumbnail-big"></div><div class="nzgdc-afternoon-event-detail-overlay-big"><div class="nzgdc-afternoon-call-to-action-big"><div class="nzgdc-afternoon-open-marker-big"></div><div class="nzgdc-afternoon-cta-text-big">Click for More Event Details</div></div></div></div><div class="nzgdc-afternoon-event-panel-big-details"><div class="nzgdc-afternoon-event-category-big"><div class="nzgdc-afternoon-category-text-big">Afternoon Panels & Events</div></div><div class="nzgdc-afternoon-event-title-big"><div class="nzgdc-afternoon-title-text-big">This is a Placeholder Title occupying two lines of space</div></div><div class="nzgdc-afternoon-event-speaker-details-big"><div class="nzgdc-afternoon-introduction-text-big">NZGDC 2025 Afternoon Event by</div><div class="nzgdc-afternoon-speaker-details-big"><div class="nzgdc-afternoon-speaker-biolines-big"><div class="nzgdc-afternoon-speaker-bioName-big">Speaker Name</div><div class="nzgdc-afternoon-speaker-bioPosition-big">Position + Company</div></div><div class="nzgdc-afternoon-speaker-biolines-big"><div class="nzgdc-afternoon-speaker-bioName-big">Speaker Name</div><div class="nzgdc-afternoon-speaker-bioPosition-big">Position + Company</div></div><div class="nzgdc-afternoon-speaker-biolines-big"><div class="nzgdc-afternoon-speaker-bioName-big">Speaker Name</div><div class="nzgdc-afternoon-speaker-bioPosition-big">Position + Company</div></div></div><div class="nzgdc-afternoon-timeframe-big"><div class="nzgdc-afternoon-timeframe-text-big">Timeframe (Duration)</div></div></div></div></div>';
+        // Embedded unified template fallback (minified for production)
+        window.UNIFIED_EVENT_PANEL_TEMPLATE =
+          '<div class="nzgdc-event-panel-big"><div class="nzgdc-event-panel-big-thumbnail"><div class="nzgdc-session-thumbnail-big"></div><div class="nzgdc-event-detail-overlay-big"><div class="nzgdc-call-to-action-big"><div class="nzgdc-open-marker-big"></div><div class="nzgdc-cta-text-big">Click for More Event Details</div></div></div></div><div class="nzgdc-event-panel-big-details"><div class="nzgdc-event-category-big"><div class="nzgdc-category-text-big"></div></div><div class="nzgdc-event-title-big"><div class="nzgdc-title-text-big"></div></div><div class="nzgdc-event-speaker-details-big"><div class="nzgdc-introduction-text-big">NZGDC 2025 Event by</div><div class="nzgdc-speaker-details-big"><div class="nzgdc-speaker-biolines-big"><div class="nzgdc-speaker-bioName-big"></div><div class="nzgdc-speaker-bioPosition-big"></div></div><div class="nzgdc-speaker-biolines-big"><div class="nzgdc-speaker-bioName-big"></div><div class="nzgdc-speaker-bioPosition-big"></div></div><div class="nzgdc-speaker-biolines-big"><div class="nzgdc-speaker-bioName-big"></div><div class="nzgdc-speaker-bioPosition-big"></div></div></div><div class="nzgdc-timeframe-big"><div class="nzgdc-timeframe-text-big"></div></div></div></div></div>';
         return true;
       }
     }
@@ -333,7 +339,7 @@
           afternoonScheduleData:
             typeof window.AFTERNOON_SCHEDULE_DATA !== "undefined",
           afternoonEvents: typeof window.AFTERNOON_EVENTS !== "undefined",
-          afternoonEventLoader: typeof window.AfternoonEventLoader !== "undefined",
+          unifiedEventLoader: typeof window.UnifiedEventLoader !== "undefined",
           afternoonScheduleGenerator:
             typeof window.AfternoonScheduleGenerator !== "undefined",
           afternoonWidgetCore:

@@ -3,7 +3,7 @@
 class ScheduleGenerator {
   constructor(container) {
     this.container = container;
-    this.workshopLoader = new WorkshopEventLoader();
+    this.eventLoader = new UnifiedEventLoader();
     this.loadedWorkshops = new Set(); // Track loaded workshops for cleanup
     this.isDestroyed = false;
   }
@@ -122,7 +122,7 @@ class ScheduleGenerator {
       }
 
       // Load the template once
-      await this.workshopLoader.loadTemplate();
+      await this.eventLoader.loadTemplate();
 
       // Find all workshop containers
       const containers = this.container.querySelectorAll(
@@ -188,7 +188,11 @@ class ScheduleGenerator {
       }
 
       this.debug("Creating event panel for workshop:", eventId);
-      const eventPanel = this.workshopLoader.createEventPanel(eventData);
+      const eventPanel = this.eventLoader.createEventPanel(
+        eventData,
+        "big",
+        "thursday",
+      );
 
       // Check if still valid before DOM update
       if (!this.isDestroyed && container.parentNode) {
@@ -204,9 +208,7 @@ class ScheduleGenerator {
 
       if (!this.isDestroyed && container.parentNode) {
         container.innerHTML = "";
-        container.appendChild(
-          this.workshopLoader.createErrorPanel(error.message),
-        );
+        container.appendChild(this.eventLoader.createErrorPanel(error.message));
       }
     }
   }
@@ -244,14 +246,11 @@ class ScheduleGenerator {
       // Clear workshop tracking
       this.loadedWorkshops.clear();
 
-      // Destroy workshop loader if it has cleanup methods
-      if (
-        this.workshopLoader &&
-        typeof this.workshopLoader.destroy === "function"
-      ) {
-        this.workshopLoader.destroy();
+      // Destroy event loader if it has cleanup methods
+      if (this.eventLoader && typeof this.eventLoader.destroy === "function") {
+        this.eventLoader.destroy();
       }
-      this.workshopLoader = null;
+      this.eventLoader = null;
 
       // Clear container if still exists
       if (this.container && this.container.parentNode) {

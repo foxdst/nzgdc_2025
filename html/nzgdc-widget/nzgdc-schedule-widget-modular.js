@@ -49,10 +49,13 @@
           debug: DEBUG_MODE,
         });
 
-        // Load bundled CSS file
-        await this.loadCSS("css/widget-bundle.css");
+        // Load bundled CSS files
+        await Promise.all([
+          this.loadCSS("css/unified-event-panel.css"),
+          this.loadCSS("css/thursday-schedule-bundle.css"),
+        ]);
         this.cssLoaded = true;
-        debugLog("CSS bundle loaded successfully");
+        debugLog("CSS bundles loaded successfully");
 
         // Load data files
         await Promise.all([
@@ -63,15 +66,15 @@
 
         // Load core JavaScript files
         await Promise.all([
-          this.loadScript("js/workshop-loader.js"),
+          this.loadScript("js/unified-event-loader.js"),
           this.loadScript("js/schedule-generator.js"),
           this.loadScript("js/widget-core.js"),
         ]);
         this.jsLoaded = true;
         debugLog("JavaScript modules loaded successfully");
 
-        // Load HTML template
-        await this.loadTemplate();
+        // Load unified HTML template
+        await this.loadUnifiedTemplate();
         this.templateLoaded = true;
         debugLog("Template loaded successfully");
 
@@ -164,10 +167,11 @@
       });
     }
 
-    async loadTemplate() {
+    async loadUnifiedTemplate() {
       try {
-        const templatePath = WIDGET_BASE_PATH + "templates/event-panel.html";
-        debugLog("Loading template:", templatePath);
+        const templatePath =
+          WIDGET_BASE_PATH + "templates/unified-event-panel.html";
+        debugLog("Loading unified template:", templatePath);
 
         // Create AbortController for timeout
         const controller = new AbortController();
@@ -186,22 +190,25 @@
         }
 
         const html = await response.text();
-        debugLog("External template loaded successfully");
+        debugLog("External unified template loaded successfully");
 
-        // Store template globally for the widget to access
-        window.EVENT_PANEL_TEMPLATE = html;
+        // Store template globally for the unified widget system
+        window.UNIFIED_EVENT_PANEL_TEMPLATE = html;
 
         return true;
       } catch (error) {
         if (error.name === "AbortError") {
-          debugLog("Template loading timeout, using fallback");
+          debugLog("Unified template loading timeout, using fallback");
         } else {
-          debugLog("Template loading failed, using fallback:", error.message);
+          debugLog(
+            "Unified template loading failed, using fallback:",
+            error.message,
+          );
         }
 
-        // Embedded template fallback (minified for production)
-        window.EVENT_PANEL_TEMPLATE =
-          '<div class="nzgdc-event-panel-big"><div class="nzgdc-event-panel-big-thumbnail"><div class="nzgdc-session-thumbnail-big"></div><div class="nzgdc-event-detail-overlay-big"><div class="nzgdc-call-to-action-big"><div class="nzgdc-open-marker-big"></div><div class="nzgdc-cta-text-big">Click for More Event Details</div></div></div></div><div class="nzgdc-event-panel-big-details"><div class="nzgdc-event-category-big"><div class="nzgdc-category-text-big"></div></div><div class="nzgdc-event-title-big"><div class="nzgdc-title-text-big"></div></div><div class="nzgdc-event-speaker-details-big"><div class="nzgdc-introduction-text-big">NZGDC 2025 Workshop by</div><div class="nzgdc-speaker-details-big"><div class="nzgdc-speaker-biolines-big"><div class="nzgdc-speaker-bioName-big"></div><div class="nzgdc-speaker-bioPosition-big"></div></div><div class="nzgdc-speaker-biolines-big"><div class="nzgdc-speaker-bioName-big"></div><div class="nzgdc-speaker-bioPosition-big"></div></div><div class="nzgdc-speaker-biolines-big"><div class="nzgdc-speaker-bioName-big"></div><div class="nzgdc-speaker-bioPosition-big"></div></div></div><div class="nzgdc-timeframe-big"><div class="nzgdc-timeframe-text-big"></div></div></div></div></div>';
+        // Embedded unified template fallback (minified for production)
+        window.UNIFIED_EVENT_PANEL_TEMPLATE =
+          '<div class="nzgdc-event-panel-big"><div class="nzgdc-event-panel-big-thumbnail"><div class="nzgdc-session-thumbnail-big"></div><div class="nzgdc-event-detail-overlay-big"><div class="nzgdc-call-to-action-big"><div class="nzgdc-open-marker-big"></div><div class="nzgdc-cta-text-big">Click for More Event Details</div></div></div></div><div class="nzgdc-event-panel-big-details"><div class="nzgdc-event-category-big"><div class="nzgdc-category-text-big"></div></div><div class="nzgdc-event-title-big"><div class="nzgdc-title-text-big"></div></div><div class="nzgdc-event-speaker-details-big"><div class="nzgdc-introduction-text-big">NZGDC 2025 Event by</div><div class="nzgdc-speaker-details-big"><div class="nzgdc-speaker-biolines-big"><div class="nzgdc-speaker-bioName-big"></div><div class="nzgdc-speaker-bioPosition-big"></div></div><div class="nzgdc-speaker-biolines-big"><div class="nzgdc-speaker-bioName-big"></div><div class="nzgdc-speaker-bioPosition-big"></div></div><div class="nzgdc-speaker-biolines-big"><div class="nzgdc-speaker-bioName-big"></div><div class="nzgdc-speaker-bioPosition-big"></div></div></div><div class="nzgdc-timeframe-big"><div class="nzgdc-timeframe-text-big"></div></div></div></div></div>';
         return true;
       }
     }
@@ -314,7 +321,7 @@
         modules: {
           scheduleData: typeof window.SCHEDULE_DATA !== "undefined",
           workshopEvents: typeof window.WORKSHOP_EVENTS !== "undefined",
-          workshopLoader: typeof window.WorkshopEventLoader !== "undefined",
+          unifiedEventLoader: typeof window.UnifiedEventLoader !== "undefined",
           scheduleGenerator: typeof window.ScheduleGenerator !== "undefined",
           widgetCore: typeof window.NZGDCScheduleWidget !== "undefined",
         },

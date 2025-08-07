@@ -28,7 +28,6 @@
             --container-max-width: 1630px;
             --event-panel-width: 620px;
             --event-panel-height: 300px;
-            --navigation-height: 70px;
         }
 
         /* Scoped reset for the morning schedule component only */
@@ -52,10 +51,9 @@
         .nzgdc-morning-schedule-sub-navigation {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: stretch;
             width: 100%;
             max-width: var(--container-max-width);
-            height: var(--navigation-height);
             background-color: var(--color-white);
         }
 
@@ -64,8 +62,6 @@
             display: flex;
             align-items: center;
             gap: 20px;
-            width: 739px;
-            height: 70px;
         }
 
         /* Morning Events Button */
@@ -74,16 +70,15 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            width: 342px;
-            height: 70px;
+            padding: 10px 15px;
+            box-sizing: border-box;
             background-color: rgba(240, 223, 86, 1);
             border: none;
             cursor: pointer;
             color: var(--color-black);
             font-family: var(--font-primary);
-            font-size: 36px;
-            font-weight: 600;
-            font-style: heavy;
+            font-size: 28px;
+            font-weight: 800;
             text-transform: uppercase;
         }
 
@@ -93,23 +88,21 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            width: 377px;
-            height: 70px;
+            padding: 10px 15px;
+            box-sizing: border-box;
             background-color: rgba(23, 75, 235, 1);
             border: none;
             cursor: pointer;
             color: var(--color-white);
             font-family: var(--font-primary);
-            font-size: 36px;
-            font-weight: 600;
-            font-style: heavy;
+            font-size: 28px;
+            font-weight: 800;
             text-transform: uppercase;
         }
 
         .nzgdc-morning-filters-section {
-            height: 100%;
             display: flex;
-            align-items: center;
+            align-items: stretch;
         }
 
         .nzgdc-morning-filters-label {
@@ -117,15 +110,15 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            width: 136px;
-            height: var(--navigation-height);
+            padding: 5px 15px;
+            box-sizing: border-box;
             background-color: var(--color-yellow-bright);
         }
 
         .nzgdc-morning-filters-label-text {
             color: var(--color-black);
             font-family: var(--font-primary);
-            font-size: 36px;
+            font-size: 28px;
             font-weight: 600;
             text-align: center;
             line-height: 1;
@@ -137,15 +130,15 @@
             justify-content: center;
             align-items: center;
             gap: 10px;
-            width: 170px;
-            height: var(--navigation-height);
+            padding: 5px 15px;
+            box-sizing: border-box;
             background-color: var(--color-white);
         }
 
         .nzgdc-morning-filters-value-text {
             color: var(--color-black);
             font-family: var(--font-primary);
-            font-size: 36px;
+            font-size: 28px;
             font-weight: 600;
             text-align: center;
             text-transform: uppercase;
@@ -365,7 +358,6 @@
             align-items: flex-start;
             width: 100%;
             max-width: var(--container-max-width);
-            height: var(--navigation-height);
             background-color: var(--color-white);
         }
 
@@ -375,14 +367,13 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            width: 249px;
-            height: 56px;
+            padding: 8px 15px;
             background-color: var(--color-yellow);
             border: none;
             cursor: pointer;
             color: var(--color-black);
             font-family: var(--font-primary);
-            font-size: 36px;
+            font-size: 28px;
             font-weight: 600;
             text-transform: uppercase;
             transition: background-color 0.3s ease;
@@ -462,8 +453,8 @@
             }
 
             .nzgdc-morning-back-to-top {
-                font-size: 24px;
-                width: 100%;
+               font-size: 28px;
+               width: 100%;
             }
         }
 
@@ -477,11 +468,11 @@
             }
 
             .nzgdc-morning-filters-section {
-                padding: 10px 15px;
+                padding: 5px 15px;
             }
 
-            .nzgdc-morning-filters-label {
-                font-size: 16px;
+            .nzgdc-morning-filters-value-text {
+               font-size: 22px;
             }
 
             .nzgdc-morning-filters-value {
@@ -498,10 +489,10 @@
             <!-- Schedule Time Navigation -->
             <div class="nzgdc-schedule-time-navigation">
                 <button class="nzgdc-morning-events-button">
-                    <span style="width: 312px; height: 46px; color: rgba(0, 0, 0, 1); font-family: Futura PT Heavy; font-size: 36px; font-weight: 600; font-style: heavy;">Morning Events</span>
+                    Morning Events
                 </button>
                 <button class="nzgdc-afternoon-events-button">
-                    <span style="width: 347px; height: 46px; color: rgba(255, 255, 255, 1); font-family: Futura PT Heavy; font-size: 36px; font-weight: 600; font-style: heavy;">Afternoon Events</span>
+                    Afternoon Events
                 </button>
             </div>
 
@@ -761,6 +752,7 @@
             flex-direction: column;
             justify-content: space-between;
             overflow: hidden;
+            gap: 0.5rem;
         }
 
         .nzgdc-morning-introduction-text-big {
@@ -779,15 +771,15 @@
             width: 100%;
             overflow: hidden;
             min-height: 0;
-            gap: 0.5rem;
+            flex: 1;
         }
 
         .nzgdc-morning-speaker-biolines-big {
             display: flex;
             flex-direction: column;
+            justify-content: center;
             width: 100%;
             min-height: 36px;
-            flex: 1;
         }
 
         .nzgdc-morning-speaker-bioName-big {
@@ -936,8 +928,7 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            gap: 5px;
-            padding: 20px;
+            padding: 20px 20px;
             width: 100%;
             height: 100%;
             background-color: var(--color-overlay);
@@ -949,10 +940,10 @@
         .nzgdc-speaker-details-main {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: flex-start;
             width: 260px;
             height: 46px;
-            text-align: center;
+            text-align: left;
         }
 
         .nzgdc-speaker-name-main {
@@ -964,6 +955,7 @@
             font-weight: 500;
             font-style: italic;
             line-height: 23px;
+            text-align: left;
             overflow-wrap: break-word;
         }
 
@@ -975,6 +967,7 @@
             font-size: 18px;
             font-weight: 400;
             line-height: 23px;
+            text-align: left;
             overflow-wrap: break-word;
         }
 
@@ -1492,7 +1485,7 @@
 
             // Update speaker information in the panel
             updateSpeakers(clone, speakers) {
-                const speakerContainers = clone.querySelectorAll('.nzgdc-speaker-biolines-big');
+                const speakerContainers = clone.querySelectorAll('.nzgdc-morning-speaker-biolines-big');
 
                 if (!speakers || speakers.length === 0) return;
 
