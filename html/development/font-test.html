@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Panel Font Test - NZGDC 2025</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .test-header {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .test-section {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #007cba;
+            padding-bottom: 10px;
+        }
+
+        .font-samples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .font-sample {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .font-sample h4 {
+            margin: 0 0 10px 0;
+            color: #666;
+            font-size: 14px;
+            text-transform: uppercase;
+        }
+
+        /* Event Title Font Tests */
+        .title-old {
+            font-family: 'Futura PT Bold', 'Futura', Arial, sans-serif;
+            font-size: 21px;
+            font-weight: 700;
+            line-height: 32px;
+            color: #000;
+            border: 2px solid #ff6b6b;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .title-new {
+            font-family: 'Futura PT Demi', 'Futura', Arial, sans-serif;
+            font-size: 21px;
+            font-weight: 600;
+            line-height: 26px;
+            color: #000;
+            border: 2px solid #4ecdc4;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        /* Panel Size Tests */
+        .panel-container {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .mini-panel {
+            width: 320px;
+            background-color: white;
+            border: 2px solid #333;
+            overflow: hidden;
+        }
+
+        .mini-panel-title {
+            min-height: 80px;
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            padding: 8px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .mini-panel-title-old {
+            font-family: 'Futura PT Bold', 'Futura', Arial, sans-serif;
+            font-size: 21px;
+            font-weight: 700;
+            line-height: 32px;
+            color: #000;
+        }
+
+        .mini-panel-title-new {
+            font-family: 'Futura PT Demi', 'Futura', Arial, sans-serif;
+            font-size: 21px;
+            font-weight: 600;
+            line-height: 26px;
+            color: #000;
+        }
+
+        .mini-panel-body {
+            height: 100px;
+            background-color: #f9f9f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Size Comparison Grid */
+        .size-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .comparison-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+        }
+
+        .comparison-item h5 {
+            margin: 0 0 15px 0;
+            padding: 10px;
+            background-color: #f0f0f0;
+            text-align: center;
+        }
+
+        .red-border { border-color: #ff6b6b; }
+        .green-border { border-color: #4ecdc4; }
+
+        /* Font Loading Check */
+        .font-check {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .font-check h4 {
+            color: #856404;
+            margin-top: 0;
+        }
+
+        .font-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .font-test {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .futura-bold { font-family: 'Futura PT Bold', serif; }
+        .futura-demi { font-family: 'Futura PT Demi', serif; }
+        .futura-generic { font-family: 'Futura', serif; }
+        .arial-fallback { font-family: Arial, serif; }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>Event Panel Font Rendering Test</h1>
+            <p>Testing the Event Title font changes to fix oversized text appearance</p>
+        </div>
+
+        <!-- Font Loading Check -->
+        <div class="test-section">
+            <h3>Font Loading Check</h3>
+            <div class="font-check">
+                <h4>⚠️ Check if Futura fonts are loading properly</h4>
+                <p>If the fonts below look identical, the Futura fonts may not be loading correctly.</p>
+                <div class="font-list">
+                    <div class="font-test futura-bold">
+                        <strong>Futura PT Bold</strong><br>
+                        Sample Text 21px
+                    </div>
+                    <div class="font-test futura-demi">
+                        <strong>Futura PT Demi</strong><br>
+                        Sample Text 21px
+                    </div>
+                    <div class="font-test futura-generic">
+                        <strong>Futura (Generic)</strong><br>
+                        Sample Text 21px
+                    </div>
+                    <div class="font-test arial-fallback">
+                        <strong>Arial (Fallback)</strong><br>
+                        Sample Text 21px
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Font Size Comparison -->
+        <div class="test-section">
+            <h3>Event Title Font Comparison</h3>
+            <div class="size-comparison">
+                <div class="comparison-item red-border">
+                    <h5>❌ OLD SETTINGS (Oversized)</h5>
+                    <div class="title-old">
+                        This is a Placeholder Title occupying two lines of space for testing
+                    </div>
+                    <small>
+                        <strong>Font:</strong> Futura PT Bold<br>
+                        <strong>Weight:</strong> 700<br>
+                        <strong>Size:</strong> 21px<br>
+                        <strong>Line Height:</strong> 32px (1.52 ratio)
+                    </small>
+                </div>
+
+                <div class="comparison-item green-border">
+                    <h5>✅ NEW SETTINGS (Fixed)</h5>
+                    <div class="title-new">
+                        This is a Placeholder Title occupying two lines of space for testing
+                    </div>
+                    <small>
+                        <strong>Font:</strong> Futura PT Demi<br>
+                        <strong>Weight:</strong> 600<br>
+                        <strong>Size:</strong> 21px<br>
+                        <strong>Line Height:</strong> 26px (1.24 ratio)
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mini Panel Comparison -->
+        <div class="test-section">
+            <h3>Panel Title Container Test</h3>
+            <p>Testing how titles fit within the actual 320px width event panel title containers:</p>
+            <div class="panel-container">
+                <div class="mini-panel">
+                    <div class="mini-panel-title">
+                        <div class="mini-panel-title-old">
+                            Advanced Storytelling Techniques for Modern Games
+                        </div>
+                    </div>
+                    <div class="mini-panel-body">
+                        ❌ OLD (320px container)
+                    </div>
+                </div>
+
+                <div class="mini-panel">
+                    <div class="mini-panel-title">
+                        <div class="mini-panel-title-new">
+                            Advanced Storytelling Techniques for Modern Games
+                        </div>
+                    </div>
+                    <div class="mini-panel-body">
+                        ✅ NEW (320px container)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Analysis -->
+        <div class="test-section">
+            <h3>Analysis of Changes</h3>
+            <div class="font-samples">
+                <div class="font-sample">
+                    <h4>Problem Identified</h4>
+                    <ul>
+                        <li><strong>Font Family:</strong> "Futura PT Bold" + font-weight: 700 created double-bold effect</li>
+                        <li><strong>Line Height:</strong> 32px for 21px text (1.52 ratio) was too generous</li>
+                        <li><strong>Appearance:</strong> Text appeared larger and took more vertical space than intended</li>
+                    </ul>
+                </div>
+
+                <div class="font-sample">
+                    <h4>Solution Applied</h4>
+                    <ul>
+                        <li><strong>Font Family:</strong> Changed to "Futura PT Demi" with font-weight: 600</li>
+                        <li><strong>Line Height:</strong> Reduced to 26px (1.24 ratio) for tighter spacing</li>
+                        <li><strong>Appearance:</strong> More appropriate visual weight while maintaining readability</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Files Updated -->
+        <div class="test-section">
+            <h3>Files Updated</h3>
+            <p>The following files have been updated with the new font settings:</p>
+            <ul>
+                <li><code>eventPanel_Main.html</code> - Main panel event titles</li>
+                <li><code>eventPanel_Big.html</code> - Big panel event titles</li>
+                <li><code>thursdaySchedule.html</code> - Embedded event panel styles</li>
+                <li><code>fri_sat-morningSchedule.html</code> - Embedded event panel styles</li>
+                <li><code>fri_sat-afternoon-schedule.html</code> - Embedded event panel styles</li>
+            </ul>
+        </div>
+
+        <!-- Browser Test Instructions -->
+        <div class="test-section">
+            <h3>Testing Instructions</h3>
+            <div class="font-check">
+                <h4>How to Verify the Fix:</h4>
+                <ol>
+                    <li><strong>Visual Check:</strong> Compare the OLD vs NEW samples above - NEW should appear less "heavy"</li>
+                    <li><strong>Panel Test:</strong> The mini panels should show better title fitting</li>
+                    <li><strong>Font Loading:</strong> If Futura fonts aren't loading, you'll see Arial fallback (still an improvement)</li>
+                    <li><strong>Live Test:</strong> Load the actual event panel HTML files to see the changes in action</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -561,7 +561,7 @@
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            width: 200px;
+            width: 260px;
             height: 61px;
             cursor: pointer;
         }
@@ -574,7 +574,7 @@
         }
 
         .nzgdc-cta-text-big {
-            width: 200px;
+            width: 260px;
             height: 21px;
             color: var(--color-category-text);
             font-family: var(--font-family-heavy);
@@ -601,7 +601,7 @@
             background-color: var(--color-primary);
             display: flex;
             align-items: center;
-            padding-left: 12px;
+            padding: 4px 10px;
             flex-shrink: 0;
         }
 
@@ -610,7 +610,7 @@
             min-height: 22px;
             color: var(--color-category-text);
             font-family: var(--font-family-demi);
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 500;
             text-transform: uppercase;
             line-height: 22px;
@@ -620,7 +620,6 @@
         /* Event Title */
         .nzgdc-event-title-big {
             width: 320px;
-            min-height: 70px;
             background-color: var(--color-bg);
             display: flex;
             align-items: center;
@@ -630,14 +629,11 @@
 
         .nzgdc-title-text-big {
             width: 100%;
-            min-height: 54px;
             color: var(--color-title);
-            font-family: var(--font-family-bold);
-            font-size: 21px;
-            font-weight: 700;
-            line-height: 27px;
-            display: flex;
-            align-items: center;
+            font-family: var(--font-family-demi);
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 26px;
             overflow-wrap: break-word;
         }
 
@@ -901,7 +897,7 @@
 
                     // Try to load external file first (for server environments)
                     try {
-                        const response = await fetch('eventPanel_Big.html');
+                        const response = await fetch('eventPanel_Big.html?type=workshop');
                         if (response.ok) {
                             const html = await response.text();
                             const parser = new DOMParser();
@@ -909,7 +905,9 @@
                             this.template = doc.querySelector('.nzgdc-event-panel-big');
 
                             if (this.template) {
-                                console.log('External template loaded successfully');
+                                // Set the event type for Thursday workshops
+                                this.template.setAttribute('data-event-type', 'workshop');
+                                console.log('External template loaded successfully with workshop type');
                                 return this.template;
                             }
                         }
@@ -922,7 +920,9 @@
                     if (embeddedTemplate) {
                         this.template = embeddedTemplate.content.querySelector('.nzgdc-event-panel-big');
                         if (this.template) {
-                            console.log('Embedded template loaded successfully');
+                            // Set the event type for Thursday workshops
+                            this.template.setAttribute('data-event-type', 'workshop');
+                            console.log('Embedded template loaded successfully with workshop type');
                             return this.template;
                         }
                     }
@@ -953,6 +953,9 @@
                 const clone = this.template.cloneNode(true);
 
                 try {
+                    // Ensure workshop event type is set
+                    clone.setAttribute('data-event-type', 'workshop');
+
                     // Customize the content based on eventData
                     this.updateEventContent(clone, eventData);
                     return clone;
@@ -986,6 +989,12 @@
                 const timeframeEl = clone.querySelector('.nzgdc-timeframe-text-big');
                 if (timeframeEl && eventData.timeframe) {
                     timeframeEl.textContent = eventData.timeframe;
+                }
+
+                // Update introduction text for Thursday workshops
+                const introEl = clone.querySelector('.nzgdc-introduction-text-big');
+                if (introEl) {
+                    introEl.textContent = 'NZGDC 2025 Workshop by';
                 }
 
                 // Update speaker information
@@ -1168,6 +1177,19 @@
                     const eventPanel = this.workshopLoader.createEventPanel(eventData);
                     container.innerHTML = '';
                     container.appendChild(eventPanel);
+
+                    // Send event type configuration message to any embedded panels
+                    if (eventPanel.tagName === 'IFRAME' || eventPanel.querySelector('iframe')) {
+                        setTimeout(() => {
+                            const iframe = eventPanel.tagName === 'IFRAME' ? eventPanel : eventPanel.querySelector('iframe');
+                            if (iframe && iframe.contentWindow) {
+                                iframe.contentWindow.postMessage({
+                                    type: 'setEventType',
+                                    eventType: 'workshop'
+                                }, '*');
+                            }
+                        }, 100);
+                    }
 
                 } catch (error) {
                     console.error(`Failed to load workshop ${eventId}:`, error);

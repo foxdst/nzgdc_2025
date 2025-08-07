@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NZGDC Event Categories Demo</title>
+    <script src="eventCategories.js"></script>
+    <style>
+        /* CSS Custom Properties matching NZGDC widget design */
+        :root {
+            --color-yellow: rgba(255, 236, 81, 1);
+            --color-blue: rgba(23, 75, 235, 1);
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --color-gray-light: #f0f0f0;
+            --color-gray-medium: #666;
+            --font-primary: 'Futura PT Heavy', 'Futura', Arial, sans-serif;
+            --font-medium: 'Futura PT Medium', 'Futura', Arial, sans-serif;
+            --font-demi: 'Futura PT Demi', 'Futura', Arial, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            margin: 0;
+            padding: 0;
+            background-color: var(--color-white);
+            color: var(--color-black);
+        }
+
+        .demo-container {
+            max-width: 1630px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 30px;
+            background-color: var(--color-yellow);
+            padding: 30px 20px;
+        }
+
+        .demo-header h1 {
+            color: var(--color-black);
+            margin: 0 0 10px 0;
+            font-family: var(--font-primary);
+            font-size: 48px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .demo-header p {
+            color: var(--color-black);
+            font-family: var(--font-medium);
+            font-size: 18px;
+            font-weight: 400;
+            margin: 0;
+        }
+
+        .demo-controls {
+            background: var(--color-white);
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 2px solid var(--color-black);
+        }
+
+        .demo-controls h3 {
+            margin: 0 0 20px 0;
+            color: var(--color-black);
+            font-family: var(--font-primary);
+            font-size: 36px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .demo-controls p {
+            margin: 0 0 20px 0;
+            color: var(--color-black);
+            font-family: var(--font-medium);
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .category-button {
+            padding: 15px 20px;
+            border: 2px solid var(--color-black);
+            color: white;
+            cursor: pointer;
+            font-family: var(--font-demi);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            background-color: var(--color-black);
+        }
+
+        .category-button:hover {
+            background-color: var(--color-white);
+            color: var(--color-black);
+            border-color: var(--color-black);
+        }
+
+        .panels-container {
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .panel-wrapper {
+            background: var(--color-white);
+            overflow: hidden;
+            border: 2px solid var(--color-black);
+        }
+
+        .panel-container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .panel-caption {
+            margin-top: 10px;
+            color: var(--color-black);
+            font-family: var(--font-medium);
+            font-size: 16px;
+            font-weight: 400;
+            text-align: left;
+        }
+
+        .iframe-container {
+            width: 300px;
+            height: 300px;
+            border: none;
+            display: block;
+        }
+
+        .iframe-container.big {
+            width: 620px;
+        }
+
+        .api-examples {
+            background: var(--color-white);
+            padding: 30px;
+            margin-top: 20px;
+            border: 2px solid var(--color-black);
+        }
+
+        .api-examples h3 {
+            margin: 0 0 20px 0;
+            color: var(--color-black);
+            font-family: var(--font-primary);
+            font-size: 36px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .api-examples h4 {
+            margin: 30px 0 15px 0;
+            color: var(--color-black);
+            font-family: var(--font-primary);
+            font-size: 24px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .code-block {
+            background: var(--color-gray-light);
+            border: 1px solid var(--color-black);
+            padding: 20px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            color: var(--color-black);
+        }
+
+        .test-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .test-button {
+            background: var(--color-blue);
+            color: var(--color-white);
+            border: 2px solid var(--color-blue);
+            padding: 12px 20px;
+            cursor: pointer;
+            font-family: var(--font-demi);
+            font-size: 14px;
+            font-weight: 500;
+            text-transform: uppercase;
+            transition: all 0.2s ease;
+        }
+
+        .test-button:hover {
+            background: var(--color-white);
+            color: var(--color-blue);
+            border-color: var(--color-blue);
+        }
+
+        .current-category {
+            background: var(--color-yellow);
+            border: 2px solid var(--color-black);
+            padding: 20px;
+            margin: 20px 0;
+            font-family: var(--font-medium);
+            font-size: 16px;
+        }
+
+        .current-category strong {
+            font-family: var(--font-primary);
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 768px) {
+            .demo-container {
+                padding: 10px;
+            }
+
+            .demo-header h1 {
+                font-size: 36px;
+            }
+
+            .demo-controls h3 {
+                font-size: 24px;
+            }
+
+            .panels-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .iframe-container.big {
+                width: 300px;
+                transform: scale(0.48);
+                transform-origin: top left;
+            }
+
+            .panel-container:has(.iframe-container.big) .panel-wrapper {
+                width: 300px;
+                height: 200px;
+                overflow: hidden;
+            }
+
+            .test-buttons {
+                gap: 10px;
+            }
+
+            .test-button {
+                padding: 10px 15px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>Event Categories Demo</h1>
+            <p>Interactive demonstration of the Event Categories system for NZGDC 2025 event panels</p>
+        </div>
+
+        <!-- Category Selection Controls -->
+        <div class="demo-controls">
+            <h3>Event Category Selection</h3>
+            <p>Click any category below to update both event panels with the selected category styling:</p>
+            <div class="category-grid" id="categoryGrid">
+                <!-- Categories will be populated by JavaScript -->
+            </div>
+            <div class="current-category">
+                <strong>Active Category:</strong> <span id="currentCategory">Story & Narrative</span>
+            </div>
+        </div>
+
+        <!-- Event Panel Preview -->
+        <div class="panels-container">
+            <div class="panel-container">
+                <div class="panel-wrapper">
+                    <iframe src="eventPanel_Main.html" class="iframe-container" id="mainPanel"></iframe>
+                </div>
+                <div class="panel-caption">Main Panel (300×300)</div>
+            </div>
+
+            <div class="panel-container">
+                <div class="panel-wrapper">
+                    <iframe src="eventPanel_Big.html" class="iframe-container big" id="bigPanel"></iframe>
+                </div>
+                <div class="panel-caption">Big Panel (620×300)</div>
+            </div>
+        </div>
+
+        <!-- API Documentation & Testing -->
+        <div class="api-examples">
+            <h3>API Integration Reference</h3>
+
+            <h4>Basic Usage</h4>
+            <div class="code-block">// Update both panels
+EventCategories.setCategory('CODING_DEVELOPMENT');
+
+// Update specific panel
+EventCategories.setCategoryMain('BUSINESS_MARKETING');
+EventCategories.setCategoryBig('SOUND_MUSIC');</div>
+
+            <h4>API Method</h4>
+            <div class="code-block">// API-friendly integration
+const result = EventCategories.updateFromAPI({
+    category: 'GAME_DESIGN_CREATIVE_ARTS',
+    panelType: 'both' // 'main', 'big', or 'both'
+});
+
+// Returns: { success: true, category: {...}, panelType: 'both' }</div>
+
+            <h4>Category Information</h4>
+            <div class="code-block">// Get category details
+const category = EventCategories.getCategory('REALITIES_VR_AR_MR_XR');
+// Returns: { name: '...', color: '#9B59B6', textColor: '#FFFFFF' }
+
+// Get all categories
+const allCategories = EventCategories.getAllCategories();</div>
+
+            <h4>Testing Functions</h4>
+            <div class="test-buttons">
+                <button class="test-button" onclick="testRandomCategory()">Random Category</button>
+                <button class="test-button" onclick="testMainOnly()">Main Only</button>
+                <button class="test-button" onclick="testBigOnly()">Big Only</button>
+                <button class="test-button" onclick="testAPIMethod()">Test API</button>
+                <button class="test-button" onclick="showCategoryInfo()">Category Info</button>
+            </div>
+
+            <h4>Available Category Keys</h4>
+            <div class="code-block" id="categoryKeys">
+                <!-- Category keys will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentCategoryKey = 'STORY_NARRATIVE';
+
+        // Wait for both EventCategories and DOM to be ready
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initializeDemo, 100);
+        });
+
+        function initializeDemo() {
+            if (typeof EventCategories === 'undefined') {
+                console.error('EventCategories not loaded');
+                return;
+            }
+
+            populateCategoryGrid();
+            populateCategoryKeys();
+        }
+
+        function populateCategoryGrid() {
+            const grid = document.getElementById('categoryGrid');
+            const categories = EventCategories.getAllCategories();
+
+            Object.keys(categories).forEach(key => {
+                const category = categories[key];
+                const button = document.createElement('button');
+                button.className = 'category-button';
+                button.style.backgroundColor = category.color;
+                button.style.color = category.textColor;
+                button.textContent = category.name;
+                button.onclick = () => updateCategory(key, category.name);
+                grid.appendChild(button);
+            });
+        }
+
+        function populateCategoryKeys() {
+            const container = document.getElementById('categoryKeys');
+            const categories = EventCategories.getAllCategories();
+            const keys = Object.keys(categories).map(key => `'${key}'`).join(', ');
+            container.textContent = keys;
+        }
+
+        function updateCategory(categoryKey, categoryName) {
+            currentCategoryKey = categoryKey;
+
+            // Update both iframes
+            const mainFrame = document.getElementById('mainPanel');
+            const bigFrame = document.getElementById('bigPanel');
+
+            // Send message to iframes to update category
+            if (mainFrame.contentWindow) {
+                mainFrame.contentWindow.postMessage({
+                    type: 'updateCategory',
+                    category: categoryKey,
+                    panelType: 'main'
+                }, '*');
+            }
+
+            if (bigFrame.contentWindow) {
+                bigFrame.contentWindow.postMessage({
+                    type: 'updateCategory',
+                    category: categoryKey,
+                    panelType: 'big',
+                    eventType: 'panel'
+                }, '*');
+            }
+
+            // Update current category display
+            document.getElementById('currentCategory').textContent = categoryName;
+        }
+
+        // Test functions
+        function testRandomCategory() {
+            const categories = Object.keys(EventCategories.getAllCategories());
+            const randomKey = categories[Math.floor(Math.random() * categories.length)];
+            const categoryName = EventCategories.getCategory(randomKey).name;
+            updateCategory(randomKey, categoryName);
+        }
+
+        function testMainOnly() {
+            const mainFrame = document.getElementById('mainPanel');
+            if (mainFrame.contentWindow) {
+                mainFrame.contentWindow.postMessage({
+                    type: 'updateCategory',
+                    category: 'CODING_DEVELOPMENT',
+                    panelType: 'main'
+                }, '*');
+            }
+        }
+
+        function testBigOnly() {
+            const bigFrame = document.getElementById('bigPanel');
+            if (bigFrame.contentWindow) {
+                bigFrame.contentWindow.postMessage({
+                    type: 'updateCategory',
+                    category: 'SOUND_MUSIC',
+                    panelType: 'big',
+                    eventType: 'panel'
+                }, '*');
+            }
+        }
+
+        function testAPIMethod() {
+            const result = EventCategories.updateFromAPI({
+                category: 'REALITIES_VR_AR_MR_XR',
+                panelType: 'both'
+            });
+            console.log('API Method Result:', result);
+            alert(`API Method Result: ${JSON.stringify(result, null, 2)}`);
+        }
+
+        function showCategoryInfo() {
+            const category = EventCategories.getCategory(currentCategoryKey);
+            alert(`Current Category Info:\n${JSON.stringify(category, null, 2)}`);
+        }
+
+        // Listen for iframe load events to initialize categories
+        document.getElementById('mainPanel').addEventListener('load', function() {
+            setTimeout(() => {
+                this.contentWindow.postMessage({
+                    type: 'updateCategory',
+                    category: currentCategoryKey,
+                    panelType: 'main'
+                }, '*');
+            }, 100);
+        });
+
+        document.getElementById('bigPanel').addEventListener('load', function() {
+            setTimeout(() => {
+                this.contentWindow.postMessage({
+                    type: 'updateCategory',
+                    category: currentCategoryKey,
+                    panelType: 'big',
+                    eventType: 'panel'
+                }, '*');
+            }, 100);
+        });
+    </script>
+</body>
+</html>

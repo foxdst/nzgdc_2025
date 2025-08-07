@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Panel Main</title>
+    <script src="eventCategories.js"></script>
     <style>
         /* CSS reset for iframe content */
         body, html {
@@ -21,6 +22,7 @@
             box-sizing: border-box;
         }
 
+        /* Event Panel CSS Variables - Aligned with production */
         .nzgdc-event-panel-main {
             --font-family-demi: 'Futura PT Demi', 'Futura', Arial, sans-serif;
             --font-family-bold: 'Futura PT Bold', 'Futura', Arial, sans-serif;
@@ -35,6 +37,7 @@
             --color-speaker-secondary: rgba(204, 204, 204, 1);
         }
 
+        /* Main Event Panel Container */
         .nzgdc-event-panel-main {
             display: flex;
             flex-direction: column;
@@ -54,7 +57,7 @@
             background-color: var(--color-primary);
             display: flex;
             align-items: center;
-            padding-left: 12px;
+            padding: 4px 10px;
             flex-shrink: 0;
         }
 
@@ -63,17 +66,19 @@
             height: 22px;
             color: var(--color-category-text);
             font-family: var(--font-family-demi);
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 500;
             text-transform: uppercase;
             line-height: 22px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             overflow-wrap: break-word;
         }
 
         /* Event Panel Title */
         .nzgdc-event-panel-title-main {
             width: 300px;
-            min-height: 70px;
             background-color: var(--color-bg);
             display: flex;
             align-items: center;
@@ -83,35 +88,35 @@
 
         .nzgdc-title-text-main {
             width: 100%;
-            min-height: 54px;
             color: var(--color-title);
-            font-family: var(--font-family-bold);
-            font-size: 21px;
-            font-weight: 700;
-            line-height: 27px;
-            display: flex;
-            align-items: center;
+            font-family: var(--font-family-demi);
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 26px;
+            text-align: left;
             overflow-wrap: break-word;
         }
 
         /* Event Panel Thumbnail */
         .nzgdc-event-panel-thumbnail-main {
             width: 300px;
-            height: 200px;
             position: relative;
             background-image: url('');
             background-size: cover;
             background-position: center;
             flex: 1;
+            min-height: 0;
         }
 
         .nzgdc-session-thumbnail-main {
-            width: 300px;
-            height: 200px;
+            width: 100%;
+            height: 100%;
             position: absolute;
             top: 0;
             left: 0;
             z-index: -1;
+            background-size: cover;
+            background-position: center;
         }
 
         .nzgdc-event-panel-overlay-main {
@@ -121,8 +126,8 @@
             align-items: center;
             gap: 5px;
             padding: 20px;
-            width: 300px;
-            height: 200px;
+            width: 100%;
+            height: 100%;
             background-color: var(--color-overlay);
             position: absolute;
             top: 0;
@@ -166,7 +171,7 @@
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            width: 200px;
+            width: 260px;
             height: 61px;
             cursor: pointer;
         }
@@ -179,7 +184,7 @@
         }
 
         .nzgdc-cta-text-main {
-            width: 200px;
+            width: 260px;
             height: 21px;
             color: var(--color-category-text);
             font-family: var(--font-family-heavy);
@@ -224,5 +229,120 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Panel Manager for Main Event Panel
+        class MainEventPanelManager {
+            constructor() {
+                this.panel = document.querySelector('.nzgdc-event-panel-main');
+                this.initializeEventListeners();
+            }
+
+            // Update panel content with event data
+            updateContent(eventData) {
+                if (!eventData) return;
+
+                // Update category
+                const categoryEl = this.panel.querySelector('.nzgdc-category-text-main');
+                if (categoryEl && eventData.category) {
+                    categoryEl.textContent = eventData.category;
+                }
+
+                // Update title
+                const titleEl = this.panel.querySelector('.nzgdc-title-text-main');
+                if (titleEl && eventData.title) {
+                    titleEl.textContent = eventData.title;
+                }
+
+                // Update speaker information
+                const speakerNameEl = this.panel.querySelector('.nzgdc-speaker-name-main');
+                const speakerPositionEl = this.panel.querySelector('.nzgdc-speaker-position-company-main');
+
+                if (eventData.speakers && eventData.speakers.length > 0) {
+                    const speaker = eventData.speakers[0];
+
+                    if (speakerNameEl) {
+                        speakerNameEl.textContent = speaker.name ? `Presented by ${speaker.name}` : 'Presented by Speaker Name';
+                    }
+
+                    if (speakerPositionEl) {
+                        speakerPositionEl.textContent = speaker.position || 'Position + Company';
+                    }
+                }
+
+                // Update thumbnail
+                const thumbnailEl = this.panel.querySelector('.nzgdc-session-thumbnail-main');
+                if (thumbnailEl && eventData.thumbnail) {
+                    thumbnailEl.style.backgroundImage = `url('${eventData.thumbnail}')`;
+                }
+            }
+
+            // Initialize event listeners for postMessage communication
+            initializeEventListeners() {
+                // Listen for postMessage from parent window (for iframe communication)
+                window.addEventListener('message', (event) => {
+                    if (event.data && event.data.type === 'updateCategory') {
+                        const { category, panelType } = event.data;
+
+                        if (panelType === 'main' || panelType === 'both') {
+                            // Update category using EventCategories system
+                            if (typeof EventCategories !== 'undefined') {
+                                EventCategories.setCategoryMain(category);
+                            }
+                        }
+                    }
+
+                    if (event.data && event.data.type === 'updateContent') {
+                        const { eventData } = event.data;
+                        this.updateContent(eventData);
+                    }
+                });
+            }
+        }
+
+        // Initialize the panel manager
+        let panelManager;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize panel manager
+            panelManager = new MainEventPanelManager();
+
+            // Set default category using explicit initialization (prevents console warnings)
+            if (typeof EventCategories !== 'undefined') {
+                EventCategories.setCategoryMain('STORY_NARRATIVE');
+            }
+
+            console.log('Main Event Panel Manager initialized');
+        });
+
+        // Global API functions for backward compatibility and external access
+        window.updateEventCategoryMain = function(categoryKey) {
+            if (typeof EventCategories !== 'undefined') {
+                return EventCategories.setCategoryMain(categoryKey);
+            }
+            return false;
+        };
+
+        window.updateEventCategoryFromAPI = function(config) {
+            if (typeof EventCategories !== 'undefined') {
+                return EventCategories.updateFromAPI(config);
+            }
+            return { success: false, error: 'EventCategories not available' };
+        };
+
+        // New API function for content updates
+        window.updateEventPanelContent = function(eventData) {
+            if (panelManager) {
+                panelManager.updateContent(eventData);
+                return true;
+            }
+            return false;
+        };
+
+        // Export for module systems
+        if (typeof module !== 'undefined' && module.exports) {
+            module.exports = { MainEventPanelManager };
+        }
+    </script>
 </body>
 </html>

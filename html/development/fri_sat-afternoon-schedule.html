@@ -675,7 +675,7 @@
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            width: 200px;
+            width: 260px;
             height: 61px;
             cursor: pointer;
         }
@@ -688,7 +688,7 @@
         }
 
         .nzgdc-morning-cta-text-big {
-            width: 200px;
+            width: 260px;
             height: 21px;
             color: var(--color-category-text);
             font-family: var(--font-family-heavy);
@@ -715,7 +715,7 @@
             background-color: var(--color-primary);
             display: flex;
             align-items: center;
-            padding-left: 12px;
+            padding: 4px 10px;
             flex-shrink: 0;
         }
 
@@ -724,7 +724,7 @@
             min-height: 22px;
             color: var(--color-category-text);
             font-family: var(--font-family-demi);
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 500;
             text-transform: uppercase;
             line-height: 22px;
@@ -734,7 +734,6 @@
         /* Event Title */
         .nzgdc-morning-event-title-big {
             width: 320px;
-            min-height: 70px;
             background-color: var(--color-bg);
             display: flex;
             align-items: center;
@@ -744,14 +743,11 @@
 
         .nzgdc-morning-title-text-big {
             width: 100%;
-            min-height: 54px;
             color: var(--color-title);
-            font-family: var(--font-family-bold);
-            font-size: 21px;
-            font-weight: 700;
-            line-height: 27px;
-            display: flex;
-            align-items: center;
+            font-family: var(--font-family-demi);
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 26px;
             overflow-wrap: break-word;
         }
 
@@ -877,7 +873,7 @@
             background-color: var(--color-primary);
             display: flex;
             align-items: center;
-            padding-left: 12px;
+            padding: 4px 10px;
             flex-shrink: 0;
         }
 
@@ -886,7 +882,7 @@
             height: 22px;
             color: var(--color-category-text);
             font-family: var(--font-family-demi);
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 500;
             text-transform: uppercase;
             line-height: 22px;
@@ -896,7 +892,6 @@
         /* Event Panel Title */
         .nzgdc-event-panel-title-main {
             width: 300px;
-            min-height: 70px;
             background-color: var(--color-bg);
             display: flex;
             align-items: center;
@@ -906,35 +901,35 @@
 
         .nzgdc-title-text-main {
             width: 100%;
-            min-height: 54px;
             color: var(--color-title);
-            font-family: var(--font-family-bold);
-            font-size: 21px;
-            font-weight: 700;
-            line-height: 27px;
-            display: flex;
-            align-items: center;
+            font-family: var(--font-family-demi);
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 26px;
+            text-align: left;
             overflow-wrap: break-word;
         }
 
         /* Event Panel Thumbnail */
         .nzgdc-event-panel-thumbnail-main {
             width: 300px;
-            height: 200px;
             position: relative;
             background-image: url('');
             background-size: cover;
             background-position: center;
             flex: 1;
+            min-height: 0;
         }
 
         .nzgdc-session-thumbnail-main {
-            width: 300px;
-            height: 200px;
+            width: 100%;
+            height: 100%;
             position: absolute;
             top: 0;
             left: 0;
             z-index: -1;
+            background-size: cover;
+            background-position: center;
         }
 
         .nzgdc-event-panel-overlay-main {
@@ -944,8 +939,8 @@
             align-items: center;
             gap: 5px;
             padding: 20px;
-            width: 300px;
-            height: 200px;
+            width: 100%;
+            height: 100%;
             background-color: var(--color-overlay);
             position: absolute;
             top: 0;
@@ -989,7 +984,7 @@
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            width: 200px;
+            width: 260px;
             height: 61px;
             cursor: pointer;
         }
@@ -1002,7 +997,7 @@
         }
 
         .nzgdc-cta-text-main {
-            width: 200px;
+            width: 260px;
             height: 21px;
             color: var(--color-category-text);
             font-family: var(--font-family-heavy);
@@ -1353,15 +1348,17 @@
 
                     // Try to load external file first (for server environments)
                     try {
-                        const response = await fetch('eventPanel_Big.html');
+                        const response = await fetch('eventPanel_Big.html?type=panel');
                         if (response.ok) {
                             const html = await response.text();
                             const parser = new DOMParser();
                             const doc = parser.parseFromString(html, 'text/html');
-                            this.template = doc.querySelector('.nzgdc-morning-event-panel-big');
+                            this.template = doc.querySelector('.nzgdc-event-panel-big');
 
                             if (this.template) {
-                                console.log('External template loaded successfully');
+                                // Set the event type for Friday/Saturday panels
+                                this.template.setAttribute('data-event-type', 'panel');
+                                console.log('External template loaded successfully with panel type');
                                 return this.template;
                             }
                         }
@@ -1374,7 +1371,9 @@
                     if (embeddedTemplate) {
                         this.template = embeddedTemplate.content.querySelector('.nzgdc-morning-event-panel-big');
                         if (this.template) {
-                            console.log('Embedded template loaded successfully');
+                            // Set the event type for Friday/Saturday panels
+                            this.template.setAttribute('data-event-type', 'panel');
+                            console.log('Embedded template loaded successfully with panel type');
                             return this.template;
                         }
                     }
@@ -1410,6 +1409,9 @@
                         return this.createMainEventPanel(eventData);
                     }
 
+                    // Ensure panel event type is set
+                    clone.setAttribute('data-event-type', 'panel');
+
                     // Customize the content based on eventData
                     this.updateEventContent(clone, eventData);
                     return clone;
@@ -1436,7 +1438,7 @@
                         <div class="nzgdc-session-thumbnail-main"></div>
                         <div class="nzgdc-event-panel-overlay-main">
                             <div class="nzgdc-speaker-details-main">
-                                <div class="nzgdc-speaker-name-main">${eventData.speakers?.[0]?.name || 'Speaker Name'}</div>
+                                <div class="nzgdc-speaker-name-main">Presented by ${eventData.speakers?.[0]?.name || 'Speaker Name'}</div>
                                 <div class="nzgdc-speaker-position-company-main">${eventData.speakers?.[0]?.position || 'Position + Company'}</div>
                             </div>
                             <div class="nzgdc-call-to-action-main">
@@ -1447,33 +1449,42 @@
                     </div>
                 `;
 
+                // Set panel event type
+                mainPanel.setAttribute('data-event-type', 'panel');
+
                 return mainPanel;
             }
 
             // Update event panel content with specific data
             updateEventContent(clone, eventData) {
                 // Update category
-                const categoryEl = clone.querySelector('.nzgdc-morning-category-text-big');
+                const categoryEl = clone.querySelector('.nzgdc-category-text-big');
                 if (categoryEl && eventData.category) {
                     categoryEl.textContent = eventData.category;
                 }
 
                 // Update title
-                const titleEl = clone.querySelector('.nzgdc-morning-title-text-big');
+                const titleEl = clone.querySelector('.nzgdc-title-text-big');
                 if (titleEl && eventData.title) {
                     titleEl.textContent = eventData.title;
                 }
 
                 // Update thumbnail
-                const thumbnailEl = clone.querySelector('.nzgdc-morning-session-thumbnail-big');
+                const thumbnailEl = clone.querySelector('.nzgdc-session-thumbnail-big');
                 if (thumbnailEl && eventData.thumbnail) {
                     thumbnailEl.style.backgroundImage = `url('${eventData.thumbnail}')`;
                 }
 
                 // Update timeframe
-                const timeframeEl = clone.querySelector('.nzgdc-morning-timeframe-text-big');
+                const timeframeEl = clone.querySelector('.nzgdc-timeframe-text-big');
                 if (timeframeEl && eventData.timeframe) {
                     timeframeEl.textContent = eventData.timeframe;
+                }
+
+                // Update introduction text for Friday/Saturday panels
+                const introEl = clone.querySelector('.nzgdc-introduction-text-big');
+                if (introEl) {
+                    introEl.textContent = 'NZGDC 2025 Panel by';
                 }
 
                 // Update speaker information
@@ -1482,15 +1493,15 @@
 
             // Update speaker information in the panel
             updateSpeakers(clone, speakers) {
-                const speakerContainers = clone.querySelectorAll('.nzgdc-morning-speaker-biolines-big');
+                const speakerContainers = clone.querySelectorAll('.nzgdc-speaker-biolines-big');
 
                 if (!speakers || speakers.length === 0) return;
 
                 speakers.forEach((speaker, index) => {
                     if (index < speakerContainers.length) {
                         const container = speakerContainers[index];
-                        const nameEl = container.querySelector('.nzgdc-morning-speaker-bioName-big');
-                        const positionEl = container.querySelector('.nzgdc-morning-speaker-bioPosition-big');
+                        const nameEl = container.querySelector('.nzgdc-speaker-bioName-big');
+                        const positionEl = container.querySelector('.nzgdc-speaker-bioPosition-big');
 
                         if (nameEl) nameEl.textContent = speaker.name || '';
                         if (positionEl) positionEl.textContent = speaker.position || '';
@@ -1717,8 +1728,21 @@
                     container.innerHTML = '';
                     container.appendChild(eventPanel);
 
+                    // Send event type configuration message to any embedded panels
+                    if (eventPanel.tagName === 'IFRAME' || eventPanel.querySelector('iframe')) {
+                        setTimeout(() => {
+                            const iframe = eventPanel.tagName === 'IFRAME' ? eventPanel : eventPanel.querySelector('iframe');
+                            if (iframe && iframe.contentWindow) {
+                                iframe.contentWindow.postMessage({
+                                    type: 'setEventType',
+                                    eventType: 'panel'
+                                }, '*');
+                            }
+                        }, 100);
+                    }
+
                 } catch (error) {
-                    console.error(`Failed to load morning event ${eventId}:`, error);
+                    console.error(`Failed to load Friday/Saturday event ${eventId}:`, error);
                     container.innerHTML = '';
                     container.appendChild(this.eventLoader.createErrorPanel(error.message));
                 }

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Event Panel Big</title>
+    <script src="eventCategories.js"></script>
     <style>
         /* CSS reset for iframe content */
         body, html {
@@ -21,6 +22,7 @@
             box-sizing: border-box;
         }
 
+        /* Event Panel CSS Variables - Aligned with production */
         .nzgdc-event-panel-big {
             --font-family-demi: 'Futura PT Demi', 'Futura', Arial, sans-serif;
             --font-family-bold: 'Futura PT Bold', 'Futura', Arial, sans-serif;
@@ -36,6 +38,7 @@
             --color-speaker-secondary: rgba(160, 160, 160, 1);
         }
 
+        /* Main Event Panel Container */
         .nzgdc-event-panel-big {
             display: flex;
             align-items: center;
@@ -85,7 +88,7 @@
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            width: 200px;
+            width: 260px;
             height: 61px;
             cursor: pointer;
         }
@@ -98,7 +101,7 @@
         }
 
         .nzgdc-cta-text-big {
-            width: 200px;
+            width: 260px;
             height: 21px;
             color: var(--color-category-text);
             font-family: var(--font-family-heavy);
@@ -125,7 +128,7 @@
             background-color: var(--color-primary);
             display: flex;
             align-items: center;
-            padding-left: 12px;
+            padding: 4px 10px;
             flex-shrink: 0;
         }
 
@@ -134,17 +137,19 @@
             min-height: 22px;
             color: var(--color-category-text);
             font-family: var(--font-family-demi);
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 500;
             text-transform: uppercase;
             line-height: 22px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             overflow-wrap: break-word;
         }
 
         /* Event Title */
         .nzgdc-event-title-big {
             width: 320px;
-            min-height: 70px;
             background-color: var(--color-bg);
             display: flex;
             align-items: center;
@@ -154,14 +159,11 @@
 
         .nzgdc-title-text-big {
             width: 100%;
-            min-height: 54px;
             color: var(--color-title);
-            font-family: var(--font-family-bold);
-            font-size: 21px;
-            font-weight: 700;
-            line-height: 27px;
-            display: flex;
-            align-items: center;
+            font-family: var(--font-family-demi);
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 26px;
             overflow-wrap: break-word;
         }
 
@@ -249,12 +251,10 @@
             line-height: 21px;
             overflow-wrap: break-word;
         }
-
-
     </style>
 </head>
 <body>
-    <div class="nzgdc-event-panel-big">
+    <div class="nzgdc-event-panel-big" data-event-type="panel">
         <!-- Event Panel Thumbnail (Left Side) -->
         <div class="nzgdc-event-panel-big-thumbnail">
             <!-- Session Thumbnail (Background) -->
@@ -285,7 +285,7 @@
             <!-- Event Speaker Details (Bottom) -->
             <div class="nzgdc-event-speaker-details-big">
                 <!-- Introduction text -->
-                <div class="nzgdc-introduction-text-big">NZGDC 2025 Workshop by</div>
+                <div class="nzgdc-introduction-text-big">NZGDC 2025 Panel by</div>
 
                 <!-- Speaker Details -->
                 <div class="nzgdc-speaker-details-big">
@@ -315,5 +315,213 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Panel Manager for Big Event Panel
+        class BigEventPanelManager {
+            constructor() {
+                this.panel = document.querySelector('.nzgdc-event-panel-big');
+                this.currentEventType = 'panel'; // 'panel' or 'workshop'
+                this.initializeEventListeners();
+            }
+
+            // Set event type (panel for Fri/Sat events, workshop for Thursday)
+            setEventType(eventType) {
+                if (eventType !== 'panel' && eventType !== 'workshop') {
+                    console.warn(`Unknown event type: ${eventType}, using panel`);
+                    eventType = 'panel';
+                }
+
+                this.currentEventType = eventType;
+                this.panel.setAttribute('data-event-type', eventType);
+
+                // Update type-specific content
+                this.updateEventTypeContent(eventType);
+
+                console.log(`Panel event type set to: ${eventType}`);
+            }
+
+            // Update content based on event type
+            updateEventTypeContent(eventType) {
+                const introEl = this.panel.querySelector('.nzgdc-introduction-text-big');
+                if (introEl) {
+                    if (eventType === 'workshop') {
+                        introEl.textContent = 'NZGDC 2025 Workshop by';
+                    } else {
+                        introEl.textContent = 'NZGDC 2025 Panel by';
+                    }
+                }
+            }
+
+            // Update panel content with event data
+            updateContent(eventData) {
+                if (!eventData) return;
+
+                // Update category
+                const categoryEl = this.panel.querySelector('.nzgdc-category-text-big');
+                if (categoryEl && eventData.category) {
+                    categoryEl.textContent = eventData.category;
+                }
+
+                // Update title
+                const titleEl = this.panel.querySelector('.nzgdc-title-text-big');
+                if (titleEl && eventData.title) {
+                    titleEl.textContent = eventData.title;
+                }
+
+                // Update timeframe
+                const timeframeEl = this.panel.querySelector('.nzgdc-timeframe-text-big');
+                if (timeframeEl && eventData.timeframe) {
+                    timeframeEl.textContent = eventData.timeframe;
+                }
+
+                // Update speaker information
+                this.updateSpeakers(eventData.speakers);
+
+                // Update thumbnail
+                const thumbnailEl = this.panel.querySelector('.nzgdc-session-thumbnail-big');
+                if (thumbnailEl && eventData.thumbnail) {
+                    thumbnailEl.style.backgroundImage = `url('${eventData.thumbnail}')`;
+                }
+            }
+
+            // Update speaker information in the panel
+            updateSpeakers(speakers) {
+                const speakerContainers = this.panel.querySelectorAll('.nzgdc-speaker-biolines-big');
+
+                if (!speakers || speakers.length === 0) return;
+
+                speakers.forEach((speaker, index) => {
+                    if (index < speakerContainers.length) {
+                        const container = speakerContainers[index];
+                        const nameEl = container.querySelector('.nzgdc-speaker-bioName-big');
+                        const positionEl = container.querySelector('.nzgdc-speaker-bioPosition-big');
+
+                        if (nameEl) nameEl.textContent = speaker.name || '';
+                        if (positionEl) positionEl.textContent = speaker.position || '';
+                    }
+                });
+
+                // Hide unused speaker containers
+                for (let i = speakers.length; i < speakerContainers.length; i++) {
+                    speakerContainers[i].style.display = 'none';
+                }
+
+                // Show used speaker containers
+                for (let i = 0; i < Math.min(speakers.length, speakerContainers.length); i++) {
+                    speakerContainers[i].style.display = 'flex';
+                }
+            }
+
+            // Initialize event listeners for postMessage communication
+            initializeEventListeners() {
+                // Listen for postMessage from parent window (for iframe communication)
+                window.addEventListener('message', (event) => {
+                    if (event.data && event.data.type === 'updateCategory') {
+                        const { category, panelType, eventType } = event.data;
+
+                        if (panelType === 'big' || panelType === 'both') {
+                            // Set event type if provided
+                            if (eventType && eventType !== this.currentEventType) {
+                                this.setEventType(eventType);
+                            }
+
+                            // Update category using EventCategories system
+                            if (typeof EventCategories !== 'undefined') {
+                                EventCategories.setCategoryBig(category);
+                            }
+                        }
+                    }
+
+                    if (event.data && event.data.type === 'updateContent') {
+                        const { eventData, eventType } = event.data;
+
+                        // Set event type if provided
+                        if (eventType && eventType !== this.currentEventType) {
+                            this.setEventType(eventType);
+                        }
+
+                        // Update content
+                        this.updateContent(eventData);
+                    }
+
+                    if (event.data && event.data.type === 'setEventType') {
+                        this.setEventType(event.data.eventType);
+                    }
+                });
+            }
+
+            // Get current event type
+            getEventType() {
+                return this.currentEventType;
+            }
+        }
+
+        // Initialize the panel manager
+        let panelManager;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize panel manager
+            panelManager = new BigEventPanelManager();
+
+            // Set default category using explicit initialization (prevents console warnings)
+            if (typeof EventCategories !== 'undefined') {
+                EventCategories.setCategoryBig('STORY_NARRATIVE');
+            }
+
+            // Check for event type parameter in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const eventTypeParam = urlParams.get('type');
+            if (eventTypeParam) {
+                panelManager.setEventType(eventTypeParam);
+            }
+
+            console.log('Big Event Panel Manager initialized');
+        });
+
+        // Global API functions for backward compatibility and external access
+        window.updateEventCategoryBig = function(categoryKey) {
+            if (typeof EventCategories !== 'undefined') {
+                return EventCategories.setCategoryBig(categoryKey);
+            }
+            return false;
+        };
+
+        window.updateEventCategoryFromAPI = function(config) {
+            if (typeof EventCategories !== 'undefined') {
+                return EventCategories.updateFromAPI(config);
+            }
+            return { success: false, error: 'EventCategories not available' };
+        };
+
+        // New API functions for event type management
+        window.setEventPanelType = function(eventType) {
+            if (panelManager) {
+                panelManager.setEventType(eventType);
+                return true;
+            }
+            return false;
+        };
+
+        window.updateEventPanelContent = function(eventData, eventType) {
+            if (panelManager) {
+                if (eventType) {
+                    panelManager.setEventType(eventType);
+                }
+                panelManager.updateContent(eventData);
+                return true;
+            }
+            return false;
+        };
+
+        window.getEventPanelType = function() {
+            return panelManager ? panelManager.getEventType() : null;
+        };
+
+        // Export for module systems
+        if (typeof module !== 'undefined' && module.exports) {
+            module.exports = { BigEventPanelManager };
+        }
+    </script>
 </body>
 </html>

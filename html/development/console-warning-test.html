@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Console Warning Test - Event Categories</title>
+    <script src="eventCategories.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .test-header {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 30px;
+            border-radius: 4px;
+        }
+
+        .test-section {
+            background-color: #f9f9f9;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border-left: 4px solid #007cba;
+        }
+
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .console-output {
+            background-color: #1e1e1e;
+            color: #ffffff;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            border-radius: 4px;
+            margin: 10px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .expected-behavior {
+            background-color: #e8f5e8;
+            border: 1px solid #4caf50;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .expected-behavior h4 {
+            color: #2e7d32;
+            margin-top: 0;
+        }
+
+        .test-results {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .test-case {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .test-case.pass {
+            border-color: #4caf50;
+            background-color: #f1f8e9;
+        }
+
+        .test-case.fail {
+            border-color: #f44336;
+            background-color: #ffebee;
+        }
+
+        .test-button {
+            background-color: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+
+        .test-button:hover {
+            background-color: #005a8b;
+        }
+
+        .iframe-container {
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .status-pass {
+            background-color: #4caf50;
+            color: white;
+        }
+
+        .status-fail {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .status-info {
+            background-color: #2196f3;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>Console Warning Test</h1>
+            <p>Testing the Event Categories system console warning fixes</p>
+            <p><strong>Instructions:</strong> Open Developer Tools (F12) and check the Console tab</p>
+        </div>
+
+        <!-- Expected Behavior Section -->
+        <div class="expected-behavior">
+            <h4>✅ Expected Behavior After Fix</h4>
+            <p><strong>In this page:</strong> Should see "EventCategories: No panels found in current document - skipping auto-initialization" (this is normal and expected)</p>
+            <p><strong>In iframe contexts:</strong> No console warnings about missing panels</p>
+            <p><strong>In panel HTML files:</strong> Explicit initialization without warnings</p>
+        </div>
+
+        <!-- Test Cases -->
+        <div class="test-section">
+            <h3>Test Case 1: Direct Page Load (No Panels Present)</h3>
+            <p>This page has no event panels, so auto-initialization should be skipped with an informational message.</p>
+            <div id="test1-status">
+                <span class="status-indicator status-info">AUTO-TEST</span>
+                Check console for: "EventCategories: No panels found in current document - skipping auto-initialization"
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test Case 2: Force Initialization Test</h3>
+            <p>Test forced initialization even when no panels exist (should show warnings but not crash):</p>
+            <button class="test-button" onclick="testForceInit()">Force Initialize</button>
+            <div id="test2-status">
+                <span class="status-indicator status-info">MANUAL</span>
+                Click button and check console
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test Case 3: Iframe Event Panel Tests</h3>
+            <p>Test event panels in iframe contexts (should not show console warnings):</p>
+
+            <div class="test-results">
+                <div class="test-case">
+                    <h4>Main Panel Iframe</h4>
+                    <div class="iframe-container">
+                        <iframe src="eventPanel_Main.html" width="300" height="300" id="mainPanelTest"></iframe>
+                    </div>
+                    <div id="main-panel-status">
+                        <span class="status-indicator status-info">AUTO-TEST</span>
+                        Should load without console warnings
+                    </div>
+                </div>
+
+                <div class="test-case">
+                    <h4>Big Panel Iframe</h4>
+                    <div class="iframe-container">
+                        <iframe src="eventPanel_Big.html" width="620" height="300" id="bigPanelTest"></iframe>
+                    </div>
+                    <div id="big-panel-status">
+                        <span class="status-indicator status-info">AUTO-TEST</span>
+                        Should load without console warnings
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test Case 4: API Methods Test</h3>
+            <p>Test EventCategories API methods when no panels exist:</p>
+            <div style="margin: 10px 0;">
+                <button class="test-button" onclick="testGetCategory()">Test getCategory()</button>
+                <button class="test-button" onclick="testGetAllCategories()">Test getAllCategories()</button>
+                <button class="test-button" onclick="testUpdateFromAPI()">Test updateFromAPI()</button>
+            </div>
+            <div id="test4-status">
+                <span class="status-indicator status-info">MANUAL</span>
+                Click buttons and check console for results
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>Test Case 5: PostMessage Communication Test</h3>
+            <p>Test postMessage communication with loaded iframes:</p>
+            <div style="margin: 10px 0;">
+                <button class="test-button" onclick="testPostMessage('main')">Send to Main Panel</button>
+                <button class="test-button" onclick="testPostMessage('big')">Send to Big Panel</button>
+                <button class="test-button" onclick="testRandomCategory()">Random Category to Both</button>
+            </div>
+            <div id="test5-status">
+                <span class="status-indicator status-info">MANUAL</span>
+                Click buttons to test iframe communication
+            </div>
+        </div>
+
+        <!-- Console Output Monitor -->
+        <div class="test-section">
+            <h3>Live Console Monitor</h3>
+            <p>Real-time console output capture:</p>
+            <div class="console-output" id="consoleOutput">
+                <div style="color: #888;">Console output will appear here...</div>
+            </div>
+            <button class="test-button" onclick="clearConsoleOutput()">Clear Output</button>
+        </div>
+    </div>
+
+    <script>
+        // Console output capture for testing
+        const consoleOutput = document.getElementById('consoleOutput');
+        const originalLog = console.log;
+        const originalWarn = console.warn;
+        const originalError = console.error;
+
+        function addConsoleMessage(type, message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const div = document.createElement('div');
+            div.style.marginBottom = '2px';
+
+            let color = '#ffffff';
+            if (type === 'warn') color = '#ffeb3b';
+            if (type === 'error') color = '#f44336';
+            if (type === 'info') color = '#2196f3';
+
+            div.innerHTML = `<span style="color: #888;">${timestamp}</span> <span style="color: ${color};">[${type.toUpperCase()}]</span> ${message}`;
+            consoleOutput.appendChild(div);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        // Override console methods to capture output
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addConsoleMessage('log', args.join(' '));
+        };
+
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addConsoleMessage('warn', args.join(' '));
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addConsoleMessage('error', args.join(' '));
+        };
+
+        // Test functions
+        function testForceInit() {
+            console.log('Testing force initialization...');
+            if (typeof EventCategories !== 'undefined') {
+                EventCategories.init('STORY_NARRATIVE', true);
+                document.getElementById('test2-status').innerHTML =
+                    '<span class="status-indicator status-info">COMPLETED</span> Check console output above';
+            } else {
+                console.error('EventCategories not loaded');
+            }
+        }
+
+        function testGetCategory() {
+            console.log('Testing getCategory()...');
+            if (typeof EventCategories !== 'undefined') {
+                const category = EventCategories.getCategory('STORY_NARRATIVE');
+                console.log('getCategory result:', category);
+            }
+        }
+
+        function testGetAllCategories() {
+            console.log('Testing getAllCategories()...');
+            if (typeof EventCategories !== 'undefined') {
+                const categories = EventCategories.getAllCategories();
+                console.log('getAllCategories result:', Object.keys(categories).length + ' categories found');
+            }
+        }
+
+        function testUpdateFromAPI() {
+            console.log('Testing updateFromAPI()...');
+            if (typeof EventCategories !== 'undefined') {
+                const result = EventCategories.updateFromAPI({
+                    category: 'CODING_DEVELOPMENT',
+                    panelType: 'both'
+                });
+                console.log('updateFromAPI result:', result);
+            }
+        }
+
+        function testPostMessage(panelType) {
+            const categories = ['STORY_NARRATIVE', 'CODING_DEVELOPMENT', 'GAME_DESIGN_CREATIVE_ARTS', 'SOUND_MUSIC'];
+            const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+
+            if (panelType === 'main' || panelType === 'both') {
+                const mainFrame = document.getElementById('mainPanelTest');
+                if (mainFrame && mainFrame.contentWindow) {
+                    mainFrame.contentWindow.postMessage({
+                        type: 'updateCategory',
+                        category: randomCategory,
+                        panelType: 'main'
+                    }, '*');
+                    console.log(`Sent ${randomCategory} to main panel`);
+                }
+            }
+
+            if (panelType === 'big' || panelType === 'both') {
+                const bigFrame = document.getElementById('bigPanelTest');
+                if (bigFrame && bigFrame.contentWindow) {
+                    bigFrame.contentWindow.postMessage({
+                        type: 'updateCategory',
+                        category: randomCategory,
+                        panelType: 'big',
+                        eventType: 'panel'
+                    }, '*');
+                    console.log(`Sent ${randomCategory} to big panel`);
+                }
+            }
+        }
+
+        function testRandomCategory() {
+            testPostMessage('both');
+        }
+
+        function clearConsoleOutput() {
+            consoleOutput.innerHTML = '<div style="color: #888;">Console output cleared...</div>';
+        }
+
+        // Auto-run initial tests
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== Console Warning Test Page Loaded ===');
+            console.log('EventCategories available:', typeof EventCategories !== 'undefined');
+
+            // Wait a bit for any async initialization
+            setTimeout(() => {
+                console.log('=== Initial Tests Complete ===');
+                console.log('Check console output above for any warnings');
+
+                // Update status indicators based on what we see
+                updateTestStatus();
+            }, 1000);
+        });
+
+        function updateTestStatus() {
+            // This would be enhanced to actually check console output and update status
+            console.log('Test page ready for manual testing');
+        }
+
+        // Listen for iframe load events
+        document.getElementById('mainPanelTest').addEventListener('load', function() {
+            console.log('Main panel iframe loaded');
+            document.getElementById('main-panel-status').innerHTML =
+                '<span class="status-indicator status-pass">LOADED</span> Main panel iframe ready';
+        });
+
+        document.getElementById('bigPanelTest').addEventListener('load', function() {
+            console.log('Big panel iframe loaded');
+            document.getElementById('big-panel-status').innerHTML =
+                '<span class="status-indicator status-pass">LOADED</span> Big panel iframe ready';
+        });
+    </script>
+</body>
+</html>
