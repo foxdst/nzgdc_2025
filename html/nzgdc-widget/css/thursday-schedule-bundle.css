@@ -20,10 +20,8 @@
     --container-max-width: 1630px;
     --event-panel-width: 620px;
     --event-panel-height: 300px;
-}
 
-/* Scoped reset for the Thursday schedule component only */
-.nzgdc-schedule-widget * {
+    /* Base styling for proper rendering */
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -38,6 +36,7 @@
     height: auto;
     margin: 0 auto;
     position: relative;
+    box-sizing: border-box;
 }
 
 /* Schedule Sub Navigation - Contains Filters */
@@ -48,6 +47,9 @@
     width: 100%;
     max-width: var(--container-max-width);
     background-color: var(--color-white);
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 .nzgdc-schedule-widget .nzgdc-filters-section {
@@ -61,7 +63,6 @@
     justify-content: center;
     align-items: center;
     padding: 5px 15px;
-    box-sizing: border-box;
     background-color: var(--color-yellow);
 }
 
@@ -81,7 +82,6 @@
     align-items: center;
     gap: 10px;
     padding: 5px 15px;
-    box-sizing: border-box;
     background-color: var(--color-white);
 }
 
@@ -119,6 +119,7 @@
     height: 46px;
     margin: 17px 0 10px 0;
     padding: 0 25px;
+    box-sizing: border-box;
 }
 
 /* Theme-specific colors */

@@ -21,10 +21,8 @@
     --container-max-width: 1630px;
     --event-panel-width: 620px;
     --event-panel-height: 300px;
-}
 
-/* Scoped reset for the afternoon schedule component only */
-.nzgdc-afternoon-schedule-widget * {
+    /* Base styling for proper rendering */
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -39,6 +37,7 @@
     height: auto;
     margin: 0 auto;
     position: relative;
+    box-sizing: border-box;
 }
 
 /* Afternoon Schedule Sub Navigation - Contains Time Navigation and Filters */
@@ -49,6 +48,9 @@
     width: 100%;
     max-width: var(--container-max-width);
     background-color: var(--color-white);
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 /* Schedule Time Navigation - TOP LEFT POSITION */
@@ -65,7 +67,6 @@
     justify-content: center;
     align-items: center;
     padding: 10px 15px;
-    box-sizing: border-box;
     background-color: var(--color-yellow);
     border: none;
     cursor: pointer;
@@ -88,7 +89,6 @@
     justify-content: center;
     align-items: center;
     padding: 10px 15px;
-    box-sizing: border-box;
     background-color: var(--color-blue-bright);
     border: none;
     cursor: pointer;
@@ -116,7 +116,6 @@
     justify-content: center;
     align-items: center;
     padding: 5px 15px;
-    box-sizing: border-box;
     background-color: var(--color-blue-bright);
 }
 
@@ -136,7 +135,6 @@
     align-items: center;
     gap: 10px;
     padding: 5px 15px;
-    box-sizing: border-box;
     background-color: var(--color-white);
 }
 
@@ -174,6 +172,7 @@
     height: 46px;
     margin: 17px 0 10px 0;
     padding: 0 25px;
+    box-sizing: border-box;
 }
 
 .nzgdc-afternoon-schedule-widget .nzgdc-afternoon-session-text {
@@ -298,6 +297,8 @@
     height: 233px;
     background-color: var(--color-black);
     margin: 0 auto;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 .nzgdc-afternoon-schedule-widget .nzgdc-break-schedule h2 {
@@ -307,6 +308,7 @@
     font-weight: 800;
     text-transform: uppercase;
     margin: 0;
+    padding: 0;
 }
 
 .nzgdc-afternoon-schedule-widget .nzgdc-break-schedule p {
@@ -315,6 +317,7 @@
     font-size: 24px;
     font-weight: 400;
     margin: 0;
+    padding: 0;
 }
 
 /* Afternoon Event Rows - Flexible Layout */
@@ -498,155 +501,9 @@
 
 /* ===== MAIN EVENT PANEL STYLES (300x300 SQUARE) EMBEDDED ===== */
 /* These styles are embedded here to ensure they're always available for afternoon widgets */
-
-.nzgdc-afternoon-schedule-widget .nzgdc-event-panel-main {
-    width: 300px;
-    height: 300px;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--color-white);
-    overflow: hidden;
-    position: relative;
-    font-family: var(--font-primary);
-}
-
-/* Event Category (Top) */
-.nzgdc-afternoon-schedule-widget .nzgdc-event-category-main {
-    width: 100%;
-    height: 40px;
-    background-color: #f53e3e;
-    display: flex;
-    align-items: center;
-    padding: 8px 12px;
-    flex-shrink: 0;
-}
-
-.nzgdc-afternoon-schedule-widget .nzgdc-category-text-main {
-    width: 100%;
-    color: var(--color-white);
-    font-family: var(--font-primary);
-    font-size: 16px;
-    font-weight: 500;
-    text-transform: uppercase;
-    line-height: 22px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    overflow-wrap: break-word;
-}
-
-/* Event Panel Title (Middle) */
-.nzgdc-afternoon-schedule-widget .nzgdc-event-panel-title-main {
-    width: 100%;
-    background-color: var(--color-white);
-    display: flex;
-    align-items: center;
-    padding: 12px;
-    flex-shrink: 0;
-}
-
-.nzgdc-afternoon-schedule-widget .nzgdc-title-text-main {
-    width: 100%;
-    color: var(--color-black);
-    font-family: var(--font-primary);
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 26px;
-    text-align: left;
-    overflow-wrap: break-word;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-/* Event Panel Thumbnail (Bottom) */
-.nzgdc-afternoon-schedule-widget .nzgdc-event-panel-thumbnail-main {
-    width: 100%;
-    flex: 1;
-    position: relative;
-    background-size: cover;
-    background-position: center;
-    overflow: hidden;
-}
-
-/* Session Thumbnail (Background) */
-.nzgdc-afternoon-schedule-widget .nzgdc-session-thumbnail-main {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -1;
-    background-size: cover;
-    background-position: center;
-}
-
-/* Event Panel Overlay */
-.nzgdc-afternoon-schedule-widget .nzgdc-event-panel-overlay-main {
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.75);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 15px;
-    position: absolute;
-    top: 0;
-    left: 0;
-}
-
-/* Speaker Details */
-.nzgdc-afternoon-schedule-widget .nzgdc-speaker-details-main {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.nzgdc-afternoon-schedule-widget .nzgdc-speaker-name-main {
-    color: var(--color-white);
-    font-family: var(--font-primary);
-    font-size: 18px;
-    font-weight: 500;
-    font-style: italic;
-    line-height: 23px;
-    overflow-wrap: break-word;
-}
-
-.nzgdc-afternoon-schedule-widget .nzgdc-speaker-position-company-main {
-    color: rgba(204, 204, 204, 1);
-    font-family: var(--font-medium);
-    font-size: 18px;
-    font-weight: 400;
-    line-height: 23px;
-    overflow-wrap: break-word;
-}
-
-/* Call To Action */
-.nzgdc-afternoon-schedule-widget .nzgdc-call-to-action-main {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
-}
-
-.nzgdc-afternoon-schedule-widget .nzgdc-open-marker-main {
-    width: 20px;
-    height: 16px;
-    background-color: var(--color-white);
-    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-}
-
-.nzgdc-afternoon-schedule-widget .nzgdc-cta-text-main {
-    color: var(--color-white);
-    font-family: var(--font-primary);
-    font-size: 16px;
-    font-weight: 600;
-    text-align: center;
-    line-height: 21px;
-    overflow-wrap: break-word;
-}
+/* ===== EVENT PANEL MAIN STYLES - INHERITED FROM UNIFIED CSS ===== */
+/* All event panel styles (.nzgdc-event-panel-main, .nzgdc-event-category-main, etc.) */
+/* are now centralized in unified-event-panel.css to prevent redundancy and inconsistencies */
 
 @media (max-width: 480px) {
     .nzgdc-afternoon-schedule-widget {
@@ -667,22 +524,5 @@
 
     .nzgdc-afternoon-schedule-widget .nzgdc-afternoon-filters-value-text {
         font-size: 22px;
-    }
-
-    .nzgdc-afternoon-schedule-widget .nzgdc-event-panel-main {
-        max-width: 100%;
-    }
-
-    .nzgdc-afternoon-schedule-widget .nzgdc-title-text-main {
-        font-size: 16px;
-        line-height: 22px;
-    }
-
-    .nzgdc-afternoon-schedule-widget .nzgdc-speaker-name-main {
-        font-size: 16px;
-    }
-
-    .nzgdc-afternoon-schedule-widget .nzgdc-speaker-position-company-main {
-        font-size: 16px;
     }
 }
