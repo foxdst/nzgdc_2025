@@ -39,6 +39,7 @@
     margin: 0 auto;
     position: relative;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 /* Morning Schedule Sub Navigation - Contains Time Navigation and Filters */
@@ -47,7 +48,6 @@
     justify-content: space-between;
     align-items: stretch;
     width: 100%;
-    max-width: var(--container-max-width);
     background-color: var(--color-white);
     margin: 0;
     padding: 0;
@@ -152,7 +152,6 @@
 /* Time Categories - Base Styles */
 .nzgdc-morning-schedule-widget .nzgdc-morning-time-category {
     width: 100%;
-    max-width: var(--container-max-width);
 }
 
 .nzgdc-morning-schedule-widget .nzgdc-morning-time-category-early {
@@ -174,6 +173,7 @@
     margin: 17px 0 10px 0;
     padding: 0 25px;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 .nzgdc-morning-schedule-widget .nzgdc-morning-session-text {
@@ -261,7 +261,6 @@
     align-items: center;
     gap: 5px;
     width: 100%;
-    max-width: var(--container-max-width);
     height: 81px;
     background-color: var(--color-yellow);
 }
@@ -273,7 +272,6 @@
     align-items: center;
     gap: 5px;
     width: 100%;
-    max-width: var(--container-max-width);
     height: 81px;
     background-color: var(--color-yellow);
 }
@@ -281,9 +279,9 @@
 /* Scheduled Morning Events Container */
 .nzgdc-morning-schedule-widget .nzgdc-scheduled-morning-events {
     width: 100%;
-    max-width: var(--container-max-width);
     padding: 40px;
     background-color: inherit;
+    box-sizing: border-box;
 }
 
 /* Break Schedule Styling - FIXED: BLACK BACKGROUND WITH WHITE TEXT */
@@ -294,7 +292,6 @@
     align-items: center;
     gap: 10px;
     width: 100%;
-    max-width: var(--container-max-width);
     height: 233px;
     background-color: var(--color-black);
     margin: 0 auto;
@@ -385,7 +382,6 @@
     justify-content: flex-start;
     align-items: flex-start;
     width: 100%;
-    max-width: var(--container-max-width);
     background-color: var(--color-white);
 }
 

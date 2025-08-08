@@ -37,6 +37,7 @@
     margin: 0 auto;
     position: relative;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 /* Schedule Sub Navigation - Contains Filters */
@@ -45,7 +46,6 @@
     justify-content: flex-end;
     align-items: center;
     width: 100%;
-    max-width: var(--container-max-width);
     background-color: var(--color-white);
     margin: 0;
     padding: 0;
@@ -98,7 +98,6 @@
 /* Time Categories - Base Styles */
 .nzgdc-schedule-widget .nzgdc-time-category {
     width: 100%;
-    max-width: var(--container-max-width);
 }
 
 .nzgdc-schedule-widget .nzgdc-time-category-a {
@@ -120,6 +119,7 @@
     margin: 17px 0 10px 0;
     padding: 0 25px;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 /* Theme-specific colors */
@@ -166,7 +166,6 @@
     align-items: center;
     gap: 5px;
     width: 100%;
-    max-width: var(--container-max-width);
     height: 81px;
     background-color: var(--color-yellow);
 }
@@ -178,7 +177,6 @@
     align-items: center;
     gap: 5px;
     width: 100%;
-    max-width: var(--container-max-width);
     height: 81px;
     background-color: var(--color-blue);
 }
@@ -186,9 +184,9 @@
 /* Scheduled Workshops Container */
 .nzgdc-schedule-widget .nzgdc-scheduled-workshops {
     width: 100%;
-    max-width: var(--container-max-width);
     padding: 40px;
     background-color: inherit;
+    box-sizing: border-box;
 }
 
 /* Workshop Rows - Flexible Layout */
@@ -228,7 +226,6 @@
     justify-content: flex-start;
     align-items: flex-start;
     width: 100%;
-    max-width: var(--container-max-width);
     background-color: var(--color-white);
 }
 

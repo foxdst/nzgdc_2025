@@ -38,6 +38,7 @@
     margin: 0 auto;
     position: relative;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 /* Afternoon Schedule Sub Navigation - Contains Time Navigation and Filters */
@@ -46,7 +47,6 @@
     justify-content: space-between;
     align-items: stretch;
     width: 100%;
-    max-width: var(--container-max-width);
     background-color: var(--color-white);
     margin: 0;
     padding: 0;
@@ -151,7 +151,6 @@
 /* Time Categories - Base Styles with blue theme */
 .nzgdc-afternoon-schedule-widget .nzgdc-afternoon-time-category {
     width: 100%;
-    max-width: var(--container-max-width);
 }
 
 .nzgdc-afternoon-schedule-widget .nzgdc-afternoon-time-category-early {
@@ -173,6 +172,7 @@
     margin: 17px 0 10px 0;
     padding: 0 25px;
     box-sizing: border-box;
+    overflow: hidden;
 }
 
 .nzgdc-afternoon-schedule-widget .nzgdc-afternoon-session-text {
@@ -260,7 +260,6 @@
     align-items: center;
     gap: 5px;
     width: 100%;
-    max-width: var(--container-max-width);
     height: 81px;
     background-color: var(--color-blue);
 }
@@ -272,7 +271,6 @@
     align-items: center;
     gap: 5px;
     width: 100%;
-    max-width: var(--container-max-width);
     height: 81px;
     background-color: var(--color-blue);
 }
@@ -280,9 +278,9 @@
 /* Scheduled Afternoon Events Container */
 .nzgdc-afternoon-schedule-widget .nzgdc-scheduled-afternoon-events {
     width: 100%;
-    max-width: var(--container-max-width);
     padding: 40px;
     background-color: inherit;
+    box-sizing: border-box;
 }
 
 /* Break Schedule Styling - BLACK BACKGROUND WITH WHITE TEXT */
@@ -293,7 +291,6 @@
     align-items: center;
     gap: 10px;
     width: 100%;
-    max-width: var(--container-max-width);
     height: 233px;
     background-color: var(--color-black);
     margin: 0 auto;
@@ -386,7 +383,6 @@
     justify-content: flex-start;
     align-items: flex-start;
     width: 100%;
-    max-width: var(--container-max-width);
     background-color: var(--color-white);
 }
 
