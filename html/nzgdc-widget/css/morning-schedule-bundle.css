@@ -52,6 +52,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    min-height: 60px;
 }
 
 /* Schedule Time Navigation - TOP LEFT POSITION as in original */
@@ -59,6 +60,7 @@
     display: flex;
     align-items: center;
     gap: 20px;
+    min-height: 60px;
 }
 
 /* Morning Events Button */
@@ -73,6 +75,8 @@
     cursor: pointer;
     color: var(--color-black);
     font-family: var(--font-primary);
+    min-height: 60px;
+    box-sizing: border-box;
     font-size: 28px;
     font-weight: 800;
     text-transform: uppercase;
@@ -95,6 +99,8 @@
     cursor: pointer;
     color: var(--color-white);
     font-family: var(--font-primary);
+    min-height: 60px;
+    box-sizing: border-box;
     font-size: 28px;
     font-weight: 800;
     text-transform: uppercase;
@@ -109,6 +115,7 @@
 .nzgdc-morning-schedule-widget .nzgdc-morning-filters-section {
     display: flex;
     align-items: stretch;
+    min-height: 60px;
 }
 
 .nzgdc-morning-schedule-widget .nzgdc-morning-filters-label {
@@ -118,6 +125,8 @@
     align-items: center;
     padding: 5px 15px;
     background-color: var(--color-yellow-bright);
+    min-height: 60px;
+    box-sizing: border-box;
 }
 
 .nzgdc-morning-schedule-widget .nzgdc-morning-filters-label-text {
@@ -137,6 +146,8 @@
     gap: 10px;
     padding: 5px 15px;
     background-color: var(--color-white);
+    min-height: 60px;
+    box-sizing: border-box;
 }
 
 .nzgdc-morning-schedule-widget .nzgdc-morning-filters-value-text {

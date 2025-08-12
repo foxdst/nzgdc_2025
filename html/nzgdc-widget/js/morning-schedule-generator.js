@@ -6,6 +6,8 @@ class MorningScheduleGenerator {
     this.eventLoader = new UnifiedEventLoader();
     this.loadedEvents = new Set(); // Track loaded events for cleanup
     this.isDestroyed = false;
+    this.originalData = null; // Store original unfiltered data
+    this.currentFilterCategory = null;
   }
 
   // Debug logging helper - checks global debug flag
@@ -110,6 +112,10 @@ class MorningScheduleGenerator {
   }
 
   generateMorningEvent(event) {
+    this.debug("Generating event with data:", event);
+    this.debug("Event ID:", event.id);
+    this.debug("Event category:", event.category);
+
     const eventType = event.type || "big";
     const containerClass =
       eventType === "main" ? "nzgdc-morning-event-main" : "nzgdc-morning-event";
@@ -118,7 +124,7 @@ class MorningScheduleGenerator {
         ? "nzgdc-morning-event-panel-main-container"
         : "nzgdc-morning-event-panel-container";
 
-    return `
+    const generatedHtml = `
       <div class="${containerClass}">
         <div class="${panelContainerClass}"
              data-event-id="${event.id}"
@@ -129,6 +135,130 @@ class MorningScheduleGenerator {
         </div>
       </div>
     `;
+
+    this.debug("Generated HTML snippet:", generatedHtml.substring(0, 200));
+    return generatedHtml;
+  }
+
+  // Store original data for filter reset
+  preserveOriginalData(scheduleData) {
+    if (!this.originalData) {
+      this.originalData = JSON.parse(JSON.stringify(scheduleData));
+      this.debug("Original schedule data preserved for filtering");
+    }
+  }
+
+  // Filter events by category key - grey out non-matching events
+  filterEventsByCategory(categoryKey) {
+    if (!this.originalData) {
+      this.debug("No original data available for filtering");
+      return;
+    }
+
+    this.debug("Filtering events by category:", categoryKey);
+    this.currentFilterCategory = categoryKey;
+
+    // Apply grey-out CSS classes to non-matching events
+    this.applyEventFiltering(categoryKey);
+  }
+
+  // Reset filter and show all events
+  resetFilter() {
+    this.debug("Resetting filter - showing all events");
+    this.currentFilterCategory = null;
+
+    // Remove all filtering CSS classes
+    this.clearEventFiltering();
+  }
+
+  // Apply grey-out filtering to event panels
+  applyEventFiltering(categoryKey) {
+    this.debug("Starting event filtering with category:", categoryKey);
+
+    const eventPanels = this.container.querySelectorAll(
+      ".nzgdc-morning-event-panel-container, .nzgdc-morning-event-panel-main-container",
+    );
+
+    this.debug(`Found ${eventPanels.length} event panels to filter`);
+
+    if (eventPanels.length === 0) {
+      this.debug("No event panels found - filtering aborted");
+      return;
+    }
+
+    this.debug("MORNING_EVENTS available:", !!window.MORNING_EVENTS);
+    if (window.MORNING_EVENTS) {
+      this.debug("MORNING_EVENTS keys:", Object.keys(window.MORNING_EVENTS));
+    }
+
+    eventPanels.forEach((panel, index) => {
+      const eventId = panel.dataset.eventId;
+      this.debug(
+        `Panel ${index}: eventId="${eventId}", classes="${panel.className}"`,
+      );
+
+      if (!eventId) {
+        this.debug(
+          "Panel missing data-event-id:",
+          panel.outerHTML.substring(0, 200),
+        );
+        return;
+      }
+
+      const eventData = window.MORNING_EVENTS && window.MORNING_EVENTS[eventId];
+      if (!eventData) {
+        this.debug(`No event data found for ${eventId} in MORNING_EVENTS`);
+        this.debug(
+          "Available event IDs:",
+          window.MORNING_EVENTS
+            ? Object.keys(window.MORNING_EVENTS)
+            : "MORNING_EVENTS is null/undefined",
+        );
+        return;
+      }
+
+      this.debug(`Event ${eventId} data:`, {
+        categoryKey: eventData.categoryKey,
+        category: eventData.category,
+        title: eventData.title,
+      });
+
+      // Remove any existing filter classes
+      panel.classList.remove("filtered-out", "filtered-in");
+
+      // Check if event matches filter - try both categoryKey and category
+      const eventCategoryKey = eventData.categoryKey || eventData.category;
+      this.debug(`Comparing "${eventCategoryKey}" === "${categoryKey}"`);
+
+      if (eventCategoryKey === categoryKey) {
+        // Event matches filter - highlight it
+        panel.classList.add("filtered-in");
+        this.debug(
+          `✅ Event ${eventId} matches filter ${categoryKey} - HIGHLIGHTED`,
+        );
+      } else {
+        // Event doesn't match filter - grey it out
+        panel.classList.add("filtered-out");
+        this.debug(
+          `❌ Event ${eventId} filtered out (${eventCategoryKey} !== ${categoryKey}) - GREYED OUT`,
+        );
+      }
+    });
+
+    this.debug("Event filtering completed");
+  }
+
+  // Clear all event filtering
+  clearEventFiltering() {
+    const eventPanels = this.container.querySelectorAll(
+      ".nzgdc-morning-event-panel-container, .nzgdc-morning-event-panel-main-container",
+    );
+
+    eventPanels.forEach((panel) => {
+      panel.classList.remove("filtered-out", "filtered-in");
+    });
+
+    this.debug("All event filtering cleared");
   }
 
   async renderSchedule(data) {
@@ -137,6 +267,9 @@ class MorningScheduleGenerator {
         console.warn("Cannot render morning schedule - generator is destroyed");
         return;
       }
+
+      // Preserve original data on first render
+      this.preserveOriginalData(data);
 
       this.debug(
         "Starting morning schedule rendering with",
@@ -215,6 +348,15 @@ class MorningScheduleGenerator {
       });
 
       this.debug("All morning event content loaded successfully");
+
+      // Reapply current filter if one is active
+      if (this.currentFilterCategory) {
+        this.debug(
+          "Reapplying filter after content load:",
+          this.currentFilterCategory,
+        );
+        this.applyEventFiltering(this.currentFilterCategory);
+      }
     } catch (error) {
       console.error(
         "[NZGDC Morning Widget] Failed to load event content:",

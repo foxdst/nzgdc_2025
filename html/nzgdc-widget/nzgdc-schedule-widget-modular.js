@@ -54,6 +54,7 @@
         await Promise.all([
           this.loadCSS("css/unified-event-panel.css"),
           this.loadCSS("css/thursday-schedule-bundle.css"),
+          this.loadCSS("css/category-filter-overlay.css"),
         ]);
         this.cssLoaded = true;
         debugLog("CSS bundles loaded successfully");

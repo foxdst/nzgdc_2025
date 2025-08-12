@@ -6,6 +6,10 @@ class ScheduleGenerator {
     this.eventLoader = new UnifiedEventLoader();
     this.loadedWorkshops = new Set(); // Track loaded workshops for cleanup
     this.isDestroyed = false;
+
+    // Filter state
+    this.currentFilterCategory = null;
+    this.originalData = null;
   }
 
   // Debug logging helper - checks global debug flag
@@ -81,6 +85,9 @@ class ScheduleGenerator {
         data.timeSlots.length,
         "time slots",
       );
+
+      // Store original data for filtering
+      this.originalData = data;
 
       // Clear existing content and tracking
       this.container.innerHTML = "";
@@ -243,6 +250,10 @@ class ScheduleGenerator {
       // Mark as destroyed to prevent further operations
       this.isDestroyed = true;
 
+      // Clear filter state
+      this.currentFilterCategory = null;
+      this.originalData = null;
+
       // Clear workshop tracking
       this.loadedWorkshops.clear();
 
@@ -265,6 +276,91 @@ class ScheduleGenerator {
         error,
       );
     }
+  }
+
+  // Filter events by category key - grey out non-matching events
+  filterEventsByCategory(categoryKey) {
+    if (!this.originalData) {
+      this.debug("No original data available for filtering");
+      return;
+    }
+
+    this.debug("Filtering Thursday events by category:", categoryKey);
+    this.currentFilterCategory = categoryKey;
+
+    // Apply filtering to all event panels
+    this.applyEventFiltering(categoryKey);
+  }
+
+  // Reset filter and show all events
+  resetFilter() {
+    this.debug("Resetting Thursday filter - showing all events");
+    this.currentFilterCategory = null;
+
+    // Clear all filtering from event panels
+    this.clearEventFiltering();
+  }
+
+  // Apply filtering to event panels - grey out non-matching events
+  applyEventFiltering(categoryKey) {
+    // Get all big event panels in Thursday schedule
+    const eventPanels = this.container.querySelectorAll(
+      ".nzgdc-event-panel-container[data-event-id], .nzgdc-event-panel-big",
+    );
+
+    this.debug(`Found ${eventPanels.length} Thursday event panels to filter`);
+
+    eventPanels.forEach((panel) => {
+      // Get event ID and data
+      const eventId =
+        panel.getAttribute("data-event-id") ||
+        panel.closest("[data-event-id]")?.getAttribute("data-event-id");
+      const eventData = window.WORKSHOP_EVENTS
+        ? window.WORKSHOP_EVENTS[eventId]
+        : null;
+
+      if (!eventData) {
+        this.debug(`No event data found for panel ${eventId}`);
+        return;
+      }
+
+      // Remove any existing filter classes
+      panel.classList.remove("filtered-out", "filtered-in");
+
+      // Get event category (try both categoryKey and category properties)
+      const eventCategoryKey =
+        eventData.categoryKey || eventData.category || "";
+
+      // Check if event matches filter
+      if (eventCategoryKey === categoryKey) {
+        // Event matches filter - highlight it
+        panel.classList.add("filtered-in");
+        this.debug(
+          `✅ Thursday event ${eventId} matches filter ${categoryKey} - HIGHLIGHTED`,
+        );
+      } else {
+        // Event doesn't match filter - grey it out
+        panel.classList.add("filtered-out");
+        this.debug(
+          `❌ Thursday event ${eventId} filtered out (${eventCategoryKey} !== ${categoryKey}) - GREYED OUT`,
+        );
+      }
+    });
+
+    this.debug(`Thursday filtering applied: ${categoryKey}`);
+  }
+
+  // Clear all event filtering - show all events normally
+  clearEventFiltering() {
+    const eventPanels = this.container.querySelectorAll(
+      ".nzgdc-event-panel-container, .nzgdc-event-panel-big",
+    );
+
+    eventPanels.forEach((panel) => {
+      panel.classList.remove("filtered-out", "filtered-in");
+    });
+
+    this.debug("Thursday filtering cleared - all events visible");
   }
 }
 

@@ -54,7 +54,8 @@
 
 .nzgdc-schedule-widget .nzgdc-filters-section {
     display: flex;
-    align-items: center;
+    align-items: stretch;
+    min-height: 60px;
 }
 
 .nzgdc-schedule-widget .nzgdc-filters-label {
@@ -64,6 +65,8 @@
     align-items: center;
     padding: 5px 15px;
     background-color: var(--color-yellow);
+    min-height: 60px;
+    box-sizing: border-box;
 }
 
 .nzgdc-schedule-widget .nzgdc-filters-label-text {
@@ -83,6 +86,31 @@
     gap: 10px;
     padding: 5px 15px;
     background-color: var(--color-white);
+    cursor: pointer;
+    position: relative;
+    min-height: 60px;
+    box-sizing: border-box;
+}
+
+.nzgdc-schedule-widget .nzgdc-filters-value[data-dropdown-trigger] {
+    cursor: pointer;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-value[data-dropdown-trigger]:hover:not(
+        [data-active-category]
+    ) {
+    background-color: #f8f9fa;
+}
+
+/* Remove focus outlines and borders that cause blue border issue */
+.nzgdc-schedule-widget .nzgdc-filters-value[data-dropdown-trigger]:focus,
+.nzgdc-schedule-widget .nzgdc-filters-value[data-dropdown-trigger]:active,
+.nzgdc-schedule-widget
+    .nzgdc-filters-value[data-dropdown-trigger]:focus-visible {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 .nzgdc-schedule-widget .nzgdc-filters-value-text {

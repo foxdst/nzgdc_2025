@@ -36,7 +36,7 @@ nzgdc-widget/
 
 ## 🚀 Quick Start
 
-### Thursday Workshop Schedule (Basic Implementation)
+### Thursday Workshop Schedule (with Dropdown Filtering)
 ```html
 <!DOCTYPE html>
 <html>
@@ -50,7 +50,7 @@ nzgdc-widget/
 </html>
 ```
 
-### Morning Events Schedule (Basic Implementation)
+### Morning Events Schedule (with Category Filtering)
 ```html
 <!DOCTYPE html>
 <html>
@@ -64,7 +64,7 @@ nzgdc-widget/
 </html>
 ```
 
-### Afternoon Events Schedule (Basic Implementation)
+### Afternoon Events Schedule (with Category Filtering)
 ```html
 <!DOCTYPE html>
 <html>
@@ -78,7 +78,7 @@ nzgdc-widget/
 </html>
 ```
 
-### All Three Widgets (Advanced Implementation)
+### All Three Widgets (with Unified Filtering System)
 ```html
 <div id="thursday-schedule"></div>
 <div id="morning-schedule"></div>
@@ -131,8 +131,9 @@ NZGDCAfternoonWidget.ready(() => {
 - **Loads**: All Thursday CSS, JS, and HTML files in correct order
 
 #### 2. Styling Layer (Loaded First)
-**Files**: `css/unified-event-panel.css` + `css/thursday-schedule-bundle.css`
+**Files**: `css/unified-event-panel.css` + `css/thursday-schedule-bundle.css` + `css/category-filter-overlay.css`
 **Dependencies**: None (pure CSS)
+**Features**: Unified event panels, Thursday-specific styles, and dropdown category filtering
 
 #### 3. Data Layer (Loaded Second)
 **Files**: `js/schedule-data.js`, `js/workshop-events.js`
@@ -155,8 +156,9 @@ NZGDCAfternoonWidget.ready(() => {
 - **Loads**: All Morning CSS, JS, and HTML files in correct order
 
 #### 2. Styling Layer (Loaded First)
-**Files**: `css/unified-event-panel.css` + `css/morning-schedule-bundle.css`
+**Files**: `css/unified-event-panel.css` + `css/morning-schedule-bundle.css` + `css/category-filter-overlay.css`
 **Dependencies**: None (pure CSS)
+**Features**: Unified event panels, Morning-specific styles, and dropdown category filtering
 
 #### 3. Data Layer (Loaded Second)
 **Files**: `js/morning-schedule-data.js`, `js/morning-events.js`
@@ -179,8 +181,9 @@ NZGDCAfternoonWidget.ready(() => {
 - **Loads**: All Afternoon CSS, JS, and HTML files in correct order
 
 #### 2. Styling Layer (Loaded First)
-**Files**: `css/unified-event-panel.css` + `css/afternoon-schedule-bundle.css`
+**Files**: `css/unified-event-panel.css` + `css/afternoon-schedule-bundle.css` + `css/category-filter-overlay.css`
 **Dependencies**: None (pure CSS)
+**Features**: Unified event panels, Afternoon-specific styles, and dropdown category filtering
 
 #### 3. Data Layer (Loaded Second)
 **Files**: `js/afternoon-schedule-data.js`, `js/afternoon-events.js`
@@ -245,10 +248,22 @@ class ScheduleGenerator {
 ```javascript
 // Location: js/widget-core.js
 class NZGDCScheduleWidget {
-    constructor(element, options)  // Initialize Thursday widget
-    init()                        // Setup widget
-    render()                      // Create widget structure
-    initializeSchedule()          // Start schedule rendering
+    constructor(element, options)     // Initialize Thursday widget
+    init()                           // Setup widget
+    render()                         // Create widget structure
+    renderFiltersInline()            // Generate dropdown filter HTML
+    generateCategoryDropdownHTML()   // Create category dropdown interface
+    updateFilterValueText()          // Dynamic label color changes
+    initializeDropdownController()   // Setup dropdown behavior
+    applyFilter(categoryKey)         // Apply category filtering
+    clearFilter()                    // Reset to show all events
+    initializeSchedule()             // Start schedule rendering
+}
+
+class ThursdayCategoryDropdownController {
+    init(widgetInstance)             // Initialize dropdown behavior
+    selectCategory(key, name)        // Handle category selection
+    show() / hide()                  // Dropdown visibility control
 }
 ```
 
@@ -281,10 +296,16 @@ class MorningScheduleGenerator {
 ```javascript
 // Location: js/morning-widget-core.js
 class NZGDCMorningScheduleWidget {
-    constructor(element, options)  // Initialize Morning widget
-    init()                        // Setup widget
-    render()                      // Create widget structure
-    initializeSchedule()          // Start schedule rendering
+    constructor(element, options)     // Initialize Morning widget
+    init()                           // Setup widget
+    render()                         // Create widget structure
+    renderFiltersInline()            // Generate dropdown filter HTML
+    generateCategoryDropdownHTML()   // Create 11-category dropdown
+    updateFilterValueText()          // Dynamic label background/text colors
+    initializeDropdownController()   // Setup dropdown behavior
+    applyFilter(categoryKey)         // Apply category filtering to events
+    clearFilter()                    // Reset to show all events
+    initializeSchedule()             // Start schedule rendering
     addEventHandlers()            // Add navigation handlers
 }
 ```
@@ -318,15 +339,31 @@ class AfternoonScheduleGenerator {
 ```javascript
 // Location: js/afternoon-widget-core.js
 class NZGDCAfternoonScheduleWidget {
-    constructor(element, options)  // Initialize Afternoon widget
-    init()                        // Setup widget
-    render()                      // Create widget structure
-    initializeSchedule()          // Start schedule rendering
+    constructor(element, options)     // Initialize Afternoon widget
+    init()                           // Setup widget
+    render()                         // Create widget structure
+    renderFiltersInline()            // Generate dropdown filter HTML
+    generateCategoryDropdownHTML()   // Create 11-category dropdown
+    updateFilterValueText()          // Dynamic label background/text colors
+    initializeDropdownController()   // Setup dropdown behavior
+    applyFilter(categoryKey)         // Apply category filtering to events
+    clearFilter()                    // Reset to show all events
+    initializeSchedule()             // Start schedule rendering
     addEventHandlers()            // Add navigation handlers
 }
 ```
 
 ### Widget Independence & Unified Architecture Benefits
+
+**Enhanced Filter System Benefits:**
+- **Consistent UI/UX** - All widgets share identical 60px height standards
+- **Unified Filtering** - Same 11-category system across all widgets (Game Design, Art, Programming, Audio, Story & Narrative, Business & Marketing, Culture, Production & QA, Realities VR/AR/MR, Data/Testing/Research, Serious & Educational)
+- **Instant Feedback** - Zero transition delays for responsive interactions
+- **Dynamic Color System** - Filter labels change background and text colors based on selected category
+- **Smart Event Filtering** - Grey out non-matching events, highlight matching ones
+- **Mobile Optimized** - Touch-friendly dropdown interactions
+- **Accessibility Compliant** - Full keyboard navigation support (Tab/Enter/Escape)
+- **Professional Appearance** - Eliminated floating button gaps across all navigation elements
 - **Unified Event Panels**: All widgets use the same UnifiedEventLoader for consistent event panel creation
 - **Single Template**: All widgets share `unified-event-panel.html` with dynamic content based on widget context
 - **Consolidated Styling**: Event panel styles centralized in `unified-event-panel.css`
@@ -358,7 +395,9 @@ Thursday Widget Ready
 ```
 NZGDCScheduleWidget.init()
     ↓
-DOM Structure Creation
+DOM Structure Creation (with Dropdown Filter HTML)
+    ↓
+ThursdayCategoryDropdownController.init()
     ↓
 ScheduleGenerator.renderSchedule()
     ↓
@@ -366,9 +405,11 @@ Time Slot Generation
     ↓
 UnifiedEventLoader.loadTemplate()
     ↓
-Workshop Content Population (context: "thursday")
+Workshop Content Population (context: "thursday", with data-event-id attributes)
     ↓
-Complete Thursday Render
+Category Filter Ready (11 categories + All Events)
+    ↓
+Complete Thursday Render with Filtering
 ```
 
 ### Morning Widget Data Flow
@@ -377,7 +418,7 @@ Complete Thursday Render
 ```
 Morning Entry Point (nzgdc-morning-schedule-widget-modular.js)
     ↓
-CSS Bundles (unified-event-panel.css + morning-schedule-bundle.css)
+CSS Bundles (unified-event-panel.css + morning-schedule-bundle.css + category-filter-overlay.css)
     ↓
 Data Files (morning-schedule-data.js, morning-events.js)
     ↓
@@ -392,7 +433,9 @@ Morning Widget Ready
 ```
 NZGDCMorningScheduleWidget.init()
     ↓
-DOM Structure Creation (with Time Navigation)
+DOM Structure Creation (with Time Navigation Buttons + Category Dropdown)
+    ↓
+MorningCategoryDropdownController.init()
     ↓
 MorningScheduleGenerator.renderSchedule()
     ↓
@@ -400,9 +443,13 @@ Time Slot + Break Generation
     ↓
 UnifiedEventLoader.loadTemplate()
     ↓
-Event Content Population (context: "morning", Big + Main panels)
+Event Content Population (context: "morning", with categoryKey attributes)
     ↓
-Complete Morning Render
+Navigation Event Handlers + Category Filter Handlers
+    ↓
+Dynamic Filter Label Color System Ready
+    ↓
+Complete Morning Render with Filtering
 ```
 
 ### Afternoon Widget Data Flow
@@ -411,7 +458,7 @@ Complete Morning Render
 ```
 Afternoon Entry Point (nzgdc-afternoon-schedule-widget-modular.js)
     ↓
-CSS Bundles (unified-event-panel.css + afternoon-schedule-bundle.css)
+CSS Bundles (unified-event-panel.css + afternoon-schedule-bundle.css + category-filter-overlay.css)
     ↓
 Data Files (afternoon-schedule-data.js, afternoon-events.js)
     ↓
@@ -426,7 +473,9 @@ Afternoon Widget Ready
 ```
 NZGDCAfternoonScheduleWidget.init()
     ↓
-DOM Structure Creation (with Time Navigation, Blue Theme)
+DOM Structure Creation (with Time Navigation Buttons + Category Dropdown)
+    ↓
+AfternoonCategoryDropdownController.init()
     ↓
 AfternoonScheduleGenerator.renderSchedule()
     ↓
@@ -434,9 +483,13 @@ Time Slot + Break Generation
     ↓
 UnifiedEventLoader.loadTemplate()
     ↓
-Event Content Population (context: "afternoon", Big + Main panels)
+Event Content Population (context: "afternoon", with categoryKey attributes)
     ↓
-Complete Afternoon Render
+Navigation Event Handlers + Category Filter Handlers
+    ↓
+Dynamic Filter Label Color System Ready
+    ↓
+Complete Afternoon Render with Filtering
 ```
 
 ### 3. Data Dependencies
@@ -507,11 +560,22 @@ AFTERNOON_SCHEDULE_DATA → AfternoonScheduleGenerator → UnifiedEventLoader �
 ```
 
 ### Unified Style Architecture
+
 #### Event Panel Styles (unified-event-panel.css)
 1. **Big Event Panels**: 620x300px format used across all widgets
 2. **Main Event Panels**: 300x300px square format used by Morning and Afternoon widgets
 3. **Responsive Styles**: Mobile breakpoints that adapt to all widget contexts
 4. **Loading States**: Consistent error and loading placeholder styles
+
+#### Category Filter System (category-filter-overlay.css)
+1. **Dropdown Interface**: Unified dropdown styling across all three widgets
+2. **11-Category Color System**: Consistent color scheme for all event categories
+3. **Dynamic Label Colors**: Background and text color changes based on selected category
+4. **Event Filtering Styles**: `.filtered-out` and `.filtered-in` classes for visual feedback
+5. **Height Standardization**: 60px minimum height for all UI elements
+6. **Instant Feedback**: Zero transition delays for responsive interactions
+7. **Mobile Responsive**: Touch-friendly dropdown interactions
+8. **Accessibility Compliance**: Full keyboard navigation support
 
 #### Widget-Specific Styles
 ##### Thursday Widget (thursday-schedule-bundle.css)
@@ -531,6 +595,21 @@ AFTERNOON_SCHEDULE_DATA → AfternoonScheduleGenerator → UnifiedEventLoader �
 3. **Navigation**: Morning/afternoon toggle, back-to-top controls
 4. **Embedded Main Panel Styles**: Complete 300x300 panel styles with blue theming
 
+#### Height Standardization System
+All widgets now maintain consistent 60px minimum heights for professional appearance:
+
+1. **Filter Sections**: `.{widget}-filters-section { min-height: 60px; }`
+2. **Filter Labels**: `.{widget}-filters-label { min-height: 60px; }`  
+3. **Filter Values**: `.{widget}-filters-value { min-height: 60px; }`
+4. **Navigation Containers**: `.{widget}-schedule-sub-navigation { min-height: 60px; }`
+5. **Navigation Buttons**: `.{widget}-events-button { min-height: 60px; }`
+
+**Benefits:**
+- Eliminates floating button gaps
+- Perfect cross-widget alignment
+- Professional, consistent appearance
+- Mobile responsive at all screen sizes
+
 ### Scoping Strategy
 - **Thursday Widget**: All styles scoped to `.nzgdc-schedule-widget`
 - **Morning Widget**: All styles scoped to `.nzgdc-morning-schedule-widget`
@@ -543,42 +622,64 @@ AFTERNOON_SCHEDULE_DATA → AfternoonScheduleGenerator → UnifiedEventLoader �
 ### Thursday Widget Options
 ```javascript
 {
-    showFilters: true,    // Show/hide filter section
+    showFilters: true,    // Show/hide dropdown category filter (11 categories + All Events)
     showFooter: true,     // Show/hide back-to-top footer
     theme: 'default'      // Future theme support
 }
 ```
 
+**Filter Features (when showFilters: true):**
+- 11-category dropdown filter system
+- Dynamic label background/text colors
+- Instant event filtering (grey out non-matching)
+- Keyboard navigation support (Tab/Enter/Escape)
+- Mobile-responsive dropdown interface
+
 ### Morning Widget Options
 ```javascript
 {
-    showFilters: true,         // Show/hide filter section
+    showFilters: true,         // Show/hide dropdown category filter (11 categories + All Events)
     showFooter: true,          // Show/hide back-to-top footer
-    showTimeNavigation: true,  // Show/hide morning/afternoon navigation
+    showTimeNavigation: true,  // Show/hide morning/afternoon navigation (60px standardized)
     theme: 'default'           // Future theme support
 }
 ```
 
+**Enhanced Filter Features (when showFilters: true):**
+- Complete 11-category dropdown filter system
+- Dynamic label colors matching selected category
+- Real-time event panel filtering with visual feedback
+- Alphabetical category sorting (All Events first)
+- Zero transition delays for instant feedback
+
 ### Afternoon Widget Options
 ```javascript
 {
-    showFilters: true,         // Show/hide filter section
+    showFilters: true,         // Show/hide dropdown category filter (11 categories + All Events)
     showFooter: true,          // Show/hide back-to-top footer
-    showTimeNavigation: true,  // Show/hide morning/afternoon navigation
+    showTimeNavigation: true,  // Show/hide morning/afternoon navigation (60px standardized)
     theme: 'default'           // Future theme support
 }
 ```
+
+**Enhanced Filter Features (when showFilters: true):**
+- Complete 11-category dropdown filter system
+- Dynamic label colors matching selected category  
+- Real-time event panel filtering with visual feedback
+- Alphabetical category sorting (All Events first)
+- Zero transition delays for instant feedback
+- Perfect height consistency with Morning widget
 
 ### Data Attributes (Auto-initialization)
 
 #### Thursday Widget
 ```html
-<!-- Basic auto-init -->
+<!-- Basic auto-init (includes dropdown filtering) -->
 <div data-nzgdc-schedule></div>
 
 <!-- With options -->
 <div data-nzgdc-schedule 
-     data-show-filters="false" 
+     data-show-filters="false"
      data-show-footer="true"
      data-theme="compact"></div>
 ```
@@ -608,6 +709,81 @@ AFTERNOON_SCHEDULE_DATA → AfternoonScheduleGenerator → UnifiedEventLoader �
      data-show-time-navigation="true"
      data-theme="compact"></div>
 ```
+
+## 🎯 Enhanced Dropdown Filter System
+
+### Complete Category Filtering Features
+
+All three widgets now include a comprehensive 11-category dropdown filter system with the following capabilities:
+
+#### 📋 Available Categories
+1. **All Events** (Default) - Shows all events, white background, black text
+2. **Game Design** - Green background (#9ee6ab), black text
+3. **Art** - Orange background (#ffc999), black text
+4. **Programming** - Cyan background (#ccf2f1), black text
+5. **Audio** - Blue background (#197bff), white text
+6. **Story & Narrative** - Yellow background (#fff47f), black text
+7. **Business & Marketing** - Light blue background (#e7f1ff), black text
+8. **Culture** - Pink background (#fac7d5), black text
+9. **Production & QA** - Purple background (#512340), white text
+10. **Realities (VR, AR, MR)** - Lavender background (#d1afff), black text
+11. **Data, Testing or Research** - Light pink background (#ffb3ba), black text
+12. **Serious & Educational Games** - Sky blue background (#bae1ff), black text
+
+#### 🎨 Visual Filter Features
+- **Dynamic Label Colors**: Filter button background changes to match selected category
+- **Smart Text Contrast**: Text automatically changes to white/black for optimal readability
+- **Event Panel Filtering**: Non-matching events grey out (30% opacity + grayscale)
+- **Matching Event Highlighting**: Selected category events remain fully visible
+- **Alphabetical Sorting**: Categories listed A-Z (except "All Events" first)
+
+#### ⚡ User Experience Features
+- **Instant Feedback**: Zero transition delays - immediate visual response
+- **Keyboard Navigation**: Full accessibility with Tab/Enter/Escape keys
+- **Mobile Responsive**: Touch-friendly dropdown interface
+- **Outside Click Closing**: Click anywhere to close dropdown
+- **Professional Heights**: Consistent 60px height across all UI elements
+
+#### 🔧 Technical Implementation
+```javascript
+// Programmatic filter control
+widget.applyFilter('AUDIO');           // Filter to Audio events only
+widget.clearFilter();                  // Show all events
+widget.currentCategoryKey;             // Get current filter state
+widget.updateFilterValueText('Art');   // Update label manually
+```
+
+#### 🎯 Filter Behavior
+- **Thursday Widget**: Filters big event panels in workshop grid layout
+- **Morning Widget**: Filters mixed big/main event panels in time-based layout
+- **Afternoon Widget**: Filters mixed big/main event panels with blue theme
+- **Cross-Widget Consistency**: Identical behavior and appearance across all widgets
+
+#### 📱 Responsive Design
+- **Desktop**: Full dropdown with hover effects and smooth interactions
+- **Tablet**: Touch-optimized with larger tap targets
+- **Mobile**: Responsive dropdown scaling and touch-friendly interface
+- **All Devices**: Maintains 60px height standard for consistent appearance
+
+### Filter System Benefits
+
+**For Users:**
+- Quick category-based event discovery
+- Visual feedback system reduces cognitive load
+- Consistent interface across all event views
+- Keyboard and mouse accessibility options
+
+**For Developers:**
+- Unified API across all three widgets
+- Comprehensive debug logging available
+- Mobile-first responsive implementation
+- Zero external dependencies
+
+**For Designers:**
+- Professional appearance with consistent 60px heights
+- Color-coded category system for intuitive navigation
+- Eliminates floating button gaps and misalignments
+- Modern dropdown interface with instant feedback
 
 ## 🐛 Debugging Guide
 
@@ -1074,6 +1250,18 @@ console.log('Active Afternoon widgets:', afternoonWidgets.length);
 
 ## 🔄 Version History
 
+### v1.3 - Enhanced Dropdown Filter System & UX Improvements
+- **Comprehensive Category Filtering**: Added 11-category dropdown filter system across all three widgets
+- **Dynamic Label Colors**: Filter labels change background and text colors based on selected category
+- **Smart Event Filtering**: Events grey out (non-matching) or highlight (matching) based on filter selection
+- **Height Standardization**: Implemented consistent 60px minimum height across all UI elements
+- **Instant Feedback**: Removed all CSS transitions for immediate visual response (0ms delays)
+- **Navigation Tab Alignment**: Fixed floating button gaps in Morning/Afternoon navigation
+- **Keyboard Accessibility**: Full Tab/Enter/Escape keyboard navigation support
+- **Mobile Responsive**: Touch-friendly dropdown interface with responsive design
+- **Cross-Widget Consistency**: Identical filter behavior and appearance across Thursday/Morning/Afternoon
+- **Professional Polish**: Eliminated visual inconsistencies and alignment issues
+
 ### v1.2 - Unified Event Panel Architecture & Consolidation
 - **Unified Architecture**: Consolidated all event loaders into single UnifiedEventLoader
 - **Single Template**: All widgets now share unified-event-panel.html with dynamic context
@@ -1245,6 +1433,23 @@ When reporting issues, please include:
 
 ## 🧪 Demo & Testing
 
+### Enhanced Test Suite
+
+#### Cross-Widget Validation Test
+**File**: `.widget-tests/cross-widget-height-consistency-test.html`
+- **Height Measurement**: Validates 60px standardization across all three widgets
+- **Navigation Tab Testing**: Verifies Morning/Afternoon button height consistency
+- **Transition Detection**: Automated checking for unwanted animation delays
+- **Filter Performance**: Real-time dropdown response time monitoring
+- **Cross-Widget Comparison**: Side-by-side analysis of all widget implementations
+
+#### Thursday Dropdown Integration Test
+**File**: `.widget-tests/thursday-dropdown-filter-test.html`
+- **Category Testing**: Automated cycling through all 11 filter categories
+- **Color Verification**: Dynamic label background and text color validation
+- **Event Filtering**: Big event panel filtering functionality verification
+- **Keyboard Navigation**: Tab/Enter/Escape accessibility testing
+
 ### Included Demo Page
 The widget system includes a comprehensive demo page: `widget-demo.html`
 
@@ -1339,35 +1544,80 @@ The demo page demonstrates the consolidated widget system with:
 
 ---
 
+### Testing Workflow
+
+#### Development Testing
+1. **Open cross-widget test**: Load `.widget-tests/cross-widget-height-consistency-test.html`
+2. **Initialize all widgets**: Wait for Thursday, Morning, and Afternoon widgets to load
+3. **Run height validation**: Click "Measure All Heights" to verify 60px consistency  
+4. **Test filter performance**: Use "Test Instant Feedback" for transition validation
+5. **Verify cross-widget alignment**: Check comparison tables for height uniformity
+
+#### Filter System Testing
+1. **Category Selection**: Test all 11 categories plus "All Events" default
+2. **Visual Verification**: Confirm label background colors change appropriately
+3. **Event Filtering**: Verify non-matching events grey out, matching events remain visible
+4. **Keyboard Testing**: Use Tab/Enter/Escape keys for accessibility validation
+5. **Mobile Testing**: Test touch interactions on mobile devices
+
+#### Production Readiness Checklist
+- ✅ All widgets load without console errors
+- ✅ Filter dropdowns appear and function correctly
+- ✅ 60px height consistency maintained across all UI elements
+- ✅ No floating button gaps in navigation areas
+- ✅ Zero transition delays on all interactions
+- ✅ Mobile responsive behavior confirmed
+- ✅ Cross-browser compatibility validated
+
 ## 📋 Widget Summary
 
 ### Thursday Workshop Schedule Widget
-- **Purpose**: Display NZGDC Thursday workshop schedule
+- **Purpose**: Display NZGDC Thursday workshop schedule with enhanced filtering
 - **Events**: 10 workshops in 2 time slots (morning/afternoon)
-- **Layout**: 2 workshops per row, 620x300px panels
-- **Theme**: Blue/Yellow color scheme
+- **Layout**: 2 workshops per row, 620x300px big event panels
+- **Filter System**: 11-category dropdown filter with dynamic label colors
+- **Theme**: Blue/Yellow color scheme with 60px standardized heights
 - **Entry Point**: `nzgdc-schedule-widget-modular.js`
 - **Event Panels**: Uses UnifiedEventLoader with "thursday" context
+- **Filter Controller**: ThursdayCategoryDropdownController for dropdown behavior
+- **Special Features**: Instant feedback (0ms transitions), keyboard navigation, mobile responsive
 
 ### Friday/Saturday Morning Schedule Widget  
-- **Purpose**: Display NZGDC Friday & Saturday morning event schedule
+- **Purpose**: Display NZGDC Friday & Saturday morning event schedule with advanced filtering
 - **Events**: 17 events across 3 time slots + breaks
 - **Layout**: Mixed layout - 5 main (300x300px) or 2 big (620x300px) per row
-- **Theme**: Yellow/Yellow-bright color scheme with time navigation
+- **Filter System**: Complete 11-category dropdown with alphabetical sorting and instant feedback
+- **Navigation**: Morning/Afternoon toggle buttons with 60px standardized heights
+- **Theme**: Yellow/Yellow-bright color scheme with enhanced contrast
 - **Entry Point**: `nzgdc-morning-schedule-widget-modular.js`
 - **Event Panels**: Uses UnifiedEventLoader with "morning" context
+- **Filter Controller**: MorningCategoryDropdownController for dropdown behavior
+- **Special Features**: Event filtering, navigation tab alignment, zero floating button gaps
 
 ### Friday/Saturday Afternoon Schedule Widget  
-- **Purpose**: Display NZGDC Friday & Saturday afternoon event schedule
+- **Purpose**: Display NZGDC Friday & Saturday afternoon event schedule with advanced filtering
 - **Events**: 17 events across 4 time slots + breaks
 - **Layout**: Mixed layout - 5 main (300x300px) or 2 big (620x300px) per row
-- **Theme**: Blue/Blue-bright color scheme with time navigation
+- **Filter System**: Complete 11-category dropdown with alphabetical sorting and instant feedback
+- **Navigation**: Morning/Afternoon toggle buttons with 60px standardized heights
+- **Theme**: Blue/Blue-bright color scheme with enhanced accessibility
 - **Entry Point**: `nzgdc-afternoon-schedule-widget-modular.js`
 - **Event Panels**: Uses UnifiedEventLoader with "afternoon" context
+- **Filter Controller**: AfternoonCategoryDropdownController for dropdown behavior
+- **Special Features**: Event filtering, navigation tab alignment, perfect height consistency with Morning widget
 
 ### Unified System Features
+- **Enhanced Filter System**: 11-category dropdown filtering across all three widgets with identical behavior
+- **Dynamic Color System**: Filter labels change background and text colors based on selected category
+- **Height Standardization**: Consistent 60px minimum height across all UI elements for professional appearance
+- **Instant Feedback**: Zero transition delays on all interactions for responsive user experience
+- **Smart Event Filtering**: Visual feedback system greys out non-matching events, highlights matching ones
+- **Cross-Widget Consistency**: Identical filter appearance and behavior across Thursday, Morning, and Afternoon views
+- **Mobile Responsive**: Touch-friendly dropdown interfaces with responsive design
+- **Accessibility Compliant**: Full keyboard navigation support (Tab/Enter/Escape)
 - **Single Event Panel System**: All widgets share UnifiedEventLoader for consistent event rendering
 - **Consolidated Template**: Single `unified-event-panel.html` used by all widgets with context-specific content
+- **Professional Polish**: Eliminated floating button gaps and visual misalignments
 - **Centralized Styling**: Event panel styles consolidated in `unified-event-panel.css`
 - **Context-Aware Behavior**: UnifiedEventLoader adapts introduction text and styling based on widget context
 - **Reduced Redundancy**: ~25% reduction in codebase size through elimination of duplicate event panel code

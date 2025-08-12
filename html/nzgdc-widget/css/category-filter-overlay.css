@@ -1,0 +1,1183 @@
+/* NZGDC Widget - Event Categories Dropdown Filter Overlay CSS */
+/*
+ * CRITICAL: This file contains ONLY new dropdown overlay styles
+ * NEVER modify existing filter classes in morning/afternoon bundle CSS files
+ * All styles are scoped to morning/afternoon widgets to prevent conflicts
+ */
+
+/* ===== CATEGORY DROPDOWN OVERLAY SYSTEM ===== */
+
+/* Base dropdown overlay container - positioned below existing filter area */
+.nzgdc-morning-schedule-widget .category-dropdown-overlay,
+.nzgdc-afternoon-schedule-widget .category-dropdown-overlay,
+.nzgdc-schedule-widget .category-dropdown-overlay {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 300px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    box-sizing: border-box;
+}
+
+/* Visible state for dropdown */
+.nzgdc-morning-schedule-widget .category-dropdown-overlay.visible,
+.nzgdc-afternoon-schedule-widget .category-dropdown-overlay.visible,
+.nzgdc-schedule-widget .category-dropdown-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+/* Enhanced background dimming overlay */
+.nzgdc-morning-schedule-widget .category-dropdown-backdrop,
+.nzgdc-afternoon-schedule-widget .category-dropdown-backdrop,
+.nzgdc-schedule-widget .category-dropdown-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.15);
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+}
+
+/* Visible state for backdrop */
+.nzgdc-morning-schedule-widget .category-dropdown-backdrop.visible,
+.nzgdc-afternoon-schedule-widget .category-dropdown-backdrop.visible,
+.nzgdc-schedule-widget .category-dropdown-backdrop.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Dropdown header removed - no longer used */
+
+/* Individual category dropdown items */
+.nzgdc-morning-schedule-widget .category-dropdown-item,
+.nzgdc-afternoon-schedule-widget .category-dropdown-item,
+.nzgdc-schedule-widget .category-dropdown-item {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding: 12px 16px;
+    cursor: pointer;
+    font-family: "Futura PT Medium", "Futura", Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    text-align: right;
+    box-sizing: border-box;
+}
+
+/* Hover state for dropdown items */
+.nzgdc-morning-schedule-widget .category-dropdown-item:hover,
+.nzgdc-afternoon-schedule-widget .category-dropdown-item:hover,
+.nzgdc-schedule-widget .category-dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* Focus state for accessibility */
+.nzgdc-morning-schedule-widget .category-dropdown-item:focus,
+.nzgdc-afternoon-schedule-widget .category-dropdown-item:focus,
+.nzgdc-schedule-widget .category-dropdown-item:focus {
+    outline: 2px solid #007bff;
+    outline-offset: -2px;
+    background-color: #f8f9fa;
+}
+
+/* Active/Selected state */
+.nzgdc-morning-schedule-widget .category-dropdown-item.active,
+.nzgdc-afternoon-schedule-widget .category-dropdown-item.active,
+.nzgdc-schedule-widget .category-dropdown-item.active {
+    background-color: #e3f2fd;
+    font-weight: 700;
+}
+
+/* ===== CATEGORY-SPECIFIC COLORS (ALL 11 CATEGORIES) ===== */
+
+/* Category: All Events (Default/Reset) */
+.nzgdc-morning-schedule-widget .category-dropdown-item[data-category="ALL"],
+.nzgdc-afternoon-schedule-widget .category-dropdown-item[data-category="ALL"] {
+    background-color: #f8f9fa;
+    color: #333333;
+}
+
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="ALL"]:hover,
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="ALL"]:hover {
+    background-color: #e9ecef;
+}
+
+/* Category: Game Design */
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="GAME_DESIGN"],
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="GAME_DESIGN"] {
+    background-color: #9ee6ab;
+    color: #000000;
+}
+
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="GAME_DESIGN"]:hover,
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="GAME_DESIGN"]:hover {
+    background-color: #8ee09b;
+}
+
+/* Category: Art */
+.nzgdc-morning-schedule-widget .category-dropdown-item[data-category="ART"],
+.nzgdc-afternoon-schedule-widget .category-dropdown-item[data-category="ART"] {
+    background-color: #ffc999;
+    color: #000000;
+}
+
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="ART"]:hover,
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="ART"]:hover {
+    background-color: #ffbf89;
+}
+
+/* Category: Programming */
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="PROGRAMMING"],
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="PROGRAMMING"] {
+    background-color: #ccf2f1;
+    color: #000000;
+}
+
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="PROGRAMMING"]:hover,
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="PROGRAMMING"]:hover {
+    background-color: #bcecea;
+}
+
+/* Category: Audio */
+.nzgdc-morning-schedule-widget .category-dropdown-item[data-category="AUDIO"],
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="AUDIO"] {
+    background-color: #197bff;
+    color: #ffffff;
+}
+
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="AUDIO"]:hover,
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="AUDIO"]:hover {
+    background-color: #0969ef;
+}
+
+/* Category: Story & Narrative */
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="STORY_NARRATIVE"],
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="STORY_NARRATIVE"] {
+    background-color: #fff47f;
+    color: #000000;
+}
+
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="STORY_NARRATIVE"]:hover,
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="STORY_NARRATIVE"]:hover {
+    background-color: #fff16f;
+}
+
+/* Category: Business & Marketing */
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="BUSINESS_MARKETING"],
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="BUSINESS_MARKETING"] {
+    background-color: #e7f1ff;
+    color: #000000;
+}
+
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="BUSINESS_MARKETING"]:hover,
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="BUSINESS_MARKETING"]:hover {
+    background-color: #d7e8ff;
+}
+
+/* Category: Culture */
+.nzgdc-morning-schedule-widget .category-dropdown-item[data-category="CULTURE"],
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="CULTURE"] {
+    background-color: #fac7d5;
+    color: #000000;
+}
+
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="CULTURE"]:hover,
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="CULTURE"]:hover {
+    background-color: #f8b7c5;
+}
+
+/* Category: Production & QA */
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="PRODUCTION_QA"],
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="PRODUCTION_QA"] {
+    background-color: #512340;
+    color: #ffffff;
+}
+
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="PRODUCTION_QA"]:hover,
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="PRODUCTION_QA"]:hover {
+    background-color: #411d33;
+}
+
+/* Category: Realities (VR, AR, MR) */
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="REALITIES_VR_AR_MR"],
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="REALITIES_VR_AR_MR"] {
+    background-color: #d1afff;
+    color: #000000;
+}
+
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="REALITIES_VR_AR_MR"]:hover,
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="REALITIES_VR_AR_MR"]:hover {
+    background-color: #c99fff;
+}
+
+/* Category: Data, Testing or Research */
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="DATA_TESTING_RESEARCH"],
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="DATA_TESTING_RESEARCH"] {
+    background-color: #917b89;
+    color: #ffffff;
+}
+
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="DATA_TESTING_RESEARCH"]:hover,
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="DATA_TESTING_RESEARCH"]:hover {
+    background-color: #816b79;
+}
+
+/* Category: Serious & Educational Games */
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="SERIOUS_EDUCATIONAL"],
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="SERIOUS_EDUCATIONAL"] {
+    background-color: #ffafaf;
+    color: #000000;
+}
+
+.nzgdc-morning-schedule-widget
+    .category-dropdown-item[data-category="SERIOUS_EDUCATIONAL"]:hover,
+.nzgdc-afternoon-schedule-widget
+    .category-dropdown-item[data-category="SERIOUS_EDUCATIONAL"]:hover {
+    background-color: #ff9f9f;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Tablet and smaller screens */
+@media (max-width: 768px) {
+    .nzgdc-morning-schedule-widget .category-dropdown-overlay,
+    .nzgdc-afternoon-schedule-widget .category-dropdown-overlay {
+        width: 280px;
+        right: 10px;
+    }
+
+    .nzgdc-morning-schedule-widget .category-dropdown-item,
+    .nzgdc-afternoon-schedule-widget .category-dropdown-item {
+        padding: 10px 14px;
+        font-size: 13px;
+    }
+
+    .nzgdc-morning-schedule-widget .category-dropdown-header,
+    .nzgdc-afternoon-schedule-widget .category-dropdown-header {
+        padding: 10px 14px;
+        font-size: 15px;
+    }
+}
+
+/* Mobile screens */
+@media (max-width: 480px) {
+    .nzgdc-morning-schedule-widget .category-dropdown-overlay,
+    .nzgdc-afternoon-schedule-widget .category-dropdown-overlay {
+        width: 250px;
+        right: 5px;
+    }
+
+    .nzgdc-morning-schedule-widget .category-dropdown-item,
+    .nzgdc-afternoon-schedule-widget .category-dropdown-item {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+
+    .nzgdc-morning-schedule-widget .category-dropdown-header,
+    .nzgdc-afternoon-schedule-widget .category-dropdown-header {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+    /* Touch-friendly hover states on mobile */
+    .nzgdc-morning-schedule-widget .category-dropdown-item:active,
+    .nzgdc-afternoon-schedule-widget .category-dropdown-item:active {
+        transform: none;
+        background-color: #f0f0f0;
+    }
+}
+
+/* ===== ACCESSIBILITY IMPROVEMENTS ===== */
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .nzgdc-morning-schedule-widget .category-dropdown-overlay,
+    .nzgdc-afternoon-schedule-widget .category-dropdown-overlay {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* Reduced motion support */
+/* Reduced motion support - now applies globally since all transitions removed */
+@media (prefers-reduced-motion: reduce) {
+    .nzgdc-morning-schedule-widget .category-dropdown-overlay,
+    .nzgdc-afternoon-schedule-widget .category-dropdown-overlay,
+    .nzgdc-schedule-widget .category-dropdown-overlay,
+    .nzgdc-morning-schedule-widget .category-dropdown-backdrop,
+    .nzgdc-afternoon-schedule-widget .category-dropdown-backdrop,
+    .nzgdc-schedule-widget .category-dropdown-backdrop,
+    .nzgdc-morning-schedule-widget .category-dropdown-item,
+    .nzgdc-afternoon-schedule-widget .category-dropdown-item,
+    .nzgdc-schedule-widget .category-dropdown-item {
+        transition: none;
+    }
+
+    .nzgdc-morning-schedule-widget .category-dropdown-item:hover,
+    .nzgdc-afternoon-schedule-widget .category-dropdown-item:hover,
+    .nzgdc-schedule-widget .category-dropdown-item:hover {
+        transform: none;
+    }
+}
+
+/* ===== FILTER VALUE CLICKABLE AREA ENHANCEMENT ===== */
+
+/* Make existing filter value area appear clickable */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-value[data-dropdown-trigger],
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-value[data-dropdown-trigger] {
+    cursor: pointer;
+    /* Removed transitions for instant color changes */
+}
+
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-value[data-dropdown-trigger]:hover:not(
+        [data-active-category]
+    ),
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-value[data-dropdown-trigger]:hover:not(
+        [data-active-category]
+    ) {
+    background-color: #f8f8f8;
+}
+
+/* CRITICAL FIX: Prevent hover from overriding active category colors */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-value[data-dropdown-trigger][data-active-category]:hover,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-value[data-dropdown-trigger][data-active-category]:hover {
+    /* Do not override background - let inline styles take precedence */
+}
+
+/* ===== CATEGORY FILTER LABEL CLASSES (REPLACES INLINE STYLES) ===== */
+
+/* Default/All Events category */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-all-events,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-all-events {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+/* Default/All Events category - Text element override */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-all-events
+    .nzgdc-morning-filters-value-text,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-all-events
+    .nzgdc-afternoon-filters-value-text {
+    color: #000000 !important;
+}
+
+/* Game Design category */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-game-design,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-game-design {
+    background-color: #9ee6ab;
+    color: #000000;
+}
+
+/* Game Design category - Text element override */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-game-design
+    .nzgdc-morning-filters-value-text,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-game-design
+    .nzgdc-afternoon-filters-value-text {
+    color: #000000 !important;
+}
+
+/* Art category */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-art,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-art {
+    background-color: #ffc999;
+    color: #000000;
+}
+
+/* Art category - Text element override */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-art
+    .nzgdc-morning-filters-value-text,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-art
+    .nzgdc-afternoon-filters-value-text {
+    color: #000000 !important;
+}
+
+/* Programming category */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-programming,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-programming {
+    background-color: #ccf2f1;
+    color: #000000;
+}
+
+/* Programming category - Text element override */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-programming
+    .nzgdc-morning-filters-value-text,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-programming
+    .nzgdc-afternoon-filters-value-text {
+    color: #000000 !important;
+}
+
+/* Audio category */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-audio,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-audio {
+    background-color: #197bff;
+    color: #ffffff;
+}
+
+/* Audio category - Text element override */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-audio
+    .nzgdc-morning-filters-value-text,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-audio
+    .nzgdc-afternoon-filters-value-text {
+    color: #ffffff !important;
+}
+
+/* Story & Narrative category */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-story-narrative,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-story-narrative {
+    background-color: #fff47f;
+    color: #000000;
+}
+
+/* Story & Narrative category - Text element override */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-story-narrative
+    .nzgdc-morning-filters-value-text,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-story-narrative
+    .nzgdc-afternoon-filters-value-text {
+    color: #000000 !important;
+}
+
+/* Business & Marketing category */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-business-marketing,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-business-marketing {
+    background-color: #e7f1ff;
+    color: #000000;
+}
+
+/* Business & Marketing category - Text element override */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-business-marketing
+    .nzgdc-morning-filters-value-text,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-business-marketing
+    .nzgdc-afternoon-filters-value-text {
+    color: #000000 !important;
+}
+
+/* Culture category */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-culture,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-culture {
+    background-color: #fac7d5;
+    color: #000000;
+}
+
+/* Culture category - Text element override */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-culture
+    .nzgdc-morning-filters-value-text,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-culture
+    .nzgdc-afternoon-filters-value-text {
+    color: #000000 !important;
+}
+
+/* Production & QA category */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-production-qa,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-production-qa {
+    background-color: #512340;
+    color: #ffffff;
+}
+
+/* Production & QA category - Text element override */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-production-qa
+    .nzgdc-morning-filters-value-text,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-production-qa
+    .nzgdc-afternoon-filters-value-text {
+    color: #ffffff !important;
+}
+
+/* Realities (VR, AR, MR) category */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-realities-vr-ar-mr,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-realities-vr-ar-mr {
+    background-color: #d1afff;
+    color: #000000;
+}
+
+/* Realities (VR, AR, MR) category - Text element override */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-realities-vr-ar-mr
+    .nzgdc-morning-filters-value-text,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-realities-vr-ar-mr
+    .nzgdc-afternoon-filters-value-text {
+    color: #000000 !important;
+}
+
+/* Data, Testing or Research category */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-data-testing-research,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-data-testing-research {
+    background-color: #917b89;
+    color: #ffffff;
+}
+
+/* Data, Testing or Research category - Text element override */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-data-testing-research
+    .nzgdc-morning-filters-value-text,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-data-testing-research
+    .nzgdc-afternoon-filters-value-text {
+    color: #ffffff !important;
+}
+
+/* Serious & Educational Games category */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-serious-educational,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-serious-educational {
+    background-color: #ffafaf;
+    color: #000000;
+}
+
+/* Serious & Educational Games category - Text element override */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-filters-section
+    .nzgdc-morning-filters-value.category-serious-educational
+    .nzgdc-morning-filters-value-text,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-filters-section
+    .nzgdc-afternoon-filters-value.category-serious-educational
+    .nzgdc-afternoon-filters-value-text {
+    color: #000000 !important;
+}
+
+/* ===== EVENT PANEL FILTERING CLASSES ===== */
+
+/* Filtered OUT events - grey them out but keep visible */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-main-container.filtered-out,
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-container.filtered-out,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-main-container.filtered-out,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-container.filtered-out {
+    opacity: 0.3;
+    filter: grayscale(70%);
+}
+
+/* Filtered IN events - keep them highlighted/normal */
+.nzgdc-morning-schedule-widget .nzgdc-morning-event-panel-container.filtered-in,
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-main-container.filtered-in,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-container.filtered-in,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-main-container.filtered-in {
+    opacity: 1;
+    filter: none;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+/* Grey out filtered event category badges */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-container.filtered-out
+    .nzgdc-event-category-main,
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-container.filtered-out
+    .nzgdc-event-category-big,
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-main-container.filtered-out
+    .nzgdc-event-category-main,
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-main-container.filtered-out
+    .nzgdc-event-category-big,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-container.filtered-out
+    .nzgdc-event-category-main,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-container.filtered-out
+    .nzgdc-event-category-big,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-main-container.filtered-out
+    .nzgdc-event-category-main,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-main-container.filtered-out
+    .nzgdc-event-category-big {
+    background-color: #999999 !important;
+    color: #ffffff !important;
+}
+
+/* Grey out filtered event text */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-container.filtered-out
+    .nzgdc-event-title-main,
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-container.filtered-out
+    .nzgdc-event-speaker-main,
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-container.filtered-out
+    .nzgdc-event-time-main,
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-container.filtered-out
+    .nzgdc-event-title-big,
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-container.filtered-out
+    .nzgdc-event-speaker-big,
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-container.filtered-out
+    .nzgdc-event-time-big,
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-main-container.filtered-out
+    .nzgdc-event-title-main,
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-main-container.filtered-out
+    .nzgdc-event-speaker-main,
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-main-container.filtered-out
+    .nzgdc-event-time-main,
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-main-container.filtered-out
+    .nzgdc-event-title-big,
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-main-container.filtered-out
+    .nzgdc-event-speaker-big,
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-main-container.filtered-out
+    .nzgdc-event-time-big,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-container.filtered-out
+    .nzgdc-event-title-main,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-container.filtered-out
+    .nzgdc-event-speaker-main,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-container.filtered-out
+    .nzgdc-event-time-main,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-container.filtered-out
+    .nzgdc-event-title-big,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-container.filtered-out
+    .nzgdc-event-speaker-big,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-container.filtered-out
+    .nzgdc-event-time-big,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-main-container.filtered-out
+    .nzgdc-event-title-main,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-main-container.filtered-out
+    .nzgdc-event-speaker-main,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-main-container.filtered-out
+    .nzgdc-event-time-main,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-main-container.filtered-out
+    .nzgdc-event-title-big,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-main-container.filtered-out
+    .nzgdc-event-speaker-big,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-main-container.filtered-out
+    .nzgdc-event-time-big {
+    color: #888888 !important;
+}
+
+/* Ensure proper positioning context for dropdown */
+.nzgdc-morning-schedule-widget .nzgdc-morning-filters-section,
+.nzgdc-afternoon-schedule-widget .nzgdc-afternoon-filters-section,
+.nzgdc-schedule-widget .nzgdc-filters-section {
+    position: relative;
+}
+
+/* ===== THURSDAY SCHEDULE WIDGET CATEGORY DROPDOWN STYLES ===== */
+
+/* Thursday Category Dropdown Items with Colors */
+.nzgdc-schedule-widget .category-dropdown-item[data-category="ALL"] {
+    background-color: #f8f9fa;
+    color: #333333;
+}
+
+.nzgdc-schedule-widget .category-dropdown-item[data-category="ALL"]:hover {
+    background-color: #e9ecef;
+}
+
+.nzgdc-schedule-widget .category-dropdown-item[data-category="GAME_DESIGN"] {
+    background-color: #9ee6ab;
+    color: #000000;
+}
+
+.nzgdc-schedule-widget
+    .category-dropdown-item[data-category="GAME_DESIGN"]:hover {
+    background-color: #8ee09b;
+}
+
+.nzgdc-schedule-widget .category-dropdown-item[data-category="ART"] {
+    background-color: #ffc999;
+    color: #000000;
+}
+
+.nzgdc-schedule-widget .category-dropdown-item[data-category="ART"]:hover {
+    background-color: #ffbf89;
+}
+
+.nzgdc-schedule-widget .category-dropdown-item[data-category="PROGRAMMING"] {
+    background-color: #ccf2f1;
+    color: #000000;
+}
+
+.nzgdc-schedule-widget
+    .category-dropdown-item[data-category="PROGRAMMING"]:hover {
+    background-color: #bcecea;
+}
+
+.nzgdc-schedule-widget .category-dropdown-item[data-category="AUDIO"] {
+    background-color: #197bff;
+    color: #ffffff;
+}
+
+.nzgdc-schedule-widget .category-dropdown-item[data-category="AUDIO"]:hover {
+    background-color: #0969ef;
+}
+
+.nzgdc-schedule-widget
+    .category-dropdown-item[data-category="STORY_NARRATIVE"] {
+    background-color: #fff47f;
+    color: #000000;
+}
+
+.nzgdc-schedule-widget
+    .category-dropdown-item[data-category="STORY_NARRATIVE"]:hover {
+    background-color: #fff16f;
+}
+
+.nzgdc-schedule-widget
+    .category-dropdown-item[data-category="BUSINESS_MARKETING"] {
+    background-color: #e7f1ff;
+    color: #000000;
+}
+
+.nzgdc-schedule-widget
+    .category-dropdown-item[data-category="BUSINESS_MARKETING"]:hover {
+    background-color: #d7e8ff;
+}
+
+.nzgdc-schedule-widget .category-dropdown-item[data-category="CULTURE"] {
+    background-color: #fac7d5;
+    color: #000000;
+}
+
+.nzgdc-schedule-widget .category-dropdown-item[data-category="CULTURE"]:hover {
+    background-color: #f8b7c5;
+}
+
+.nzgdc-schedule-widget .category-dropdown-item[data-category="PRODUCTION_QA"] {
+    background-color: #512340;
+    color: #ffffff;
+}
+
+.nzgdc-schedule-widget
+    .category-dropdown-item[data-category="PRODUCTION_QA"]:hover {
+    background-color: #411d33;
+}
+
+.nzgdc-schedule-widget
+    .category-dropdown-item[data-category="REALITIES_VR_AR_MR"] {
+    background-color: #d1afff;
+    color: #000000;
+}
+
+.nzgdc-schedule-widget
+    .category-dropdown-item[data-category="REALITIES_VR_AR_MR"]:hover {
+    background-color: #c99fff;
+}
+
+.nzgdc-schedule-widget
+    .category-dropdown-item[data-category="DATA_TESTING_RESEARCH"] {
+    background-color: #ffb3ba;
+    color: #000000;
+}
+
+.nzgdc-schedule-widget
+    .category-dropdown-item[data-category="DATA_TESTING_RESEARCH"]:hover {
+    background-color: #ffa3ae;
+}
+
+.nzgdc-schedule-widget
+    .category-dropdown-item[data-category="SERIOUS_EDUCATIONAL"] {
+    background-color: #bae1ff;
+    color: #000000;
+}
+
+.nzgdc-schedule-widget
+    .category-dropdown-item[data-category="SERIOUS_EDUCATIONAL"]:hover {
+    background-color: #aad7ff;
+}
+
+/* ===== THURSDAY FILTER LABEL CATEGORY COLORS ===== */
+
+/* Thursday Filter Label Background Colors for Each Category */
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-all-events {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
+
+/* Thursday Filter Label Text Color Overrides - All Events */
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-all-events
+    .nzgdc-filters-value-text {
+    color: #000000 !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-game-design {
+    background-color: #9ee6ab !important;
+    color: #000000 !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-game-design
+    .nzgdc-filters-value-text {
+    color: #000000 !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-art {
+    background-color: #ffc999 !important;
+    color: #000000 !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-art
+    .nzgdc-filters-value-text {
+    color: #000000 !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-programming {
+    background-color: #ccf2f1 !important;
+    color: #000000 !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-programming
+    .nzgdc-filters-value-text {
+    color: #000000 !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-audio {
+    background-color: #197bff !important;
+    color: #ffffff !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-audio
+    .nzgdc-filters-value-text {
+    color: #ffffff !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-story-narrative {
+    background-color: #fff47f !important;
+    color: #000000 !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-story-narrative
+    .nzgdc-filters-value-text {
+    color: #000000 !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-business-marketing {
+    background-color: #e7f1ff !important;
+    color: #000000 !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-business-marketing
+    .nzgdc-filters-value-text {
+    color: #000000 !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-culture {
+    background-color: #fac7d5 !important;
+    color: #000000 !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-culture
+    .nzgdc-filters-value-text {
+    color: #000000 !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-production-qa {
+    background-color: #512340 !important;
+    color: #ffffff !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-production-qa
+    .nzgdc-filters-value-text {
+    color: #ffffff !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-realities-vr-ar-mr {
+    background-color: #d1afff !important;
+    color: #000000 !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-realities-vr-ar-mr
+    .nzgdc-filters-value-text {
+    color: #000000 !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-data-testing-research {
+    background-color: #ffb3ba !important;
+    color: #000000 !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-data-testing-research
+    .nzgdc-filters-value-text {
+    color: #000000 !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-serious-educational {
+    background-color: #bae1ff !important;
+    color: #000000 !important;
+}
+
+.nzgdc-schedule-widget
+    .nzgdc-filters-section
+    .nzgdc-filters-value.category-serious-educational
+    .nzgdc-filters-value-text {
+    color: #000000 !important;
+}
+
+/* ===== THURSDAY EVENT FILTERING STYLES ===== */
+
+/* Filtered Out Events - Grey Out Big Event Panels */
+.nzgdc-schedule-widget .nzgdc-event-panel-container.filtered-out,
+.nzgdc-schedule-widget .nzgdc-event-panel-big.filtered-out {
+    opacity: 0.3 !important;
+    filter: grayscale(70%) !important;
+}
+
+/* Filtered In Events - Highlight Big Event Panels */
+.nzgdc-schedule-widget .nzgdc-event-panel-container.filtered-in,
+.nzgdc-schedule-widget .nzgdc-event-panel-big.filtered-in {
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+/* Text color adjustments for filtered out Thursday events */
+.nzgdc-schedule-widget
+    .nzgdc-event-panel-container.filtered-out
+    .nzgdc-event-title-big,
+.nzgdc-schedule-widget
+    .nzgdc-event-panel-container.filtered-out
+    .nzgdc-event-speaker-big,
+.nzgdc-schedule-widget
+    .nzgdc-event-panel-container.filtered-out
+    .nzgdc-event-time-big,
+.nzgdc-schedule-widget
+    .nzgdc-event-panel-big.filtered-out
+    .nzgdc-title-text-big,
+.nzgdc-schedule-widget
+    .nzgdc-event-panel-big.filtered-out
+    .nzgdc-speaker-bioName-big,
+.nzgdc-schedule-widget
+    .nzgdc-event-panel-big.filtered-out
+    .nzgdc-speaker-bioPosition-big,
+.nzgdc-schedule-widget
+    .nzgdc-event-panel-big.filtered-out
+    .nzgdc-timeframe-text-big,
+.nzgdc-schedule-widget
+    .nzgdc-event-panel-big.filtered-out
+    .nzgdc-category-text-big {
+    color: #888888 !important;
+}
+
+/* Hover state prevention for active categories in Thursday */
+.nzgdc-schedule-widget
+    .nzgdc-filters-value[data-dropdown-trigger]:hover:not(
+        [data-active-category]
+    ) {
+    background-color: #f8f9fa !important;
+    color: #000000 !important;
+}
+
+/* Remove focus outlines and borders that cause blue border issue */
+.nzgdc-schedule-widget .nzgdc-filters-value[data-dropdown-trigger]:focus,
+.nzgdc-schedule-widget .nzgdc-filters-value[data-dropdown-trigger]:active {
+    outline: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* Maintain colors when active category is set and hovered */
+.nzgdc-schedule-widget
+    .nzgdc-filters-value[data-dropdown-trigger][data-active-category]:hover {
+    /* Colors maintained by existing category classes, no override needed */
+}

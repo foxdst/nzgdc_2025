@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cross-Widget Height Consistency & Transition Removal Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        .widget-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .widget-test-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            background: white;
+        }
+        .widget-test-card h3 {
+            margin: 0 0 15px 0;
+            color: #333;
+            text-align: center;
+        }
+        .widget-container {
+            min-height: 300px;
+            border: 2px dashed #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .height-analysis {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .measurement-ruler {
+            background: linear-gradient(to right,
+                transparent 0px, transparent 59px,
+                #ff0000 59px, #ff0000 61px,
+                transparent 61px, transparent 100%);
+            height: 3px;
+            margin: 10px 0;
+            position: relative;
+        }
+        .measurement-ruler::before {
+            content: "60px target";
+            position: absolute;
+            top: -20px;
+            left: 50px;
+            font-size: 10px;
+            color: #ff0000;
+        }
+        .test-controls {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-button.success { background: #28a745; }
+        .test-button.error { background: #dc3545; }
+        .status-indicator {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 3px;
+            margin: 5px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-pass { background: #d4edda; color: #155724; }
+        .status-fail { background: #f8d7da; color: #721c24; }
+        .status-testing { background: #fff3cd; color: #856404; }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .comparison-table th {
+            background-color: #f8f9fa;
+        }
+        .transition-test {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #ffc107;
+        }
+        .performance-monitor {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 11px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🎯 Cross-Widget Height Consistency & Transition Removal Test</h1>
+            <p>Validating 60px minimum height standardization and instant dropdown feedback across all three schedule widgets</p>
+        </div>
+
+        <div class="test-controls">
+            <h3>🔧 Test Controls</h3>
+            <button class="test-button" onclick="measureAllWidgetHeights()">Measure All Heights</button>
+            <button class="test-button" onclick="testTransitionRemoval()">Test Instant Feedback</button>
+            <button class="test-button" onclick="runCrossWidgetComparison()">Compare Widgets</button>
+            <button class="test-button success" onclick="runCompleteValidation()">Complete Validation</button>
+
+            <div class="measurement-ruler"></div>
+            <p><strong>Target:</strong> All filter sections should be exactly 60px tall (red line above shows target)</p>
+        </div>
+
+        <div class="widget-grid">
+            <!-- Morning Widget -->
+            <div class="widget-test-card">
+                <h3>🌅 Morning Schedule Widget</h3>
+                <div id="morning-widget-container" class="widget-container" data-nzgdc-morning-schedule="morning">
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        Loading Morning Widget...
+                    </div>
+                </div>
+                <div id="morning-height-analysis" class="height-analysis">
+                    Waiting for widget initialization...
+                </div>
+                <div id="morning-transition-test" class="transition-test">
+                    <strong>Transition Test:</strong> <span id="morning-transition-status" class="status-indicator status-testing">Not Tested</span>
+                </div>
+            </div>
+
+            <!-- Afternoon Widget -->
+            <div class="widget-test-card">
+                <h3>🌆 Afternoon Schedule Widget</h3>
+                <div id="afternoon-widget-container" class="widget-container" data-nzgdc-afternoon-schedule="afternoon">
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        Loading Afternoon Widget...
+                    </div>
+                </div>
+                <div id="afternoon-height-analysis" class="height-analysis">
+                    Waiting for widget initialization...
+                </div>
+                <div id="afternoon-transition-test" class="transition-test">
+                    <strong>Transition Test:</strong> <span id="afternoon-transition-status" class="status-indicator status-testing">Not Tested</span>
+                </div>
+            </div>
+
+            <!-- Thursday Widget -->
+            <div class="widget-test-card">
+                <h3>🗓️ Thursday Schedule Widget</h3>
+                <div id="thursday-widget-container" class="widget-container" data-nzgdc-schedule="thursday">
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        Loading Thursday Widget...
+                    </div>
+                </div>
+                <div id="thursday-height-analysis" class="height-analysis">
+                    Waiting for widget initialization...
+                </div>
+                <div id="thursday-transition-test" class="transition-test">
+                    <strong>Transition Test:</strong> <span id="thursday-transition-status" class="status-indicator status-testing">Not Tested</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Results -->
+        <div style="background: white; border: 1px solid #ddd; border-radius: 5px; padding: 20px; margin: 20px 0;">
+            <h3>📊 Height Consistency Analysis</h3>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Widget</th>
+                        <th>Filter Section</th>
+                        <th>Sub-Navigation</th>
+                        <th>Nav Buttons</th>
+                        <th>Filter Label</th>
+                        <th>Filter Value</th>
+                        <th>Consistency</th>
+                    </tr>
+                </thead>
+                <tbody id="height-comparison-table">
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #666;">
+                            Run height measurements to populate comparison data
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Transition Performance Analysis -->
+        <div style="background: white; border: 1px solid #ddd; border-radius: 5px; padding: 20px; margin: 20px 0;">
+            <h3>⚡ Transition Performance Analysis</h3>
+            <div class="performance-monitor" id="performance-monitor">
+                <strong>Performance Metrics:</strong><br>
+                • Category Selection Speed: <span id="selection-speed">Not measured</span><br>
+                • Visual Feedback Delay: <span id="feedback-delay">Not measured</span><br>
+                • Dropdown Animation: <span id="dropdown-animation">Not measured</span><br>
+                • Filter Application Time: <span id="filter-time">Not measured</span>
+            </div>
+        </div>
+
+        <!-- Test Results -->
+        <div style="background: white; border: 1px solid #ddd; border-radius: 5px; padding: 20px; margin: 20px 0;">
+            <h3>📋 Test Results</h3>
+            <div id="test-results" style="font-family: monospace; font-size: 12px; background: #f8f9fa; padding: 15px; border-radius: 3px; min-height: 200px; overflow-y: auto;">
+                Test results will appear here...
+            </div>
+        </div>
+    </div>
+
+    <!-- Load all three widgets -->
+    <script src="../nzgdc-morning-schedule-widget-modular.js"></script>
+    <script src="../nzgdc-afternoon-schedule-widget-modular.js"></script>
+    <script src="../nzgdc-schedule-widget-modular.js"></script>
+
+    <script>
+        // Widget instances
+        let morningWidget = null;
+        let afternoonWidget = null;
+        let thursdayWidget = null;
+
+        // Test data
+        let heightMeasurements = {};
+        let transitionTests = {};
+
+        // Enable debug mode
+        window.NZGDC_DEBUG = true;
+
+        // Initialize all widgets when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeAllWidgets();
+        });
+
+        async function initializeAllWidgets() {
+            logResult('🚀 Initializing all three schedule widgets...');
+
+            try {
+                // Initialize Morning Widget
+                NZGDCMorningWidget.ready(async () => {
+                    try {
+                        morningWidget = await NZGDCMorningWidget.create('morning-widget-container', {
+                            showFilters: true,
+                            showFooter: false
+                        });
+                        logResult('✅ Morning widget initialized successfully');
+                        setTimeout(() => measureWidgetHeight('morning'), 1000);
+                    } catch (error) {
+                        logResult('❌ Morning widget failed: ' + error.message);
+                    }
+                });
+
+                // Initialize Afternoon Widget
+                NZGDCAfternoonWidget.ready(async () => {
+                    try {
+                        afternoonWidget = await NZGDCAfternoonWidget.create('afternoon-widget-container', {
+                            showFilters: true,
+                            showFooter: false
+                        });
+                        logResult('✅ Afternoon widget initialized successfully');
+                        setTimeout(() => measureWidgetHeight('afternoon'), 1000);
+                    } catch (error) {
+                        logResult('❌ Afternoon widget failed: ' + error.message);
+                    }
+                });
+
+                // Initialize Thursday Widget
+                NZGDCWidget.ready(async () => {
+                    try {
+                        thursdayWidget = await NZGDCWidget.create('thursday-widget-container', {
+                            showFilters: true,
+                            showFooter: false
+                        });
+                        logResult('✅ Thursday widget initialized successfully');
+                        setTimeout(() => measureWidgetHeight('thursday'), 1000);
+                    } catch (error) {
+                        logResult('❌ Thursday widget failed: ' + error.message);
+                    }
+                });
+
+            } catch (error) {
+                logResult('❌ Widget initialization error: ' + error.message);
+            }
+        }
+
+        function measureWidgetHeight(widgetType) {
+            const containerMap = {
+                'morning': 'morning-widget-container',
+                'afternoon': 'afternoon-widget-container',
+                'thursday': 'thursday-widget-container'
+            };
+
+            const selectorMap = {
+                'morning': {
+                    section: '.nzgdc-morning-filters-section',
+                    label: '.nzgdc-morning-filters-label',
+                    value: '.nzgdc-morning-filters-value',
+                    subNavigation: '.nzgdc-morning-schedule-sub-navigation',
+                    timeNavigation: '.nzgdc-schedule-time-navigation',
+                    morningButton: '.nzgdc-morning-events-button',
+                    afternoonButton: '.nzgdc-afternoon-events-button'
+                },
+                'afternoon': {
+                    section: '.nzgdc-afternoon-filters-section',
+                    label: '.nzgdc-afternoon-filters-label',
+                    value: '.nzgdc-afternoon-filters-value',
+                    subNavigation: '.nzgdc-afternoon-schedule-sub-navigation',
+                    timeNavigation: '.nzgdc-schedule-time-navigation',
+                    morningButton: '.nzgdc-morning-events-button',
+                    afternoonButton: '.nzgdc-afternoon-events-button'
+                },
+                'thursday': {
+                    section: '.nzgdc-filters-section',
+                    label: '.nzgdc-filters-label',
+                    value: '.nzgdc-filters-value',
+                    subNavigation: '.nzgdc-schedule-sub-navigation'
+                }
+            };
+
+            const containerId = containerMap[widgetType];
+            const container = document.getElementById(containerId);
+            const selectors = selectorMap[widgetType];
+
+            if (!container) {
+                logResult(`❌ ${widgetType} container not found`);
+                return;
+            }
+
+            const section = container.querySelector(selectors.section);
+            const label = container.querySelector(selectors.label);
+            const value = container.querySelector(selectors.value);
+            const subNavigation = container.querySelector(selectors.subNavigation);
+            const timeNavigation = container.querySelector(selectors.timeNavigation);
+            const morningButton = container.querySelector(selectors.morningButton);
+            const afternoonButton = container.querySelector(selectors.afternoonButton);
+
+            if (!section || !label || !value) {
+                logResult(`❌ ${widgetType} filter elements not found`);
+                updateHeightAnalysis(widgetType, 'Filter elements not found');
+                return;
+            }
+
+            const measurements = {
+                section: section.offsetHeight,
+                label: label.offsetHeight,
+                value: value.offsetHeight,
+                subNavigation: subNavigation ? subNavigation.offsetHeight : 0,
+                timeNavigation: timeNavigation ? timeNavigation.offsetHeight : 0,
+                morningButton: morningButton ? morningButton.offsetHeight : 0,
+                afternoonButton: afternoonButton ? afternoonButton.offsetHeight : 0,
+                sectionStyle: window.getComputedStyle(section),
+                labelStyle: window.getComputedStyle(label),
+                valueStyle: window.getComputedStyle(value)
+            };
+
+            heightMeasurements[widgetType] = measurements;
+
+            // Check compliance
+            const is60px = measurements.section >= 60;
+            const isConsistent = Math.abs(measurements.label - measurements.value) <= 2;
+            const navIs60px = measurements.subNavigation >= 60;
+            const buttonsConsistent = widgetType !== 'thursday' ?
+                Math.abs(measurements.morningButton - measurements.afternoonButton) <= 2 : true;
+            const buttonsAre60px = widgetType !== 'thursday' ?
+                measurements.morningButton >= 60 && measurements.afternoonButton >= 60 : true;
+
+            let analysis = `
+<strong>${widgetType.toUpperCase()} HEIGHT ANALYSIS:</strong><br>
+• Section Height: ${measurements.section}px<br>
+• Label Height: ${measurements.label}px<br>
+• Value Height: ${measurements.value}px<br>
+• Sub-Navigation Height: ${measurements.subNavigation}px<br>`;
+
+            if (widgetType !== 'thursday') {
+                analysis += `• Time Navigation Height: ${measurements.timeNavigation}px<br>
+• Morning Button Height: ${measurements.morningButton}px<br>
+• Afternoon Button Height: ${measurements.afternoonButton}px<br>
+• Navigation Buttons 60px: ${buttonsAre60px ? '✅ PASS' : '❌ FAIL'}<br>
+• Button Consistency: ${buttonsConsistent ? '✅ PASS' : '❌ FAIL'}<br>`;
+            }
+
+            analysis += `• Min-Height CSS: ${measurements.sectionStyle.minHeight}<br>
+• Box-Sizing: ${measurements.labelStyle.boxSizing}<br>
+• 60px Compliance: ${is60px ? '✅ PASS' : '❌ FAIL'}<br>
+• Navigation 60px: ${navIs60px ? '✅ PASS' : '❌ FAIL'}<br>
+• Height Consistency: ${isConsistent ? '✅ PASS' : '❌ FAIL'}<br>
+• Label/Value Diff: ${Math.abs(measurements.label - measurements.value)}px
+            `;
+
+            updateHeightAnalysis(widgetType, analysis);
+            const overallPass = is60px && navIs60px && buttonsAre60px && isConsistent && buttonsConsistent;
+            logResult(`📏 ${widgetType} measured - Section: ${measurements.section}px, Navigation: ${measurements.subNavigation}px, Overall: ${overallPass ? 'PASS' : 'FAIL'}`);
+        }
+
+        function updateHeightAnalysis(widgetType, analysis) {
+            const analysisDiv = document.getElementById(`${widgetType}-height-analysis`);
+            if (analysisDiv) {
+                analysisDiv.innerHTML = analysis;
+            }
+        }
+
+        function measureAllWidgetHeights() {
+            logResult('📏 Measuring all widget heights...');
+            ['morning', 'afternoon', 'thursday'].forEach(type => {
+                setTimeout(() => measureWidgetHeight(type), 100);
+            });
+
+            setTimeout(() => {
+                updateComparisonTable();
+                logResult('📊 Height comparison table updated');
+            }, 1000);
+        }
+
+        function updateComparisonTable() {
+            const tableBody = document.getElementById('height-comparison-table');
+            if (!tableBody) return;
+
+            let rows = '';
+            ['morning', 'afternoon', 'thursday'].forEach(type => {
+                const data = heightMeasurements[type];
+                if (data) {
+                    const compliance = data.section >= 60 ? '✅ PASS' : '❌ FAIL';
+                    const consistency = Math.abs(data.label - data.value) <= 2 ? '✅ PASS' : '❌ FAIL';
+                    const navCompliance = data.subNavigation >= 60 ? '✅ PASS' : '❌ FAIL';
+                    const buttonsInfo = type !== 'thursday' ?
+                        `${data.morningButton}px / ${data.afternoonButton}px` : 'N/A';
+
+                    rows += `
+                        <tr>
+                            <td>${type.charAt(0).toUpperCase() + type.slice(1)}</td>
+                            <td>${data.section}px (${compliance})</td>
+                            <td>${data.subNavigation}px (${navCompliance})</td>
+                            <td>${buttonsInfo}</td>
+                            <td>${data.label}px</td>
+                            <td>${data.value}px</td>
+                            <td>${consistency}</td>
+                        </tr>
+                    `;
+                } else {
+                    rows += `
+                        <tr>
+                            <td>${type.charAt(0).toUpperCase() + type.slice(1)}</td>
+                            <td colspan="6" style="color: #666;">Not measured</td>
+                        </tr>
+                    `;
+                }
+            });
+
+            tableBody.innerHTML = rows;
+        }
+
+        function testTransitionRemoval() {
+            logResult('⚡ Testing transition removal and instant feedback...');
+
+            const widgets = [
+                { name: 'morning', instance: morningWidget, selector: '.nzgdc-morning-filters-value' },
+                { name: 'afternoon', instance: afternoonWidget, selector: '.nzgdc-afternoon-filters-value' },
+                { name: 'thursday', instance: thursdayWidget, selector: '.nzgdc-filters-value' }
+            ];
+
+            widgets.forEach(widget => {
+                if (widget.instance) {
+                    testWidgetTransitions(widget.name, widget.selector);
+                }
+            });
+        }
+
+        function testWidgetTransitions(widgetType, selector) {
+            const startTime = performance.now();
+
+            // Find the filter element
+            const filterElement = document.querySelector(selector);
+            if (!filterElement) {
+                updateTransitionStatus(widgetType, false, 'Filter element not found');
+                return;
+            }
+
+            // Check for transition properties
+            const computedStyle = window.getComputedStyle(filterElement);
+            const hasTransition = computedStyle.transition && computedStyle.transition !== 'none' && computedStyle.transition !== 'all 0s ease 0s';
+
+            // Test dropdown trigger if available
+            const dropdownTrigger = filterElement.querySelector('[data-dropdown-trigger]') || filterElement;
+            if (dropdownTrigger) {
+                // Simulate click and measure response time
+                const clickStart = performance.now();
+                dropdownTrigger.click();
+
+                setTimeout(() => {
+                    const clickEnd = performance.now();
+                    const responseTime = clickEnd - clickStart;
+
+                    const isInstant = responseTime < 50; // Should be nearly instant
+                    const noTransitions = !hasTransition;
+
+                    const passed = isInstant && noTransitions;
+                    updateTransitionStatus(widgetType, passed, `Response: ${responseTime.toFixed(1)}ms, Transitions: ${hasTransition ? 'DETECTED' : 'NONE'}`);
+
+                    // Close dropdown
+                    dropdownTrigger.click();
+                }, 100);
+            }
+
+            const endTime = performance.now();
+            logResult(`⚡ ${widgetType} transition test: ${(endTime - startTime).toFixed(1)}ms`);
+        }
+
+        function updateTransitionStatus(widgetType, passed, details) {
+            const statusElement = document.getElementById(`${widgetType}-transition-status`);
+            if (statusElement) {
+                statusElement.className = `status-indicator ${passed ? 'status-pass' : 'status-fail'}`;
+                statusElement.textContent = passed ? 'PASS' : 'FAIL';
+                statusElement.title = details;
+            }
+
+            transitionTests[widgetType] = { passed, details };
+            logResult(`⚡ ${widgetType} transition test: ${passed ? 'PASS' : 'FAIL'} - ${details}`);
+        }
+
+        function runCrossWidgetComparison() {
+            logResult('🔍 Running cross-widget comparison analysis...');
+
+            measureAllWidgetHeights();
+
+            setTimeout(() => {
+                const heights = Object.values(heightMeasurements).map(m => m.section);
+                const maxDiff = Math.max(...heights) - Math.min(...heights);
+
+                logResult(`📊 Cross-widget height analysis:`);
+                logResult(`   • Height range: ${Math.min(...heights)}px - ${Math.max(...heights)}px`);
+                logResult(`   • Maximum difference: ${maxDiff}px`);
+                logResult(`   • Consistency: ${maxDiff <= 5 ? 'EXCELLENT' : maxDiff <= 10 ? 'GOOD' : 'NEEDS IMPROVEMENT'}`);
+
+                // Update performance monitor
+                updatePerformanceMonitor();
+            }, 1500);
+        }
+
+        function updatePerformanceMonitor() {
+            const monitor = document.getElementById('performance-monitor');
+            if (!monitor) return;
+
+            const avgHeight = Object.values(heightMeasurements).reduce((sum, m) => sum + m.section, 0) / Object.keys(heightMeasurements).length;
+            const transitionsPassed = Object.values(transitionTests).filter(t => t.passed).length;
+            const totalTests = Object.keys(transitionTests).length;
+
+            monitor.innerHTML = `
+<strong>Performance Metrics:</strong><br>
+• Average Filter Height: ${avgHeight.toFixed(1)}px<br>
+• 60px Compliance Rate: ${Object.values(heightMeasurements).filter(m => m.section >= 60).length}/${Object.keys(heightMeasurements).length}<br>
+• Instant Feedback Rate: ${transitionsPassed}/${totalTests}<br>
+• Cross-Widget Consistency: ${Math.max(...Object.values(heightMeasurements).map(m => m.section)) - Math.min(...Object.values(heightMeasurements).map(m => m.section))}px variance<br>
+• Overall Status: ${avgHeight >= 60 && transitionsPassed === totalTests ? '🎉 ALL TESTS PASSED' : '⚠️ SOME ISSUES DETECTED'}
+            `;
+        }
+
+        function runCompleteValidation() {
+            logResult('🎯 Running complete validation suite...');
+
+            // Reset test data
+            heightMeasurements = {};
+            transitionTests = {};
+
+            // Run all tests in sequence
+            setTimeout(() => measureAllWidgetHeights(), 500);
+            setTimeout(() => testTransitionRemoval(), 2000);
+            setTimeout(() => runCrossWidgetComparison(), 3500);
+            setTimeout(() => {
+                logResult('🎉 Complete validation finished!');
+                generateSummaryReport();
+            }, 5000);
+        }
+
+        function generateSummaryReport() {
+            const heightsPassed = Object.values(heightMeasurements).filter(m => m.section >= 60).length;
+            const transitionsPassed = Object.values(transitionTests).filter(t => t.passed).length;
+
+            logResult('');
+            logResult('📋 VALIDATION SUMMARY REPORT:');
+            logResult('================================');
+            logResult(`✅ Height Consistency: ${heightsPassed}/3 widgets at 60px+ (${((heightsPassed/3)*100).toFixed(0)}%)`);
+            logResult(`⚡ Instant Feedback: ${transitionsPassed}/3 widgets transition-free (${((transitionsPassed/3)*100).toFixed(0)}%)`);
+            logResult(`🎯 Overall Success: ${heightsPassed === 3 && transitionsPassed === 3 ? 'ALL TESTS PASSED 🎉' : 'SOME ISSUES NEED ATTENTION ⚠️'}`);
+            logResult('');
+        }
+
+        function logResult(message) {
+            const resultsDiv = document.getElementById('test-results');
+            if (resultsDiv) {
+                const timestamp = new Date().toLocaleTimeString();
+                resultsDiv.innerHTML += `<div>[${timestamp}] ${message}</div>`;
+                resultsDiv.scrollTop = resultsDiv.scrollHeight;
+            }
+        }
+
+        // Auto-run initial measurements after widgets load
+        setTimeout(() => {
+            logResult('🔄 Auto-running initial measurements...');
+            measureAllWidgetHeights();
+        }, 3000);
+    </script>
+
+    <div style="margin-top: 30px; padding: 20px; background: #f8f9fa; border-radius: 5px;">
+        <h4>📋 Validation Checklist:</h4>
+        <ul>
+            <li><strong>Height Consistency:</strong> All filter sections should be exactly 60px tall</li>
+            <li><strong>Navigation Tabs:</strong> Morning/Afternoon event buttons should be 60px tall</li>
+            <li><strong>Label Alignment:</strong> Filter labels and values should have matching heights</li>
+            <li><strong>Sub-Navigation:</strong> All sub-navigation containers should be 60px minimum</li>
+            <li><strong>Instant Feedback:</strong> Category selections should be immediate (no fade transitions)</li>
+            <li><strong>Cross-Widget Uniformity:</strong> All three widgets should look identical in filter area</li>
+            <li><strong>Responsive Behavior:</strong> Height consistency maintained on different screen sizes</li>
+        </ul>
+
+        <h4>🎯 Success Criteria:</h4>
+        <ul>
+            <li>All filter sections ≥ 60px height</li>
+            <li>All sub-navigation containers ≥ 60px height</li>
+            <li>Morning/Afternoon navigation buttons ≥ 60px height</li>
+            <li>Maximum height variance between widgets ≤ 5px</li>
+            <li>Zero transition delays on category selection</li>
+            <li>Perfect visual alignment across all widgets</li>
+            <li>No floating button gaps in navigation areas</li>
+        </ul>
+
+        <h4>🔧 Manual Testing:</h4>
+        <ul>
+            <li>Click each dropdown and verify instant appearance</li>
+            <li>Select categories and verify immediate color changes</li>
+            <li>Compare all three widgets side-by-side for visual consistency</li>
+            <li>Test on mobile devices for responsive behavior</li>
+        </ul>
+    </div>
+</body>
+</html>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thursday Schedule Widget - Dropdown Filter Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+        .test-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .debug-panel {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .status-indicator {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 3px;
+            margin: 5px;
+            font-size: 12px;
+        }
+        .status-loading { background: #fff3cd; color: #856404; }
+        .status-success { background: #d1edff; color: #0c5460; }
+        .status-error { background: #f8d7da; color: #721c24; }
+        .feature-test {
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .feature-test h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        #thursday-schedule-widget {
+            margin: 20px 0;
+            min-height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>Thursday Schedule Widget - Dropdown Filter Integration Test</h1>
+            <p>Testing the newly integrated category dropdown filter functionality</p>
+        </div>
+
+        <div class="test-info">
+            <h3>🎯 Test Objectives:</h3>
+            <ul>
+                <li>Verify dropdown filter appears and functions correctly</li>
+                <li>Test all 11 category filter options</li>
+                <li>Validate dynamic label background color changes</li>
+                <li>Ensure big event panel filtering works (grey out non-matching)</li>
+                <li>Verify keyboard navigation and accessibility</li>
+                <li>Test mobile responsiveness</li>
+            </ul>
+        </div>
+
+        <div class="debug-panel">
+            <h4>Debug Information:</h4>
+            <div id="debug-output">Loading debug information...</div>
+        </div>
+
+        <div class="feature-test">
+            <h4>Manual Test Controls</h4>
+            <button class="test-button" onclick="testAllCategories()">Test All Categories</button>
+            <button class="test-button" onclick="resetFilter()">Reset Filter</button>
+            <button class="test-button" onclick="toggleDebugMode()">Toggle Debug Mode</button>
+            <button class="test-button" onclick="showWidgetInfo()">Widget Info</button>
+            <div id="test-results" style="margin-top: 10px;"></div>
+        </div>
+
+        <!-- Thursday Schedule Widget Container -->
+        <div id="thursday-schedule-widget" data-nzgdc-schedule="thursday">
+            <div class="status-indicator status-loading">Loading Thursday Schedule Widget...</div>
+        </div>
+
+        <div class="feature-test">
+            <h4>Integration Verification</h4>
+            <div id="integration-status">
+                <div id="css-loaded" class="status-indicator status-loading">CSS Loading...</div>
+                <div id="js-loaded" class="status-indicator status-loading">JavaScript Loading...</div>
+                <div id="widget-ready" class="status-indicator status-loading">Widget Initialization...</div>
+                <div id="dropdown-ready" class="status-indicator status-loading">Dropdown Controller...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load the Thursday Schedule Widget -->
+    <script src="../nzgdc-schedule-widget-modular.js"></script>
+
+    <script>
+        let thursdayWidget = null;
+        let debugMode = true; // Start with debug mode enabled for testing
+
+        // Enable debug mode
+        window.NZGDC_DEBUG = debugMode;
+
+        // Initialize the test page
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDebugOutput();
+            initializeWidget();
+        });
+
+        async function initializeWidget() {
+            try {
+                updateStatus('css-loaded', 'loading', 'Loading CSS modules...');
+                updateStatus('js-loaded', 'loading', 'Loading JavaScript modules...');
+                updateStatus('widget-ready', 'loading', 'Initializing widget...');
+                updateStatus('dropdown-ready', 'loading', 'Setting up dropdown...');
+
+                // Wait for widget to be ready
+                NZGDCWidget.ready(async () => {
+                    try {
+                        // Create the Thursday widget
+                        thursdayWidget = await NZGDCWidget.create('thursday-schedule-widget', {
+                            showFilters: true,
+                            showFooter: true
+                        });
+
+                        updateStatus('css-loaded', 'success', 'CSS Loaded Successfully');
+                        updateStatus('js-loaded', 'success', 'JavaScript Loaded Successfully');
+                        updateStatus('widget-ready', 'success', 'Widget Initialized Successfully');
+
+                        // Check if dropdown controller exists
+                        setTimeout(() => {
+                            if (thursdayWidget && thursdayWidget.dropdownController) {
+                                updateStatus('dropdown-ready', 'success', 'Dropdown Controller Ready');
+                            } else {
+                                updateStatus('dropdown-ready', 'error', 'Dropdown Controller Not Found');
+                            }
+                            updateDebugOutput();
+                        }, 1000);
+
+                    } catch (error) {
+                        console.error('Widget creation failed:', error);
+                        updateStatus('widget-ready', 'error', `Widget Error: ${error.message}`);
+                        updateStatus('dropdown-ready', 'error', 'Dropdown Failed (Widget Error)');
+                    }
+                });
+
+            } catch (error) {
+                console.error('Widget initialization failed:', error);
+                updateStatus('css-loaded', 'error', 'CSS Loading Failed');
+                updateStatus('js-loaded', 'error', 'JavaScript Loading Failed');
+                updateStatus('widget-ready', 'error', `Init Error: ${error.message}`);
+                updateStatus('dropdown-ready', 'error', 'Dropdown Failed (Init Error)');
+            }
+        }
+
+        function updateStatus(elementId, status, message) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.className = `status-indicator status-${status}`;
+                element.textContent = message;
+            }
+        }
+
+        function updateDebugOutput() {
+            const debugOutput = document.getElementById('debug-output');
+            const debugInfo = NZGDCWidget.getDebugInfo();
+
+            debugOutput.innerHTML = `
+                <strong>Widget Loader Status:</strong><br>
+                • Ready: ${debugInfo.ready}<br>
+                • Active Instances: ${debugInfo.instances.active}<br>
+                • Debug Mode: ${window.NZGDC_DEBUG}<br>
+                <br>
+                <strong>Module Status:</strong><br>
+                • Schedule Data: ${debugInfo.modules.scheduleData}<br>
+                • Workshop Events: ${debugInfo.modules.workshopEvents}<br>
+                • Schedule Generator: ${debugInfo.modules.scheduleGenerator}<br>
+                • Widget Core: ${debugInfo.modules.widgetCore}<br>
+                <br>
+                <strong>Widget Instance:</strong><br>
+                • Widget Object: ${thursdayWidget ? 'Available' : 'Not Created'}<br>
+                • Dropdown Controller: ${thursdayWidget && thursdayWidget.dropdownController ? 'Available' : 'Not Found'}<br>
+                • Current Filter: ${thursdayWidget && thursdayWidget.currentFilterCategory || 'None'}<br>
+                <br>
+                <strong>Configuration:</strong><br>
+                • Base Path: ${debugInfo.config.basePath || './'}br>
+                • Timeout: ${debugInfo.config.timeout}ms<br>
+            `;
+        }
+
+        async function testAllCategories() {
+            if (!thursdayWidget || !thursdayWidget.dropdownController) {
+                alert('Widget or dropdown controller not available');
+                return;
+            }
+
+            const categories = [
+                'All Events',
+                'Art',
+                'Audio',
+                'Business & Marketing',
+                'Culture',
+                'Data, Testing or Research',
+                'Game Design',
+                'Production & QA',
+                'Programming',
+                'Realities (VR, AR, MR)',
+                'Serious & Educational Games',
+                'Story & Narrative'
+            ];
+
+            const testResults = document.getElementById('test-results');
+            testResults.innerHTML = '<strong>Testing Categories...</strong><br>';
+
+            for (let i = 0; i < categories.length; i++) {
+                const category = categories[i];
+
+                try {
+                    // Simulate category selection
+                    const categoryKey = getCategoryKeyFromName(category);
+                    thursdayWidget.currentCategoryKey = categoryKey;
+                    thursdayWidget.updateFilterValueText(category);
+
+                    if (categoryKey === 'ALL') {
+                        thursdayWidget.clearFilter();
+                    } else {
+                        thursdayWidget.applyFilter(categoryKey);
+                    }
+
+                    testResults.innerHTML += `✅ ${category}: Filter applied successfully<br>`;
+
+                    // Wait a bit between tests
+                    await new Promise(resolve => setTimeout(resolve, 500));
+
+                } catch (error) {
+                    testResults.innerHTML += `❌ ${category}: Error - ${error.message}<br>`;
+                }
+            }
+
+            testResults.innerHTML += '<br><strong>Category Testing Complete!</strong>';
+        }
+
+        function resetFilter() {
+            if (thursdayWidget) {
+                thursdayWidget.currentCategoryKey = 'ALL';
+                thursdayWidget.updateFilterValueText('All Events');
+                thursdayWidget.clearFilter();
+                document.getElementById('test-results').innerHTML = '✅ Filter reset to "All Events"';
+            }
+        }
+
+        function toggleDebugMode() {
+            debugMode = !debugMode;
+            window.NZGDC_DEBUG = debugMode;
+            updateDebugOutput();
+            alert(`Debug mode ${debugMode ? 'enabled' : 'disabled'}`);
+        }
+
+        function showWidgetInfo() {
+            if (thursdayWidget) {
+                const info = `
+Thursday Widget Information:
+• Widget ID: ${thursdayWidget.uniqueId}
+• Initialized: ${thursdayWidget.initialized}
+• Current Filter: ${thursdayWidget.currentFilterCategory || 'None'}
+• Current Category Key: ${thursdayWidget.currentCategoryKey}
+• Dropdown Controller: ${thursdayWidget.dropdownController ? 'Available' : 'Not Found'}
+• Schedule Generator: ${thursdayWidget.scheduleGenerator ? 'Available' : 'Not Found'}
+                `;
+                alert(info);
+            } else {
+                alert('Thursday widget not available');
+            }
+        }
+
+        function getCategoryKeyFromName(categoryName) {
+            const categoryMap = {
+                'All Events': 'ALL',
+                'Game Design': 'GAME_DESIGN',
+                'Art': 'ART',
+                'Programming': 'PROGRAMMING',
+                'Audio': 'AUDIO',
+                'Story & Narrative': 'STORY_NARRATIVE',
+                'Business & Marketing': 'BUSINESS_MARKETING',
+                'Culture': 'CULTURE',
+                'Production & QA': 'PRODUCTION_QA',
+                'Realities (VR, AR, MR)': 'REALITIES_VR_AR_MR',
+                'Data, Testing or Research': 'DATA_TESTING_RESEARCH',
+                'Serious & Educational Games': 'SERIOUS_EDUCATIONAL'
+            };
+            return categoryMap[categoryName] || 'ALL';
+        }
+
+        // Keyboard shortcuts for testing
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'd') {
+                e.preventDefault();
+                toggleDebugMode();
+            } else if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                resetFilter();
+            } else if (e.ctrlKey && e.key === 't') {
+                e.preventDefault();
+                testAllCategories();
+            }
+        });
+
+        // Update debug output every 5 seconds
+        setInterval(updateDebugOutput, 5000);
+    </script>
+
+    <div style="margin-top: 30px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+        <h4>🎮 Testing Instructions:</h4>
+        <ol>
+            <li><strong>Basic Functionality:</strong> Click the filter dropdown (should show "ALL EVENTS ▶") to open category list</li>
+            <li><strong>Category Selection:</strong> Select different categories and verify the label background changes color</li>
+            <li><strong>Event Filtering:</strong> Verify that non-matching events grey out when a category is selected</li>
+            <li><strong>Reset Test:</strong> Select "All Events" to verify all panels return to normal</li>
+            <li><strong>Keyboard Test:</strong> Use Tab to navigate, Enter to select, Escape to close</li>
+            <li><strong>Automated Test:</strong> Use "Test All Categories" button to cycle through all options</li>
+        </ol>
+
+        <h4>⌨️ Keyboard Shortcuts:</h4>
+        <ul>
+            <li><code>Ctrl+D</code> - Toggle debug mode</li>
+            <li><code>Ctrl+R</code> - Reset filter</li>
+            <li><code>Ctrl+T</code> - Test all categories</li>
+        </ul>
+
+        <h4>🐛 Troubleshooting:</h4>
+        <ul>
+            <li>If widget fails to load, check browser console for errors</li>
+            <li>Ensure all CSS and JS files are accessible</li>
+            <li>Verify workshop events data is loaded correctly</li>
+            <li>Check debug output for module loading status</li>
+        </ul>
+    </div>
+</body>
+</html>
