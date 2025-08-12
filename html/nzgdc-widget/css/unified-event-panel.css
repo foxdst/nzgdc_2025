@@ -517,3 +517,180 @@
         font-size: 16px;
     }
 }
+
+/* ===== EVENT CATEGORY SYSTEM STYLES ===== */
+
+/* Category: Story & Narrative (Light) */
+.nzgdc-event-panel-big[data-category="STORY_NARRATIVE"]
+    .nzgdc-event-category-big,
+.nzgdc-event-panel-main[data-category="STORY_NARRATIVE"]
+    .nzgdc-event-category-main {
+    background-color: #fff47f;
+}
+
+.nzgdc-event-panel-big[data-category="STORY_NARRATIVE"]
+    .nzgdc-category-text-big,
+.nzgdc-event-panel-main[data-category="STORY_NARRATIVE"]
+    .nzgdc-category-text-main {
+    color: #000000;
+}
+
+/* Category: Production & QA (Light) */
+.nzgdc-event-panel-big[data-category="PRODUCTION_QA"] .nzgdc-event-category-big,
+.nzgdc-event-panel-main[data-category="PRODUCTION_QA"]
+    .nzgdc-event-category-main {
+    background-color: #512340;
+}
+
+.nzgdc-event-panel-big[data-category="PRODUCTION_QA"] .nzgdc-category-text-big,
+.nzgdc-event-panel-main[data-category="PRODUCTION_QA"]
+    .nzgdc-category-text-main {
+    color: #ffffff;
+}
+
+/* Category: Culture (Light) */
+.nzgdc-event-panel-big[data-category="CULTURE"] .nzgdc-event-category-big,
+.nzgdc-event-panel-main[data-category="CULTURE"] .nzgdc-event-category-main {
+    background-color: #fac7d5;
+}
+
+.nzgdc-event-panel-big[data-category="CULTURE"] .nzgdc-category-text-big,
+.nzgdc-event-panel-main[data-category="CULTURE"] .nzgdc-category-text-main {
+    color: #000000;
+}
+
+/* Category: Business & Marketing (Light) */
+.nzgdc-event-panel-big[data-category="BUSINESS_MARKETING"]
+    .nzgdc-event-category-big,
+.nzgdc-event-panel-main[data-category="BUSINESS_MARKETING"]
+    .nzgdc-event-category-main {
+    background-color: #e7f1ff;
+}
+
+.nzgdc-event-panel-big[data-category="BUSINESS_MARKETING"]
+    .nzgdc-category-text-big,
+.nzgdc-event-panel-main[data-category="BUSINESS_MARKETING"]
+    .nzgdc-category-text-main {
+    color: #000000;
+}
+
+/* Category: Art (Light) */
+.nzgdc-event-panel-big[data-category="ART"] .nzgdc-event-category-big,
+.nzgdc-event-panel-main[data-category="ART"] .nzgdc-event-category-main {
+    background-color: #ffc999;
+}
+
+.nzgdc-event-panel-big[data-category="ART"] .nzgdc-category-text-big,
+.nzgdc-event-panel-main[data-category="ART"] .nzgdc-category-text-main {
+    color: #000000;
+}
+
+/* Category: Audio (Light) */
+.nzgdc-event-panel-big[data-category="AUDIO"] .nzgdc-event-category-big,
+.nzgdc-event-panel-main[data-category="AUDIO"] .nzgdc-event-category-main {
+    background-color: #197bff;
+}
+
+.nzgdc-event-panel-big[data-category="AUDIO"] .nzgdc-category-text-big,
+.nzgdc-event-panel-main[data-category="AUDIO"] .nzgdc-category-text-main {
+    color: #ffffff;
+}
+
+/* Category: Programming (Light) */
+.nzgdc-event-panel-big[data-category="PROGRAMMING"] .nzgdc-event-category-big,
+.nzgdc-event-panel-main[data-category="PROGRAMMING"]
+    .nzgdc-event-category-main {
+    background-color: #ccf2f1;
+}
+
+.nzgdc-event-panel-big[data-category="PROGRAMMING"] .nzgdc-category-text-big,
+.nzgdc-event-panel-main[data-category="PROGRAMMING"] .nzgdc-category-text-main {
+    color: #000000;
+}
+
+/* Category: Data, Testing or Research (Dark) */
+.nzgdc-event-panel-big[data-category="DATA_TESTING_RESEARCH"]
+    .nzgdc-event-category-big,
+.nzgdc-event-panel-main[data-category="DATA_TESTING_RESEARCH"]
+    .nzgdc-event-category-main {
+    background-color: #917b89;
+}
+
+.nzgdc-event-panel-big[data-category="DATA_TESTING_RESEARCH"]
+    .nzgdc-category-text-big,
+.nzgdc-event-panel-main[data-category="DATA_TESTING_RESEARCH"]
+    .nzgdc-category-text-main {
+    color: #ffffff;
+}
+
+/* Category: Realities (VR, AR, MR) (Light) */
+.nzgdc-event-panel-big[data-category="REALITIES_VR_AR_MR"]
+    .nzgdc-event-category-big,
+.nzgdc-event-panel-main[data-category="REALITIES_VR_AR_MR"]
+    .nzgdc-event-category-main {
+    background-color: #d1afff;
+}
+
+.nzgdc-event-panel-big[data-category="REALITIES_VR_AR_MR"]
+    .nzgdc-category-text-big,
+.nzgdc-event-panel-main[data-category="REALITIES_VR_AR_MR"]
+    .nzgdc-category-text-main {
+    color: #000000;
+}
+
+/* Category: Game Design (Light) */
+.nzgdc-event-panel-big[data-category="GAME_DESIGN"] .nzgdc-event-category-big,
+.nzgdc-event-panel-main[data-category="GAME_DESIGN"]
+    .nzgdc-event-category-main {
+    background-color: #9ee6ab;
+}
+
+.nzgdc-event-panel-big[data-category="GAME_DESIGN"] .nzgdc-category-text-big,
+.nzgdc-event-panel-main[data-category="GAME_DESIGN"] .nzgdc-category-text-main {
+    color: #000000;
+}
+
+/* Category: Serious & Educational Games (Light) */
+.nzgdc-event-panel-big[data-category="SERIOUS_EDUCATIONAL"]
+    .nzgdc-event-category-big,
+.nzgdc-event-panel-main[data-category="SERIOUS_EDUCATIONAL"]
+    .nzgdc-event-category-main {
+    background-color: #ffafaf;
+}
+
+.nzgdc-event-panel-big[data-category="SERIOUS_EDUCATIONAL"]
+    .nzgdc-category-text-big,
+.nzgdc-event-panel-main[data-category="SERIOUS_EDUCATIONAL"]
+    .nzgdc-category-text-main {
+    color: #000000;
+}
+
+/* ===== OVERLAY COMPATIBILITY SYSTEM ===== */
+
+/* ===== CATEGORY ELEMENT STYLING ONLY ===== */
+/* Note: Brightness system only affects category element colors, not overlay elements */
+
+/* ===== PANEL ISOLATION SYSTEM ===== */
+/* Ensure panels without category data maintain original design */
+
+/* Category element fallbacks for non-category panels */
+.nzgdc-event-panel-big:not([data-category]) .nzgdc-event-category-big,
+.nzgdc-event-panel-main:not([data-category]) .nzgdc-event-category-main {
+    background-color: var(--color-primary) !important;
+    color: var(--color-category-text) !important;
+}
+
+/* Overlay element preservation for non-category panels */
+.nzgdc-event-panel-big:not([data-category]) .nzgdc-event-detail-overlay-big,
+.nzgdc-event-panel-main:not([data-category]) .nzgdc-event-panel-overlay-main {
+    background-color: var(--color-overlay) !important;
+}
+
+/* Call-to-action element preservation for non-category panels */
+.nzgdc-event-panel-big:not([data-category]) .nzgdc-cta-text-big,
+.nzgdc-event-panel-big:not([data-category]) .nzgdc-open-marker-big,
+.nzgdc-event-panel-main:not([data-category]) .nzgdc-cta-text-main,
+.nzgdc-event-panel-main:not([data-category]) .nzgdc-open-marker-main {
+    color: var(--color-category-text) !important;
+    background-color: var(--color-category-text) !important;
+}

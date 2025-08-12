@@ -14,6 +14,33 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       this.loadError = null;
       this.REQUEST_TIMEOUT = 10000; // 10 seconds timeout
       this.isDestroyed = false;
+
+      // Category definitions with display names and brightness
+      this.categoryDefinitions = new Map([
+        ["STORY_NARRATIVE", { name: "Story & Narrative", brightness: "light" }],
+        ["PRODUCTION_QA", { name: "Production & QA", brightness: "dark" }],
+        ["CULTURE", { name: "Culture", brightness: "light" }],
+        [
+          "BUSINESS_MARKETING",
+          { name: "Business & Marketing", brightness: "light" },
+        ],
+        ["ART", { name: "Art", brightness: "light" }],
+        ["AUDIO", { name: "Audio", brightness: "dark" }],
+        ["PROGRAMMING", { name: "Programming", brightness: "light" }],
+        [
+          "DATA_TESTING_RESEARCH",
+          { name: "Data, Testing or Research", brightness: "dark" },
+        ],
+        [
+          "REALITIES_VR_AR_MR",
+          { name: "Realities (VR, AR, MR)", brightness: "light" },
+        ],
+        ["GAME_DESIGN", { name: "Game Design", brightness: "light" }],
+        [
+          "SERIOUS_EDUCATIONAL",
+          { name: "Serious & Educational Games", brightness: "light" },
+        ],
+      ]);
     }
 
     async loadTemplate() {
@@ -38,7 +65,34 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
             controller.abort();
           }, this.REQUEST_TIMEOUT);
 
-          const response = await fetch("templates/unified-event-panel.html", {
+          // Determine correct path based on current location
+          const currentPath = window.location.pathname;
+          const isInSubdirectory =
+            currentPath.includes("/.widget-tests/") ||
+            currentPath.includes("\\.widget-tests\\") ||
+            currentPath.endsWith(
+              "/.widget-tests/event-categories-test-demo.html",
+            ) ||
+            currentPath.endsWith("/.widget-tests/widget-demo.html");
+
+          const templatePath = isInSubdirectory
+            ? "../templates/unified-event-panel.html"
+            : "templates/unified-event-panel.html";
+
+          this.debug(`Attempting to fetch template from: ${templatePath}`);
+          this.debug(`Current pathname: ${currentPath}`);
+          this.debug(`Protocol: ${window.location.protocol}`);
+          this.debug(`Using subdirectory detection: ${isInSubdirectory}`);
+
+          // For file:// protocol, skip external loading and use embedded template
+          if (window.location.protocol === "file:") {
+            this.debug(
+              "File protocol detected, skipping external template fetch",
+            );
+            throw new Error("Using embedded template due to file:// protocol");
+          }
+
+          const response = await fetch(templatePath, {
             signal: controller.signal,
           });
 
@@ -46,14 +100,31 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
 
           if (response.ok) {
             const html = await response.text();
+            this.debug(`Template HTML loaded, length: ${html.length}`);
+            this.debug(`Template HTML preview: ${html.substring(0, 200)}...`);
+
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, "text/html");
             this.template = doc.querySelector(".nzgdc-event-panel-big");
 
             if (this.template) {
               this.debug("External unified template loaded successfully");
+              this.debug(
+                `Template element found: ${this.template.outerHTML.substring(0, 100)}...`,
+              );
               return this.template;
+            } else {
+              this.debug(
+                "Template HTML loaded but no .nzgdc-event-panel-big element found",
+              );
+              this.debug(
+                `Document body content: ${doc.body ? doc.body.innerHTML.substring(0, 200) : "No body"}...`,
+              );
             }
+          } else {
+            this.debug(
+              `Template fetch failed with status: ${response.status} ${response.statusText}`,
+            );
           }
         } catch (fetchError) {
           if (fetchError.name === "AbortError") {
@@ -66,11 +137,21 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
               "External unified template failed, trying embedded template:",
               fetchError.message,
             );
+            this.debug(`Fetch error details: ${fetchError.name}`);
+            if (window.location.protocol === "file:") {
+              this.debug("File protocol detected - this is expected behavior");
+            }
           }
         }
 
         // Fallback to embedded template if external file fails
+        this.debug(
+          `Checking for embedded template: ${!!window.UNIFIED_EVENT_PANEL_TEMPLATE}`,
+        );
         if (window.UNIFIED_EVENT_PANEL_TEMPLATE) {
+          this.debug(
+            `Embedded template length: ${window.UNIFIED_EVENT_PANEL_TEMPLATE.length}`,
+          );
           const parser = new DOMParser();
           const doc = parser.parseFromString(
             window.UNIFIED_EVENT_PANEL_TEMPLATE,
@@ -81,7 +162,15 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
           if (this.template) {
             this.debug("Embedded unified template loaded successfully");
             return this.template;
+          } else {
+            this.debug(
+              "Embedded template available but no .nzgdc-event-panel-big element found",
+            );
           }
+        } else {
+          this.debug(
+            "No embedded template available - window.UNIFIED_EVENT_PANEL_TEMPLATE is undefined",
+          );
         }
 
         throw new Error(
@@ -101,6 +190,64 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       if (window.NZGDC_DEBUG === true) {
         console.log("[NZGDC Unified Event Loader]", ...args);
       }
+    }
+
+    // Category validation and helper methods
+    validateCategoryData(eventData) {
+      const categoryKey =
+        eventData.categoryKey || this.mapCategoryToKey(eventData.category);
+      const definition = this.categoryDefinitions.get(categoryKey);
+
+      if (!definition) {
+        console.warn(
+          `[NZGDC Unified Widget] Invalid category key: ${categoryKey}, falling back to default`,
+        );
+        return {
+          categoryKey: "PROGRAMMING", // Default fallback
+          displayName: "Programming",
+          brightness: "light",
+          isValid: false,
+        };
+      }
+
+      return {
+        categoryKey,
+        displayName: definition.name,
+        brightness: definition.brightness,
+        isValid: true,
+      };
+    }
+
+    getCategoryBrightness(categoryKey) {
+      const definition = this.categoryDefinitions.get(categoryKey);
+      return definition ? definition.brightness : "light";
+    }
+
+    getCategoryDisplayName(categoryKey) {
+      const definition = this.categoryDefinitions.get(categoryKey);
+      return definition ? definition.name : "Event";
+    }
+
+    // Map legacy category strings to new keys
+    mapCategoryToKey(categoryString) {
+      if (!categoryString) return "PROGRAMMING";
+
+      const mapping = {
+        "Story & Narrative": "STORY_NARRATIVE",
+        "Production & QA": "PRODUCTION_QA",
+        Culture: "CULTURE",
+        "Business & Marketing": "BUSINESS_MARKETING",
+        Business: "BUSINESS_MARKETING",
+        Art: "ART",
+        Audio: "AUDIO",
+        Programming: "PROGRAMMING",
+        "Data, Testing or Research": "DATA_TESTING_RESEARCH",
+        "Realities (VR, AR, MR)": "REALITIES_VR_AR_MR",
+        "Game Design": "GAME_DESIGN",
+        "Serious & Educational Games": "SERIOUS_EDUCATIONAL",
+      };
+
+      return mapping[categoryString] || "PROGRAMMING";
     }
 
     createEventPanel(eventData, eventType = "big", widgetType = "schedule") {
@@ -142,6 +289,16 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
 
       this.debug(`Creating big event panel for ${widgetType} widget`);
       const clone = this.template.cloneNode(true);
+
+      // Only add category data attributes if event data has valid category information
+      if (eventData.categoryKey || eventData.category) {
+        const categoryData = this.validateCategoryData(eventData);
+        clone.setAttribute("data-category", categoryData.categoryKey);
+        this.debug(`Added category attributes: ${categoryData.categoryKey}`);
+      } else {
+        this.debug("No category data found, skipping category attributes");
+      }
+
       this.updateBigEventContent(clone, eventData, widgetType);
       return clone;
     }
@@ -151,6 +308,16 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       this.debug(`Creating main event panel for ${widgetType} widget`);
       const mainPanel = document.createElement("div");
       mainPanel.className = "nzgdc-event-panel-main";
+
+      // Only add category data attributes if event data has valid category information
+      let categoryData = null;
+      if (eventData.categoryKey || eventData.category) {
+        categoryData = this.validateCategoryData(eventData);
+        mainPanel.setAttribute("data-category", categoryData.categoryKey);
+        this.debug(`Added category attributes: ${categoryData.categoryKey}`);
+      } else {
+        this.debug("No category data found, skipping category attributes");
+      }
 
       // Determine introduction text based on widget type
       let introText = "NZGDC 2025 Event by";
@@ -170,7 +337,7 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       mainPanel.innerHTML = `
       <!-- Event Category (Top) -->
       <div class="nzgdc-event-category-main">
-        <div class="nzgdc-category-text-main">${eventData.category || "Event"}</div>
+        <div class="nzgdc-category-text-main">${categoryData ? categoryData.displayName : eventData.category || "Event"}</div>
       </div>
 
       <!-- Event Panel Title (Middle) -->
@@ -244,11 +411,23 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
         );
       }
 
-      // Update category
+      // Update category display - only validate if category data exists
       if (categoryEl) {
-        const categoryText = eventData.category || "Event";
-        categoryEl.textContent = categoryText;
-        this.debug("Set unified category:", categoryText);
+        if (eventData.categoryKey || eventData.category) {
+          const categoryData = this.validateCategoryData(eventData);
+          categoryEl.textContent = categoryData.displayName;
+          this.debug(
+            "Set unified category:",
+            categoryData.displayName,
+            `(${categoryData.categoryKey})`,
+          );
+        } else {
+          categoryEl.textContent = eventData.category || "Event";
+          this.debug(
+            "Set category without validation:",
+            eventData.category || "Event",
+          );
+        }
       } else {
         console.warn(
           "[NZGDC Unified Widget] Category element not found - check template structure",

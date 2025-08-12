@@ -4,8 +4,9 @@
 (function (window, document) {
   "use strict";
 
-  // Configuration
-  const WIDGET_BASE_PATH = "";
+  // Configuration - detect if we're in a subdirectory
+  const currentPath = window.location.pathname;
+  const WIDGET_BASE_PATH = currentPath.includes("/.widget-tests/") ? "../" : "";
   const REQUEST_TIMEOUT = 10000; // 10 seconds timeout for all requests
 
   // Debug mode - enable with window.NZGDC_DEBUG = true or ?debug=true
