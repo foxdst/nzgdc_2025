@@ -16,55 +16,70 @@
 
 This document provides **step-by-step, expert-level instructions** for implementing an Event Categories dropdown filter overlay for the Morning and Afternoon schedule widgets. The dropdown will allow users to filter events by category while maintaining the unified architecture principles.
 
+**⚠️ CRITICAL PRESERVATION REQUIREMENT:** The existing "Filters:" and "NONE ▶" UI elements are already perfectly designed and positioned. This implementation adds dropdown overlay functionality WITHOUT modifying the existing filter visual design. The dropdown seamlessly overlays below the existing filter area when activated.
+
 **INTEGRATION TARGET:** Morning and Afternoon widgets only (Thursday widget has no filters)  
-**IMPLEMENTATION TIME:** 16-20 hours (7 phases)  
-**COMPLEXITY LEVEL:** HIGH (requires deep understanding of unified architecture)  
-**ROLLBACK SUPPORT:** Full rollback capability maintained
+**IMPLEMENTATION PHASES:** 7 sequential phases with clear completion criteria  
+**COMPLEXITY LEVEL:** HIGH (requires deep understanding of unified architecture + UI preservation)  
+**ROLLBACK SUPPORT:** Full rollback capability maintained  
+**UI PRESERVATION:** All existing filter styling and positioning preserved unchanged
 
 ## Dropdown Design Specification
 
 ### Visual Design Requirements
 
 **Dropdown Structure:**
-- **Default State:** "NONE ▼" label with white background
-- **Expanded State:** Vertical list of all 11 categories with colored backgrounds
+- **Default State:** Preserve existing "NONE ▶" label with current white background styling
+- **Active State:** When clicked, "NONE ▶" changes to "NONE ▼" (triangle points down) to indicate dropdown is open
+- **Expanded State:** Dropdown overlay appears below existing filter area with vertical list of all 11 categories
+- **Background Dimming:** Subtle semi-transparent overlay dims the schedule content behind dropdown for better focus
 - **Category Items:** Category name with corresponding background color from Event Categories system
-- **Positioning:** Overlay positioned relative to existing "Filters:" label area
-- **Interaction:** Click to expand/collapse, click category to filter, click outside to close
+- **Text Formatting:** All category names in UPPERCASE, right-aligned within each dropdown item
+- **Positioning:** Overlay positioned as popup below existing "Filters:" and "NONE ▼" area (DO NOT modify existing filter styling)
+- **Interaction:** Click existing "NONE ▶" area to expand/collapse, click category to filter, click outside to close
+- **Visual State Indicator:** Triangle direction changes: ▶ (closed) ↔ ▼ (open)
+- **⚠️ CRITICAL:** DO NOT redesign existing "Filters:" label or filter value styling - only add dropdown overlay functionality and triangle state changes
 
 ### Event Categories Specification (from Event-Categories-Implementation-Guide.md)
 
 **The 11 Fixed Categories with Correct Properties:**
 1. **STORY_NARRATIVE** - "Story & Narrative" - #fff47f (light yellow), black text
-2. **PRODUCTION_QA** - "Production & QA" - #ffffff (white), black text  
+2. **PRODUCTION_QA** - "Production & QA" - #512340 (dark purple), **white text** (dark category)
 3. **CULTURE** - "Culture" - #fac7d5 (light pink), black text
 4. **BUSINESS_MARKETING** - "Business & Marketing" - #e7f1ff (light blue), black text
 5. **ART** - "Art" - #ffc999 (light orange), black text
-6. **AUDIO** - "Audio" - #fff1e5 (cream), black text
+6. **AUDIO** - "Audio" - #197bff (blue), **white text** (dark category)
 7. **PROGRAMMING** - "Programming" - #ccf2f1 (light cyan), black text
 8. **DATA_TESTING_RESEARCH** - "Data, Testing or Research" - #917B89 (purple-grey), **white text** (dark category)
 9. **REALITIES_VR_AR_MR** - "Realities (VR, AR, MR)" - #d1afff (light purple), black text
 10. **GAME_DESIGN** - "Game Design" - #9ee6ab (light green), black text
 11. **SERIOUS_EDUCATIONAL** - "Serious & Educational Games" - #ffafaf (light red), black text
 
-**NOTE:** Only DATA_TESTING_RESEARCH uses white text due to dark background. All others use black text.
+**NOTE:** PRODUCTION_QA, AUDIO, and DATA_TESTING_RESEARCH use white text due to dark backgrounds. All others use black text.
 
 ### Functional Requirements
 
 **Core Functionality:**
 - Filter events by selected category using existing `categoryKey` field
-- Show all events when "NONE" selected
-- Smooth expand/collapse animation
+- Show all events when "NONE" selected (preserve existing "NONE ▶" display when closed)
+- Update "NONE ▶" text to show selected category name when filtered (e.g., "ART ▶", "PROGRAMMING ▶")
+- Triangle direction indicates dropdown state: "NONE ▶" (closed) vs "NONE ▼" (open)
+- Smooth expand/collapse animation for dropdown overlay
+- Click existing filter value area to toggle dropdown (triangle direction changes accordingly)
 - Click outside to close dropdown
 - Maintain filter state during widget usage
 - Reset filter when switching between Morning/Afternoon widgets
 
 **Technical Requirements:**
-- Must use unified architecture (separate CSS file for dropdown only)
+- Must use unified architecture (separate CSS file for dropdown overlay only)
+- Must preserve ALL existing filter styling (yellow "Filters:" label, white value background)
 - Must work with both Morning and Afternoon widgets
 - Must not interfere with existing schedule functionality
+- Dropdown overlay only - existing filter area remains unchanged visually
+- Background dimming overlay must not interfere with dropdown functionality
 - Must be accessible (keyboard navigation, screen readers)
 - Must be responsive (mobile and desktop)
+- **⚠️ CRITICAL:** Only add new dropdown overlay CSS - never modify existing filter CSS classes
 
 ---
 
@@ -107,199 +122,387 @@ This document provides **step-by-step, expert-level instructions** for implement
 
 ## Implementation Phases
 
-### Phase 1: CSS Implementation (3-4 hours) - HIGHEST PRIORITY
+### Phase 1: CSS Implementation - HIGHEST PRIORITY
 
-**FILE TO CREATE:** `css/category-filter-overlay.css`
+**🎯 COMPLETION CRITERIA:**
+- [ ] New file `css/category-filter-overlay.css` created with complete dropdown styling
+- [ ] All 11 category colors implemented correctly matching existing system
+- [ ] Responsive design working on mobile and desktop
+- [ ] No modifications made to any existing filter CSS classes
+- [ ] Dropdown overlay positioned correctly below existing filter area
 
-**CSS ARCHITECTURE RULES:**
-- Widget scoping: `.nzgdc-morning-schedule-widget` and `.nzgdc-afternoon-schedule-widget`
-- Category colors: Use exact colors from Event Categories specification above
-- Responsive design: Mobile breakpoints at 768px
-- Accessibility: Focus states and high contrast support
+**⚠️ CRITICAL: DO NOT MODIFY EXISTING FILTER CSS**
+- **NEVER** modify existing filter classes in `css/morning-schedule-bundle.css` or `css/afternoon-schedule-bundle.css`
+- **NEVER** touch `.nzgdc-morning-filters-*` or `.nzgdc-afternoon-filters-*` classes
+- **ONLY** create NEW overlay classes for dropdown functionality
 
-**CSS STRUCTURE TO IMPLEMENT:**
-- **Base Classes:** Follow patterns in existing `css/morning-schedule-bundle.css` and `css/afternoon-schedule-bundle.css`
-- **Widget Scoping:** Use `.nzgdc-morning-schedule-widget` and `.nzgdc-afternoon-schedule-widget` prefixes
-- **Category Colors:** Reference exact colors from `css/unified-event-panel.css` Event Categories implementation
-- **Responsive Patterns:** Follow breakpoint patterns in existing CSS bundles
+**📋 IMPLEMENTATION STEPS:**
 
-**CRITICAL:** All dropdown styling must be scoped to Morning/Afternoon widgets only. Reference Event Categories colors from `EVENT_DATA_EXAMPLES.md`.
+**Step 1.1: Create CSS File Structure**
+- Create new file: `css/category-filter-overlay.css`
+- Add file header with architecture notes
+- Set up widget-scoped base structure
 
-### Phase 2: HTML Structure Enhancement (2-3 hours)
+**Step 1.2: Reference Existing Color System** 
+- Examine `css/unified-event-panel.css` for current Event Categories colors
+- Review `EVENT_DATA_EXAMPLES.md` lines 50-150 for complete color specifications
+- Verify all 11 categories have correct colors and text contrast
 
-**FILES TO MODIFY:**
-- `js/morning-widget-core.js` (contains existing `renderFiltersInline()` method)
-- `js/afternoon-widget-core.js` (contains existing `renderFiltersInline()` method)
+**Step 1.3: Implement Dropdown Base Styles**
+- Create `.category-dropdown-overlay` base class
+- Add positioning for overlay below existing filter area
+- Implement hidden/visible state styles
+- Add smooth expand/collapse animations
+- Create `.category-dropdown-backdrop` class for subtle background dimming
+- Add semi-transparent background overlay (e.g., rgba(0,0,0,0.1) or rgba(0,0,0,0.05))
 
-**EXISTING FILTER STRUCTURE TO ENHANCE:**
-- **Reference:** Current `renderFiltersInline()` method in `js/morning-widget-core.js` lines 124-135
-- **Current HTML:** `.nzgdc-morning-filters-section` with "Filters:" label and "NONE ▶" text
-- **Enhancement:** Replace static "NONE ▶" text with interactive dropdown trigger
+**Step 1.4: Implement Category Item Styles**
+- Create `.category-dropdown-item` styles for each category
+- Apply correct background colors and text colors from Event Categories system
+- Add hover and focus states for accessibility
+- Ensure proper spacing and typography
+- Set text-align: right for all category text
+- Apply text-transform: uppercase for consistent formatting
 
-**HTML STRUCTURE TO IMPLEMENT:**
+**Step 1.5: Add Responsive Design**
+- Implement mobile breakpoints at 768px following existing bundle patterns
+- Ensure dropdown works on touch devices
+- Test overlay positioning on smaller screens
 
-**For Morning Widget:**
-- **Reference Current Structure:** Examine existing `renderFiltersInline()` method in `js/morning-widget-core.js` lines 124-135
-- **Keep Existing Classes:** Maintain `.nzgdc-morning-filters-section`, `.nzgdc-morning-filters-label`, `.nzgdc-morning-filters-label-text`
-- **Replace Filter Value:** Convert `.nzgdc-morning-filters-value` div to dropdown structure
-- **Add Dropdown Elements:** Create nested dropdown trigger, overlay, and category list elements
+**Step 1.6: Widget Scoping**
+- Scope all styles to `.nzgdc-morning-schedule-widget` and `.nzgdc-afternoon-schedule-widget`
+- Ensure no conflicts with existing filter CSS
+- Verify Thursday widget remains unaffected
 
-**For Afternoon Widget:**  
-- **Reference Current Structure:** Examine existing `renderFiltersInline()` method in `js/afternoon-widget-core.js` lines 130-142
-- **Keep Existing Classes:** Maintain `.nzgdc-afternoon-filters-section`, `.nzgdc-afternoon-filters-label`, `.nzgdc-afternoon-filters-label-text`
-- **Replace Filter Value:** Convert `.nzgdc-afternoon-filters-value` div to dropdown structure
-- **Add Dropdown Elements:** Create nested dropdown trigger, overlay, and category list elements
+### Phase 2: HTML Structure Enhancement
 
-**METHODS TO ENHANCE:**
-- `renderFiltersInline()` - Enhance existing method in both widget cores (MODIFY existing methods)
-  - Morning: `js/morning-widget-core.js` lines 124-135 (current implementation)
-  - Afternoon: `js/afternoon-widget-core.js` lines 130-142 (current implementation)
-- `generateCategoryOptions()` - Create HTML for all 11 categories (NEW method to add to both cores)  
-- `initializeDropdown()` - Initialize dropdown after widget render (NEW method to add to both cores)
+**🎯 COMPLETION CRITERIA:**
+- [ ] Both widget cores have enhanced `renderFiltersInline()` methods with dropdown overlay HTML
+- [ ] All existing filter HTML structure preserved unchanged
+- [ ] New helper methods created for dropdown functionality
+- [ ] Dropdown HTML includes all 11 categories with proper structure
+- [ ] Both Morning and Afternoon widgets have identical dropdown functionality
 
-**CRITICAL:** Both widget cores have identical filter structure patterns:
-- Morning uses `.nzgdc-morning-filters-*` classes with `morning-category-dropdown` ID
-- Afternoon uses `.nzgdc-afternoon-filters-*` classes with `afternoon-category-dropdown` ID
+**📋 IMPLEMENTATION STEPS:**
 
-**IMPLEMENTATION LOCATION:**
-- Modify existing `renderFiltersInline()` method in `js/morning-widget-core.js` and `js/afternoon-widget-core.js`
-- Current location: Called from `renderNavigation()` method, already properly positioned
+**Step 2.1: Examine Current Filter Structure**
+- Read `js/morning-widget-core.js` lines 124-135 (existing `renderFiltersInline()` method)
+- Read `js/afternoon-widget-core.js` lines 130-142 (existing `renderFiltersInline()` method)  
+- Understand current HTML structure and CSS classes used
+- Identify where dropdown overlay HTML will be appended
 
-### Phase 3: JavaScript Dropdown Behavior (4-5 hours)
+**Step 2.2: Create Helper Methods (Morning Widget)**
+- Add `generateCategoryOptions()` method to `js/morning-widget-core.js`
+- Create HTML string for all 11 categories with proper data attributes
+- Include category colors and names from Event Categories system (ensure UPPERCASE formatting)
+- Add `updateFilterValueText(categoryName)` method for filter label updates
 
-**FILES TO MODIFY:**
-- `js/morning-widget-core.js` (primary location for dropdown integration)
-- `js/afternoon-widget-core.js` (primary location for dropdown integration)
-- `js/morning-schedule-generator.js` (for filtering logic)
-- `js/afternoon-schedule-generator.js` (for filtering logic)
+**Step 2.3: Create Helper Methods (Afternoon Widget)**
+- Add `generateCategoryOptions()` method to `js/afternoon-widget-core.js`
+- Create HTML string for all 11 categories with proper data attributes  
+- Include category colors and names from Event Categories system (ensure UPPERCASE formatting)
+- Add `updateFilterValueText(categoryName)` method for filter label updates
 
-**EXISTING METHODS TO MODIFY:**
-- **Widget Core Constructor:** Add dropdown controller initialization property  
-- **`renderFiltersInline()` method:** Replace static HTML with dropdown HTML
-- **`initializeSchedule()` method:** Add dropdown initialization after schedule loads
-- **`destroy()` method:** Add dropdown cleanup
+**Step 2.4: Enhance renderFiltersInline() - Morning Widget**
+- Modify `renderFiltersInline()` method in `js/morning-widget-core.js`
+- PRESERVE all existing HTML structure exactly as-is
+- APPEND dropdown overlay HTML after existing filter section
+- Add unique ID `morning-category-dropdown` for dropdown overlay
+- Add background dimming element with class `category-dropdown-backdrop`
+- Make existing filter value area clickable with data attributes
 
-**NEW CLASSES TO IMPLEMENT:**
-- `CategoryDropdownController` - Handle all dropdown behavior (NEW class)
-- **Methods:** `init()`, `toggle()`, `selectCategory()`, `filterEvents()`, `destroy()`
+**Step 2.5: Enhance renderFiltersInline() - Afternoon Widget**  
+- Modify `renderFiltersInline()` method in `js/afternoon-widget-core.js`
+- PRESERVE all existing HTML structure exactly as-is
+- APPEND dropdown overlay HTML after existing filter section
+- Add unique ID `afternoon-category-dropdown` for dropdown overlay
+- Add background dimming element with class `category-dropdown-backdrop`
+- Make existing filter value area clickable with data attributes
 
-**EXISTING EVENT SYSTEM INTEGRATION:**
-- **Reference:** Current `renderSchedule()` method in `js/morning-schedule-generator.js` and `js/afternoon-schedule-generator.js`
-- **Integration:** Modify schedule data before calling generator's `renderSchedule()` method
-- **State:** Store original schedule data in widget core for filter reset
-- **Flow:** Widget Core → Filter Data → Pass to Schedule Generator → Render
+**Step 2.6: Validation**
+- Verify existing filter CSS classes remain unchanged
+- Confirm dropdown overlay HTML is properly structured
+- Test that both widgets render without errors
+- Ensure Thursday widget remains unaffected
 
-**REQUIRED FUNCTIONALITY:**
-- Dropdown toggle on click
-- Category selection handling  
-- Outside click to close
-- Keyboard navigation (Tab, Enter, Escape, Arrow keys)
-- Event filtering by `categoryKey` field
-- State management and cleanup
+### Phase 3: JavaScript Dropdown Behavior
 
-### Phase 4: Entry Point Integration (1-2 hours)
+**🎯 COMPLETION CRITERIA:**
+- [ ] Dropdown controller class implemented with all required methods
+- [ ] Click handlers added to both widget cores for dropdown toggle
+- [ ] Category selection and filtering functionality working
+- [ ] Keyboard navigation implemented (Tab, Enter, Escape, Arrow keys)
+- [ ] Outside click to close functionality working
+- [ ] Filter state management and cleanup integrated
 
-**FILES TO MODIFY:**
-- `nzgdc-morning-schedule-widget-modular.js`
-- `nzgdc-afternoon-schedule-widget-modular.js`
+**📋 IMPLEMENTATION STEPS:**
 
-**EXISTING CSS LOADING TO ENHANCE:**
-- **Reference:** Current CSS loading in `nzgdc-morning-schedule-widget-modular.js` (lines 40-43) and `nzgdc-afternoon-schedule-widget-modular.js`
-- **Current Order:** `css/unified-event-panel.css`, then `css/morning-schedule-bundle.css` or `css/afternoon-schedule-bundle.css`
-- **New Order:** Add `css/category-filter-overlay.css` third in the loading sequence
+**Step 3.1: Create Dropdown Controller Class**
+- Create `CategoryDropdownController` class in both widget core files
+- Implement `init(widgetInstance, dropdownElement)` method
+- Add `toggle()` method for show/hide functionality including background dimming
+- Create `selectCategory(categoryKey, categoryName)` method
+- Add `destroy()` method for cleanup
+- Include keyboard navigation handling
+- Implement background dimming show/hide logic
 
-**CRITICAL:** Do NOT modify `nzgdc-schedule-widget-modular.js` (Thursday widget must remain unaffected)
+**Step 3.2: Integrate with Morning Widget Core**
+- Modify constructor in `js/morning-widget-core.js` to initialize dropdown controller
+- Update `initializeSchedule()` method to call dropdown initialization
+- Add dropdown controller to existing `destroy()` method cleanup
+- Store reference to dropdown controller as instance property
 
-**CSS LOADING ORDER:**
-1. `css/unified-event-panel.css` (existing)
-2. `css/morning-schedule-bundle.css` or `css/afternoon-schedule-bundle.css` (existing)
-3. `css/category-filter-overlay.css` (NEW)
+**Step 3.3: Integrate with Afternoon Widget Core**
+- Modify constructor in `js/afternoon-widget-core.js` to initialize dropdown controller  
+- Update `initializeSchedule()` method to call dropdown initialization
+- Add dropdown controller to existing `destroy()` method cleanup
+- Store reference to dropdown controller as instance property
 
-### Phase 5: Event Filtering Integration (2-3 hours)
+**Step 3.4: Add Event Handlers**
+- Add click handler to existing filter value areas in both widgets
+- Implement outside click detection to close dropdown
+- Add keyboard event handlers (Tab, Enter, Escape, Arrow keys)
+- Ensure all handlers use `AbortController` for cleanup
 
-**FILES TO MODIFY:**
-- `js/morning-schedule-generator.js`
-- `js/afternoon-schedule-generator.js`
+**Step 3.5: Implement Filter Value Text and Triangle State Updates**
+- Create logic to update existing filter value text when category selected
+- Change "NONE ▶" to category name (e.g., "ART ▶", "PROGRAMMING ▶")  
+- Implement triangle state changes: ▶ (closed) ↔ ▼ (open) to indicate dropdown state
+- Preserve existing CSS styling and white background
+- Handle reset back to "NONE ▶" when filter cleared
+- Ensure triangle points down (▼) when dropdown is open, right (▶) when closed
 
-**EXISTING EVENT DATA STRUCTURE:**
-- **Reference:** Examine `js/morning-events.js`, `js/afternoon-events.js`, and `js/workshop-events.js`
-- **Required Fields:** Events must have `categoryKey` and `category` fields (already implemented)
-- **Example:** `{ categoryKey: 'GAME_DESIGN', category: 'Game Design', ... }`
+**Step 3.6: State Management**
+- Track current filter state in widget instance
+- Store original schedule data for filter reset
+- Handle filter state during widget navigation
+- Ensure filter resets properly between Morning/Afternoon switches
 
-**EXISTING EVENT RENDERING TO ENHANCE:**
-- **Reference:** Current event rendering methods in schedule generators
-- **Enhancement:** Support showing/hiding events based on selected category
+### Phase 4: Entry Point Integration
 
-**NEW METHODS TO IMPLEMENT:**
-- `filterByCategory(categoryKey)` - Filter events by category
-- `resetFilter()` - Show all events
-- `updateFilterState()` - Manage filter state
-- `preserveOriginalEvents()` - Store unfiltered events
+**🎯 COMPLETION CRITERIA:**
+- [ ] Morning widget entry point loads dropdown CSS correctly
+- [ ] Afternoon widget entry point loads dropdown CSS correctly
+- [ ] CSS loading order maintained properly in both entry points
+- [ ] Thursday widget entry point remains completely unmodified
+- [ ] No CSS loading conflicts introduced
 
-**EVENT FILTERING LOGIC:**
+**📋 IMPLEMENTATION STEPS:**
+
+**Step 4.1: Examine Current CSS Loading Structure**
+- Read `nzgdc-morning-schedule-widget-modular.js` around lines 40-43
+- Read `nzgdc-afternoon-schedule-widget-modular.js` similar CSS loading section
+- Understand current CSS loading patterns and error handling
+- Identify where new CSS file should be added in loading sequence
+
+**Step 4.2: Enhance Morning Widget Entry Point**
+- Modify `nzgdc-morning-schedule-widget-modular.js`
+- Add `css/category-filter-overlay.css` to CSS loading array
+- Maintain proper loading order: unified-event-panel → morning-bundle → category-filter-overlay
+- Preserve existing error handling patterns
+- Test CSS loading without errors
+
+**Step 4.3: Enhance Afternoon Widget Entry Point**
+- Modify `nzgdc-afternoon-schedule-widget-modular.js`
+- Add `css/category-filter-overlay.css` to CSS loading array
+- Maintain proper loading order: unified-event-panel → afternoon-bundle → category-filter-overlay
+- Preserve existing error handling patterns
+- Test CSS loading without errors
+
+**Step 4.4: Validate Thursday Widget Unaffected**
+- Verify `nzgdc-schedule-widget-modular.js` remains completely unchanged
+- Test Thursday widget functionality remains intact
+- Confirm no dropdown CSS is loaded for Thursday widget
+- Ensure no dropdown-related JavaScript errors in Thursday widget
+
+**Step 4.5: Test CSS Loading Order**
+- Verify proper CSS cascade and specificity
+- Confirm dropdown styles don't conflict with existing styles
+- Test that all three CSS files load successfully in both widgets
+- Validate error handling if CSS files fail to load
+
+### Phase 5: Event Filtering Integration
+
+**🎯 COMPLETION CRITERIA:**
+- [ ] Event filtering logic implemented in both schedule generators
+- [ ] Widget cores integrated with filtering functionality
+- [ ] Filter state management working correctly
+- [ ] Events properly shown/hidden based on selected category
+- [ ] Reset functionality working to show all events
+- [ ] Original event data preserved for filter resets
+
+**📋 IMPLEMENTATION STEPS:**
+
+**Step 5.1: Examine Current Event Data Structure**
+- Read `js/morning-events.js` to understand event structure and categoryKey fields
+- Read `js/afternoon-events.js` to understand event structure and categoryKey fields
+- Examine `js/workshop-events.js` for reference to event data patterns
+- Verify all events have required `categoryKey` and `category` fields
+- Test current event rendering without filtering
+
+**Step 5.2: Enhance Morning Schedule Generator**
+- Modify `js/morning-schedule-generator.js`
+- Add `filterEventsByCategory(events, categoryKey)` method
+- Create `preserveOriginalData(scheduleData)` method to store unfiltered data
+- Modify existing `renderSchedule()` method to accept optional filter parameter
+- Add `resetFilter()` method to restore original event display
+- Ensure filtered events maintain proper time slot organization
+
+**Step 5.3: Enhance Afternoon Schedule Generator**
+- Modify `js/afternoon-schedule-generator.js`
+- Add `filterEventsByCategory(events, categoryKey)` method
+- Create `preserveOriginalData(scheduleData)` method to store unfiltered data
+- Modify existing `renderSchedule()` method to accept optional filter parameter
+- Add `resetFilter()` method to restore original event display
+- Ensure filtered events maintain proper time slot organization
+
+**Step 5.4: Integrate Filtering with Morning Widget Core**
+- Modify `js/morning-widget-core.js`
+- Add `currentFilterCategory` property to track filter state
+- Store original schedule data in `originalScheduleData` property
+- Create `applyFilter(categoryKey)` method to trigger filtering
+- Create `clearFilter()` method to reset to show all events
+- Integrate with dropdown controller to call filtering methods
+
+**Step 5.5: Integrate Filtering with Afternoon Widget Core**
+- Modify `js/afternoon-widget-core.js`
+- Add `currentFilterCategory` property to track filter state
+- Store original schedule data in `originalScheduleData` property
+- Create `applyFilter(categoryKey)` method to trigger filtering
+- Create `clearFilter()` method to reset to show all events
+- Integrate with dropdown controller to call filtering methods
+
+**Step 5.6: Test Event Filtering Logic**
+- Test filtering by each of the 11 categories
+- Verify events are properly shown/hidden based on categoryKey
+- Test filter reset functionality returns all events
+- Verify time slot organization remains intact during filtering
+- Confirm filter state persists during user interactions
 - Store original events on first filter
 - Create filtered copy for rendering
 - Preserve original data for filter reset
 - Re-render schedule with filtered events
 
-### Phase 6: Testing & Validation (2-3 hours)
+### Phase 6: Testing & Validation
 
-**PRIMARY TESTING INTERFACE:** `.widget-tests/widget-demo.html` (located in .widget-tests directory)
+**🎯 COMPLETION CRITERIA:**
+- [ ] All dropdown functionality tested and working across both widgets
+- [ ] Event filtering validated for all 11 categories
+- [ ] Accessibility requirements met and verified
+- [ ] Performance benchmarks achieved
+- [ ] Cross-browser compatibility confirmed
+- [ ] Mobile responsiveness validated
+- [ ] Thursday widget remains completely unaffected
 
-**TESTING CHECKLIST:**
+**📋 IMPLEMENTATION STEPS:**
 
-**Dropdown Functionality:**
-- [ ] Dropdown opens/closes correctly in Morning widget
-- [ ] Dropdown opens/closes correctly in Afternoon widget  
-- [ ] All 11 categories display with correct colors
-- [ ] Category selection updates trigger text
-- [ ] "None" selection shows all events
+**Step 6.1: Setup Testing Environment**
+- Open `.widget-tests/widget-demo.html` in browser
+- Enable debug mode: `window.NZGDC_DEBUG = true`
+- Clear browser cache to ensure fresh CSS loading
+- Test widget switcher functionality before testing dropdown
 
-**Event Filtering:**
-- [ ] Each category filters events correctly
-- [ ] Events with matching `categoryKey` remain visible
-- [ ] Events without matching `categoryKey` are hidden
-- [ ] Filter reset shows all events
+**Step 6.2: Test Dropdown Visual Functionality**
+- Test Morning widget dropdown toggle (click to open/close)
+- Test Afternoon widget dropdown toggle (click to open/close)
+- Verify all 11 categories display with correct background colors
+- Confirm category names match Event Categories specification exactly (UPPERCASE, right-aligned)
+- Test outside click to close functionality
+- Validate dropdown positioning below existing filter area
+- Test background dimming appears and disappears with dropdown toggle
+- Verify dimming opacity is subtle and doesn't obstruct usability
 
-**Widget Integration:**
-- [ ] Morning widget dropdown works independently
-- [ ] Afternoon widget dropdown works independently
-- [ ] Thursday widget completely unaffected
-- [ ] Widget switching resets filters appropriately
+**Step 6.3: Test Category Selection and Filter Value Updates**
+- Click each category and verify filter value text updates correctly
+- Confirm "NONE ▶" changes to category name (e.g., "ART ▶", "PROGRAMMING ▶")
+- Test triangle state changes: verify ▶ (closed) changes to ▼ (open) when dropdown activated
+- Test reset back to "NONE ▶" when clearing filter
+- Verify existing filter styling preserved (yellow label, white value background)
+- Ensure dropdown closes after category selection and triangle returns to ▶ (right-pointing)
 
-**Accessibility:**
-- [ ] Keyboard navigation works (Tab, Enter, Escape, arrows)
-- [ ] ARIA attributes function properly
-- [ ] Screen reader compatibility
-- [ ] Focus management correct
+**Step 6.4: Test Event Filtering Logic**
+- Select each of the 11 categories and verify correct events show/hide
+- Confirm events with matching `categoryKey` remain visible
+- Confirm events without matching `categoryKey` are hidden
+- Test "NONE" selection shows all events
+- Verify time slot organization remains intact during filtering
+- Test filter reset functionality restores all events
 
-**Performance:**
-- [ ] CSS file size increase acceptable (<15%)
-- [ ] Filtering performance smooth
-- [ ] No memory leaks during filter operations
-- [ ] Widget initialization time not significantly impacted
+**Step 6.5: Test Widget Independence and Integration**
+- Test Morning widget dropdown works independently of Afternoon widget
+- Test Afternoon widget dropdown works independently of Morning widget
+- Switch between Morning/Afternoon widgets and verify filter resets appropriately
+- Confirm Thursday widget completely unaffected (no dropdown elements visible)
+- Test widget switching preserves overall functionality
 
-**TESTING APPROACH:**
-- **Debug Mode:** Set `window.NZGDC_DEBUG = true` (pattern used in all entry points)
-- **Testing Functions:** Reference existing testing patterns in `.widget-tests/widget-demo.html`
-- **Console Functions:** Follow patterns from existing `testUnifiedSystem()` and `testMainEventPanelCSS()` functions
-- **Widget Testing:** Use widget switcher in demo interface to test dropdown functionality
+**Step 6.6: Test Accessibility Features**
+- Test keyboard navigation: Tab to dropdown, Enter to open/select, Escape to close
+- Test arrow key navigation through category options
+- Verify proper focus management and visual focus indicators
+- Test screen reader compatibility with ARIA attributes
+- Confirm color contrast meets accessibility standards
 
-### Phase 7: Documentation & Deployment (1 hour)
+**Step 6.7: Performance and Cross-Browser Testing**
+- Test CSS loading performance (should not significantly impact load time)
+- Test filtering performance with large number of events
+- Check for memory leaks during repeated filter operations
+- Test in Chrome, Firefox, Safari, and Edge browsers
+- Verify mobile responsiveness on actual devices
+- Confirm no console errors or warnings
 
-**DOCUMENTATION UPDATES:**
-- Update `README.md` with dropdown usage instructions
-- Document new CSS file in architecture documentation
-- Add troubleshooting guide for dropdown issues
-- Update `.tasks/CURRENT_ARCHITECTURE_STATUS.md`
+**Step 6.8: Create Debug and Testing Functions**
+- Create `testDropdownFunctionality()` function following existing patterns
+- Add `validateCategoryFiltering()` function for automated testing
+- Implement `checkDropdownAccessibility()` function
+- Add functions to existing test suite in `.widget-tests/widget-demo.html`
 
-**DEPLOYMENT CHECKLIST:**
-- [ ] All functionality tested and working
-- [ ] Cross-browser compatibility verified
-- [ ] Mobile responsiveness confirmed
-- [ ] Performance metrics acceptable
-- [ ] No architectural violations introduced
-- [ ] Rollback plan tested
+### Phase 7: Documentation & Deployment
+
+**🎯 COMPLETION CRITERIA:**
+- [ ] README updated with dropdown usage instructions
+- [ ] Architecture documentation reflects new CSS file
+- [ ] Troubleshooting guide created for dropdown issues
+- [ ] All deployment requirements met and verified
+- [ ] Rollback plan documented and tested
+
+**📋 IMPLEMENTATION STEPS:**
+
+**Step 7.1: Update README Documentation**
+- Add section describing Event Categories dropdown filter functionality
+- Include usage instructions for developers integrating the widgets
+- Document new CSS file requirement (`css/category-filter-overlay.css`)
+- Add examples of dropdown integration in widget implementations
+
+**Step 7.2: Update Architecture Documentation**
+- Update `.tasks/CURRENT_ARCHITECTURE_STATUS.md` with new dropdown functionality
+- Document CSS architecture changes and new file structure
+- Record widget core method enhancements made
+- Note entry point integration requirements
+
+**Step 7.3: Create Troubleshooting Guide**
+- Document common dropdown issues and solutions
+- Include debugging steps for dropdown functionality
+- Add CSS loading troubleshooting steps
+- Create reference guide for filter state management issues
+
+**Step 7.4: Final Deployment Validation**
+- Verify all functionality tested and working correctly
+- Confirm cross-browser compatibility across target browsers
+- Validate mobile responsiveness on actual devices
+- Check performance metrics acceptable and within bounds
+- Ensure no architectural violations introduced
+
+**Step 7.5: Rollback Preparation**
+- Document rollback steps for each file modified
+- Test rollback procedure to ensure clean reversion
+- Create backup of all modified files
+- Document any database or configuration changes needed for rollback
+
+**Step 7.6: Production Deployment**
+- Deploy CSS file to production environment
+- Deploy modified JavaScript files
+- Verify production functionality matches testing environment
+- Monitor for any issues post-deployment
 
 ---
 
@@ -307,7 +510,16 @@ This document provides **step-by-step, expert-level instructions** for implement
 
 ### CSS Architecture Violations (SYSTEM KILLERS)
 
-**❌ MISTAKE #1: Wrong CSS File Location**
+**❌ MISTAKE #1: Modifying Existing Filter CSS**
+**FORBIDDEN MODIFICATIONS:**
+- `.nzgdc-morning-filters-section`, `.nzgdc-morning-filters-label`, `.nzgdc-morning-filters-value` classes
+- `.nzgdc-afternoon-filters-section`, `.nzgdc-afternoon-filters-label`, `.nzgdc-afternoon-filters-value` classes
+- Any existing filter styling in `css/morning-schedule-bundle.css` or `css/afternoon-schedule-bundle.css`
+
+**CONSEQUENCE:** Breaks existing filter UI design, violates seamless integration requirement  
+**FIX:** Only create NEW dropdown overlay classes - preserve ALL existing filter styling
+
+**❌ MISTAKE #2: Wrong CSS File Location**
 **FORBIDDEN LOCATIONS:**
 - `css/unified-event-panel.css` - Reserved for event panels only
 - `css/morning-schedule-bundle.css` - Schedule layout only
@@ -317,15 +529,24 @@ This document provides **step-by-step, expert-level instructions** for implement
 **CONSEQUENCE:** CSS conflicts, broken unified architecture  
 **FIX:** Create separate `css/category-filter-overlay.css`
 
-**❌ MISTAKE #2: Widget-Specific Classes**  
+**❌ MISTAKE #3: Widget-Specific Classes**  
 **SYMPTOM:** Creating `.nzgdc-morning-dropdown` vs `.nzgdc-afternoon-dropdown`  
 **CONSEQUENCE:** Code duplication, maintenance nightmare  
 **FIX:** Use widget-scoped classes in single CSS file
 
-**❌ MISTAKE #3: Loading CSS in Wrong Entry Points**
+**❌ MISTAKE #4: Loading CSS in Wrong Entry Points**
 **SYMPTOM:** Loading dropdown CSS in `nzgdc-schedule-widget-modular.js`  
 **CONSEQUENCE:** Thursday widget shows broken filter elements  
 **FIX:** Only load in Morning/Afternoon entry points
+
+**❌ MISTAKE #5: Replacing Existing Filter HTML**
+**FORBIDDEN MODIFICATIONS:**
+- Removing existing `renderFiltersInline()` HTML structure
+- Changing existing `.nzgdc-*-filters-value-text` content structure  
+- Modifying "Filters:" label or "NONE ▶" display logic
+
+**CONSEQUENCE:** Breaks existing UI, violates seamless integration requirement
+**FIX:** Only ADD dropdown overlay HTML - preserve all existing filter HTML structure
 
 ### JavaScript Implementation Violations
 
@@ -411,14 +632,18 @@ This document provides **step-by-step, expert-level instructions** for implement
 - [ ] Read `CSS_REDUNDANCY_WARNING.md` thoroughly  
 - [ ] Verify Event Categories system implemented (prerequisite from `Event-Categories-Implementation-Guide.md`)
 - [ ] UNDERSTAND: Existing filter UI structure exists in widget cores - enhance existing `renderFiltersInline()` method
+- [ ] **CRITICAL:** Examine existing "Filters:" and "NONE ▶" UI - this MUST be preserved unchanged
 - [ ] Test current system using `.widget-tests/widget-demo.html` interface
 - [ ] Examine existing filter structure in both widget cores:
   - Morning: `js/morning-widget-core.js` lines 124-135 (`renderFiltersInline()` method)
   - Afternoon: `js/afternoon-widget-core.js` lines 130-142 (`renderFiltersInline()` method)
+- [ ] Verify existing filter CSS styling in bundle files:
+  - Morning: `css/morning-schedule-bundle.css` (search for "filters")
+  - Afternoon: `css/afternoon-schedule-bundle.css` (search for "filters")
 
 ### Phase Completion Checklist
-- [ ] Phase 1: `css/category-filter-overlay.css` created with all category colors
-- [ ] Phase 2: ENHANCED filter HTML structure in both widget cores (`renderFiltersInline()` method)
+- [ ] Phase 1: `css/category-filter-overlay.css` created with all category colors (NO existing filter CSS modified)
+- [ ] Phase 2: ENHANCED filter HTML structure in both widget cores - existing filter area preserved, dropdown overlay added
 - [ ] Phase 3: NEW dropdown controller and behavior integrated with widget cores
 - [ ] Phase 4: CSS loading added to Morning/Afternoon entry points only
 - [ ] Phase 5: NEW event filtering system integrated with widget core → schedule generator flow
@@ -426,8 +651,15 @@ This document provides **step-by-step, expert-level instructions** for implement
 - [ ] Phase 7: Documentation updated and deployment ready
 
 ### Final Validation
-- [ ] Morning widget dropdown fully functional
-- [ ] Afternoon widget dropdown fully functional  
+- [ ] **CRITICAL:** Existing "Filters:" yellow label and "NONE ▶" white background preserved unchanged
+- [ ] Triangle state indicator working: ▶ (closed) ↔ ▼ (open) when dropdown toggled
+- [ ] Background dimming appears/disappears correctly when dropdown opens/closes
+- [ ] Morning widget dropdown fully functional with overlay positioned below existing filter area
+- [ ] Afternoon widget dropdown fully functional with overlay positioned below existing filter area
+- [ ] Filter value text updates correctly (e.g., "NONE ▶" becomes "ART ▶") while maintaining existing styling
+- [ ] All dropdown category names display in UPPERCASE with right-aligned text
+- [ ] Dropdown overlay appears seamlessly integrated with existing filter UI
+- [ ] No modification to existing filter CSS classes in bundle files
 - [ ] Thursday widget completely unaffected
 - [ ] All 11 categories filter correctly using exact colors from current Event Categories system
 - [ ] No CSS architecture violations introduced (verified against `CSS_REDUNDANCY_WARNING.md`)
