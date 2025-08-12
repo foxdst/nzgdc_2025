@@ -6,6 +6,8 @@
 
 This document serves as a **permanent warning** against introducing CSS redundancy back into the NZGDC widget system. The architectural decisions documented here were made after extensive debugging and consolidation efforts.
 
+**UPDATE:** This document now includes guidelines for Event Categories integration with the unified architecture. The 11 new fixed categories must integrate through the unified CSS system only.
+
 ---
 
 ## 🚫 WHAT YOU MUST NEVER DO
@@ -34,25 +36,26 @@ This document serves as a **permanent warning** against introducing CSS redundan
 .nzgdc-speaker-position-company-main { }
 ```
 
-### ❌ DO NOT Add CSS Variable Overrides to Bundle Files
+### ❌ DO NOT Add Event Category CSS to Bundle Files
 
-**CSS VARIABLE OVERRIDES ARE ABSOLUTELY FORBIDDEN:**
+**EVENT CATEGORY CSS IN BUNDLE FILES IS ABSOLUTELY FORBIDDEN:**
 ```css
-/* ❌ ABSOLUTELY FORBIDDEN - These override unified CSS and break the architecture */
-.nzgdc-morning-schedule-widget .nzgdc-event-panel-big {
-    --color-primary: rgba(245, 62, 62, 1);  /* FORBIDDEN! */
-    --color-bg: var(--color-white);         /* FORBIDDEN! */
-    --color-title: var(--color-black);      /* FORBIDDEN! */
-    /* ANY CSS variable override is FORBIDDEN */
+/* ❌ ABSOLUTELY FORBIDDEN - Event category CSS belongs in unified-event-panel.css only */
+.nzgdc-morning-schedule-widget .nzgdc-event-panel-big[data-category="PROGRAMMING"] {
+    --category-color: #ccf2f1;  /* FORBIDDEN! */
+    --category-text-color: #000000;  /* FORBIDDEN! */
 }
 
-.nzgdc-afternoon-schedule-widget .nzgdc-event-panel-main {
-    --color-intro: rgba(255, 236, 81, 1);   /* FORBIDDEN! */
-    /* ANY CSS variable override is FORBIDDEN */
+.nzgdc-afternoon-schedule-widget .nzgdc-event-category-big {
+    background-color: #fff47f;  /* FORBIDDEN! */
+    color: #000000;  /* FORBIDDEN! */
 }
+
+/* ANY event category styling in bundle files is FORBIDDEN */
+.nzgdc-any-widget .nzgdc-event-panel-*[data-category] { } /* FORBIDDEN! */
 ```
 
-**⚠️ CRITICAL:** CSS variable overrides have HIGHER SPECIFICITY and will ALWAYS override the unified CSS, breaking the entire architecture.
+**⚠️ CRITICAL:** Event category CSS must exist ONLY in unified-event-panel.css. Bundle files are for schedule layout only.
 
 ### ❌ DO NOT Add Global CSS Resets or "Scoped Reset" Patterns
 
@@ -112,6 +115,11 @@ This document serves as a **permanent warning** against introducing CSS redundan
 .nzgdc-morning-schedule-widget .nzgdc-event-panel-big .nzgdc-event-category-big {
     /* This breaks the unified architecture */
 }
+
+/* ❌ FORBIDDEN - Event category overrides in bundle files */
+.nzgdc-afternoon-schedule-widget .nzgdc-event-panel-big[data-category="STORY_NARRATIVE"] {
+    /* Category styling belongs in unified CSS only */
+}
 ```
 
 ---
@@ -131,6 +139,9 @@ This document serves as a **permanent warning** against introducing CSS redundan
 - ✅ All event panel component styles
 - ✅ CSS variables for theming
 - ✅ Responsive styles
+- ✅ ALL Event Category styles (11 fixed categories)
+- ✅ Category data attribute targeting
+- ✅ Category-specific color definitions
 
 ### 2. Bundle Files Purpose
 
@@ -145,10 +156,12 @@ This document serves as a **permanent warning** against introducing CSS redundan
 - ❌ Event panel component styles
 - ❌ Event panel layout styles
 - ❌ Event panel typography
+- ❌ Event category styles or colors
 - ❌ CSS variable overrides for event panels
 - ❌ Any styling that affects .nzgdc-event-panel-* classes
 - ❌ Any styling that affects .nzgdc-speaker-* classes
 - ❌ Any styling that affects .nzgdc-category-* classes
+- ❌ Any data-category attribute targeting
 - ❌ Global CSS resets using * selector
 
 ### 3. CSS Loading Order
@@ -251,9 +264,15 @@ If someone adds redundant CSS, you might see:
     --color-title: var(--color-black);   /* FORBIDDEN! */
 }
 
+/* ❌ WRONG - DO NOT ADD CATEGORY CSS TO BUNDLE FILES */
+.nzgdc-morning-schedule-widget .nzgdc-event-panel-big[data-category="PROGRAMMING"] {
+    --category-color: #ccf2f1;  /* FORBIDDEN! */
+}
+
 /* ✅ CORRECT - Only unified CSS styles event panels */
 /* unified-event-panel.css contains ALL event panel styling */
 /* Widget themes are handled by the unified loader with context parameters */
+/* Category styling is handled by data attributes in unified CSS */
 ```
 
 **CRITICAL: Widget-specific CSS variable overrides ARE CSS duplication and are FORBIDDEN!** The unified architecture handles ALL theming through the JavaScript context parameter system.
@@ -264,6 +283,14 @@ If someone adds redundant CSS, you might see:
 2. **Use CSS variables** for widget-specific variations
 3. **Update unified template** if needed: `templates/unified-event-panel.html`
 4. **Test in all three widgets** before considering complete
+
+### When You Need Event Category Integration
+
+1. **Add category CSS to unified CSS only:** `css/unified-event-panel.css`
+2. **Use data-category attributes** for targeting: `[data-category="PROGRAMMING"]`
+3. **Include all 11 fixed categories** with proper color definitions
+4. **Test category compatibility** with all widget themes
+5. **Verify overlay compatibility** with light category colors
 
 ---
 
@@ -425,7 +452,7 @@ Before making ANY changes to CSS files, verify:
 
 ## 🔧 RECENT FIXES & LESSONS LEARNED
 
-### CSS Variable Theming Issue (v1.2)
+### CSS Variable Theming Issue (v1.2) - RESOLVED & UPDATED FOR CATEGORIES
 
 **Problem Discovered:**
 - Main Event Panel designs (300x300) were not displaying properly
@@ -433,57 +460,48 @@ Before making ANY changes to CSS files, verify:
 - Widget-specific theming was not working correctly
 
 **Root Cause:**
-CSS variables were only defined in the unified CSS for Big Event Panels but not properly propagated to widget-specific contexts, causing:
-1. Main Event Panels missing CSS variable definitions
-2. Widget-specific theming not overriding unified defaults
-3. CSS specificity issues preventing proper styling
+CSS variables were only defined in the unified CSS for Big Event Panels but not properly propagated to widget-specific contexts.
 
-**Fix Applied:**
+**CRITICAL UPDATE (v1.8):** CSS Variable overrides have been REMOVED from bundle files to prevent architecture violations. Event Categories integration uses unified CSS with data attributes instead.
+
+**Current Architecture (Post-Consolidation):**
 ```css
-/* ✅ CORRECT - Added to unified-event-panel.css */
-.nzgdc-event-panel-main {
-    --font-family-demi: "Futura PT Demi", "Futura", Arial, sans-serif;
-    --font-family-bold: "Futura PT Bold", "Futura", Arial, sans-serif;
-    --font-family-heavy: "Futura PT Heavy", "Futura", Arial, sans-serif;
-    --font-family-medium: "Futura PT Medium", "Futura", Arial, sans-serif;
-    --color-primary: #f53e3e;
-    --color-bg: rgba(255, 255, 255, 1);
-    /* ... all other CSS variables */
+/* ✅ UNIFIED CSS - All event panel styling including categories */
+.nzgdc-event-panel-big[data-category="PROGRAMMING"] .nzgdc-event-category-big {
+    --category-color: #ccf2f1;
+    --category-text-color: #000000;
 }
 
-/* ✅ CORRECT - Added to each schedule bundle CSS */
-.nzgdc-afternoon-schedule-widget .nzgdc-event-panel-big,
-.nzgdc-afternoon-schedule-widget .nzgdc-event-panel-main {
-    --color-primary: var(--color-blue);
-    --color-bg: var(--color-white);
-    --color-intro: var(--color-yellow);
-    /* ... widget-specific overrides */
+.nzgdc-event-panel-main[data-category="STORY_NARRATIVE"] .nzgdc-event-category-main {
+    --category-color: #fff47f;
+    --category-text-color: #000000;
 }
 ```
 
-**Files Modified:**
-- ✅ `css/unified-event-panel.css` - Added CSS variables to Main Event Panel
-- ✅ `css/thursday-schedule-bundle.css` - Added event panel variable overrides
-- ✅ `css/morning-schedule-bundle.css` - Added event panel variable overrides  
-- ✅ `css/afternoon-schedule-bundle.css` - Added event panel variable overrides (v1.2 - Fixed blue theme colors)
+**Files Modified for Category Integration:**
+- ✅ `css/unified-event-panel.css` - ALL category CSS definitions
+- ✅ `js/unified-event-loader.js` - Category data attribute handling
+- ✅ Event data files - Added categoryKey and category fields
 
-**Key Learning:**
-CSS variables must be defined at BOTH the unified level (for defaults) AND the widget level (for theming). The unified CSS provides the base implementation, while widget bundles provide theme-specific overrides.
+**Key Learning for Categories:**
+Event categories integrate through unified CSS with data-category attributes. NO category CSS should exist in schedule bundle files.
 
-**Proper CSS Variable Pattern:**
+**Proper Category Integration Pattern:**
 ```css
-/* ✅ UNIFIED CSS - Define defaults */
-.nzgdc-event-panel-big {
-    --color-primary: #f53e3e;  /* Default red */
+/* ✅ UNIFIED CSS ONLY - Category targeting */
+.nzgdc-event-panel-big[data-category="PROGRAMMING"],
+.nzgdc-event-panel-main[data-category="PROGRAMMING"] {
+    --category-color: #ccf2f1;
+    --category-text-color: #000000;
 }
 
-/* ✅ WIDGET CSS - Override for theme */
-.nzgdc-afternoon-schedule-widget .nzgdc-event-panel-big {
-    --color-primary: var(--color-blue);  /* Afternoon blue */
+/* ❌ BUNDLE FILES - Never add category CSS here */
+.nzgdc-afternoon-schedule-widget .nzgdc-event-panel-big[data-category="PROGRAMMING"] {
+    /* FORBIDDEN - breaks unified architecture */
 }
 ```
 
-**This is NOT CSS duplication** - it's proper CSS variable theming architecture.
+**This maintains unified architecture while supporting 11 fixed event categories.**
 
 ### Afternoon Theme Color Fix (v1.3)
 
@@ -820,5 +838,74 @@ When cleaning up after global reset removal:
 - [ ] Avoid the temptation to add base properties "just in case"
 
 *Document created: v1.0*  
-*Last updated: v1.8*  
+*Last updated: v1.9 - Event Categories Integration Guidelines*  
 *Status: ⚠️ CRITICAL WARNING - DO NOT IGNORE*
+
+---
+
+## 🎨 EVENT CATEGORIES INTEGRATION RULES (v1.9)
+
+### Critical Category Integration Guidelines
+
+**EVENT CATEGORIES MUST FOLLOW UNIFIED ARCHITECTURE:**
+
+✅ **CORRECT Category Integration:**
+```css
+/* In css/unified-event-panel.css ONLY */
+.nzgdc-event-panel-big[data-category="STORY_NARRATIVE"] .nzgdc-event-category-big,
+.nzgdc-event-panel-main[data-category="STORY_NARRATIVE"] .nzgdc-event-category-main {
+    --category-color: #fff47f;
+    --category-text-color: #000000;
+}
+
+.nzgdc-event-panel-big[data-category="PROGRAMMING"] .nzgdc-event-category-big,
+.nzgdc-event-panel-main[data-category="PROGRAMMING"] .nzgdc-event-category-main {
+    --category-color: #ccf2f1;
+    --category-text-color: #000000;
+}
+/* Continue for all 11 categories... */
+```
+
+❌ **FORBIDDEN Category Integration:**
+```css
+/* NEVER in bundle files */
+.nzgdc-morning-schedule-widget .nzgdc-event-panel-big[data-category="ART"] {
+    --category-color: #ffc999;  /* FORBIDDEN! */
+}
+
+.nzgdc-afternoon-schedule-widget .nzgdc-event-category-big {
+    background-color: #d1afff;  /* FORBIDDEN! */
+}
+```
+
+### Category Integration Checklist
+
+**Required for Event Categories:**
+- [ ] All 11 category definitions in `css/unified-event-panel.css` ONLY
+- [ ] Data-category attributes set by UnifiedEventLoader
+- [ ] Event data includes both `categoryKey` and `category` fields
+- [ ] Category colors work with overlay compatibility system
+- [ ] NO category CSS in any schedule bundle files
+- [ ] Tested across all three widget types (Thursday, Morning, Afternoon)
+
+**The 11 Fixed Categories:**
+1. STORY_NARRATIVE (#fff47f)
+2. PRODUCTION_QA (#ffffff) 
+3. CULTURE (#fac7d5)
+4. BUSINESS_MARKETING (#e7f1ff)
+5. ART (#ffc999)
+6. AUDIO (#fff1e5)
+7. PROGRAMMING (#ccf2f1)
+8. DATA_TESTING_RESEARCH (#917B89)
+9. REALITIES_VR_AR_MR (#d1afff)
+10. GAME_DESIGN (#9ee6ab)
+11. SERIOUS_EDUCATIONAL (#ffafaf)
+
+**VIOLATION CONSEQUENCES for Categories:**
+- Event panels display with default colors instead of category colors
+- CSS specificity conflicts break unified styling
+- Maintenance nightmare when updating category colors
+- Widget switching causes category style conflicts
+- Architecture integrity compromised
+
+**Remember: Event Categories are part of the unified architecture and must follow the same rules as all other event panel styling!**

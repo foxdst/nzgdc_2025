@@ -2,7 +2,9 @@
 
 ## Overview
 
-This document provides **step-by-step, expert-level instructions** for integrating a new "Afternoon" schedule view (for Friday/Saturday event days) into the modular `nzgdc-widget` system. The Afternoon view will closely resemble the existing Morning schedule widget, but with a **blue background** and corresponding color changes for text, buttons, and filters.
+This document provides **step-by-step, expert-level instructions** for integrating a new "Afternoon" schedule view (for Friday/Saturday event days) into the unified `nzgdc-widget` system. The Afternoon view will closely resemble the existing Morning schedule widget, but with a **blue background** and corresponding color changes for text, buttons, and filters.
+
+**IMPORTANT UPDATE:** This document reflects the current UNIFIED ARCHITECTURE where all widgets use the same UnifiedEventLoader, unified-event-panel.html template, and unified-event-panel.css styling system. The original separate event loaders and templates have been consolidated.
 
 **This guide is designed to prevent common integration mistakes and ensure a seamless, maintainable addition to the codebase.**
 
@@ -12,34 +14,31 @@ This document provides **step-by-step, expert-level instructions** for integrati
 
 ## 1. Folder & File Structure
 
-**All new Afternoon schedule files must be placed in parallel to the existing Morning widget files.**
+**All new Afternoon schedule files follow the UNIFIED ARCHITECTURE pattern.**
 
 ```
-nzgdc-widget/
+nzgdc-widget/ (CURRENT UNIFIED STRUCTURE)
 ├── css/
-│   ├── widget-bundle.css
-│   ├── morning-schedule-bundle.css
-│   └── afternoon-schedule-bundle.css      # ← NEW: Afternoon widget CSS
+│   ├── unified-event-panel.css            # ✅ UNIFIED: All event panel styles
+│   ├── thursday-schedule-bundle.css       # Thursday layout only
+│   ├── morning-schedule-bundle.css        # Morning layout only  
+│   └── afternoon-schedule-bundle.css      # ← NEW: Afternoon layout only
 ├── js/
+│   ├── unified-event-loader.js            # ✅ UNIFIED: Single event loader
 │   ├── schedule-data.js
 │   ├── workshop-events.js
-│   ├── workshop-loader.js
 │   ├── schedule-generator.js
 │   ├── widget-core.js
 │   ├── morning-schedule-data.js
 │   ├── morning-events.js
-│   ├── morning-event-loader.js
 │   ├── morning-schedule-generator.js
 │   ├── morning-widget-core.js
 │   ├── afternoon-schedule-data.js         # ← NEW: Afternoon schedule config
 │   ├── afternoon-events.js                # ← NEW: Afternoon event details
-│   ├── afternoon-event-loader.js          # ← NEW: Afternoon template loader
 │   ├── afternoon-schedule-generator.js    # ← NEW: Afternoon DOM generator
 │   └── afternoon-widget-core.js           # ← NEW: Afternoon widget controller
 ├── templates/
-│   ├── event-panel.html
-│   ├── morning-event-panel.html
-│   └── afternoon-event-panel.html         # ← NEW: Afternoon event template
+│   └── unified-event-panel.html           # ✅ UNIFIED: Single template for all
 ├── nzgdc-schedule-widget-modular.js
 ├── nzgdc-morning-schedule-widget-modular.js
 ├── nzgdc-afternoon-schedule-widget-modular.js # ← NEW: Afternoon widget entry point
@@ -47,44 +46,82 @@ nzgdc-widget/
 └── README.md
 ```
 
+**KEY ARCHITECTURAL CHANGES:**
+- ❌ **REMOVED**: Separate event loaders (`morning-event-loader.js`, `afternoon-event-loader.js`)  
+- ❌ **REMOVED**: Separate templates (`morning-event-panel.html`, `afternoon-event-panel.html`)
+- ✅ **UNIFIED**: Single `UnifiedEventLoader` handles all event panels
+- ✅ **UNIFIED**: Single `unified-event-panel.html` template for all widgets
+- ✅ **UNIFIED**: Single `unified-event-panel.css` for all event panel styling
+
 ---
 
 ## 2. CSS Integration
 
-### 2.1. Create a New CSS Bundle
+### 2.1. Create a New CSS Bundle (UNIFIED ARCHITECTURE)
 
 - **File:** `css/afternoon-schedule-bundle.css`
 - **Base:** Copy from `morning-schedule-bundle.css`
+- **CRITICAL:** This file must ONLY contain schedule layout styles, NO event panel styles
 - **Key Changes:**
-  - Change all main backgrounds to use `--color-blue` (e.g., `.nzgdc-afternoon-schedule-widget { background-color: var(--color-blue); }`)
+  - Change widget container backgrounds to use `--color-blue`
   - Update text colors for contrast (e.g., white or yellow text on blue)
   - Update button backgrounds and hover states to use blue/yellow as appropriate
   - Update filter backgrounds to match the new color scheme
   - Use a new root class: `.nzgdc-afternoon-schedule-widget` for all scoping
 
-**Tip:** Use CSS variables for all colors. Add new variables if needed (e.g., `--color-blue-bright`, `--color-blue-hover`).
+**UNIFIED ARCHITECTURE RULE:**
+```css
+/* ✅ ALLOWED in afternoon-schedule-bundle.css */
+.nzgdc-afternoon-schedule-widget {
+    background-color: var(--color-blue);
+}
+.nzgdc-afternoon-schedule-widget .nzgdc-filters { }
+.nzgdc-afternoon-schedule-widget .nzgdc-back-to-top { }
 
-**CSS Variable Naming:**
+/* ❌ FORBIDDEN - All event panel CSS goes in unified-event-panel.css */
+.nzgdc-afternoon-schedule-widget .nzgdc-event-panel-big { }
+.nzgdc-afternoon-schedule-widget .nzgdc-event-category-big { }
+.nzgdc-afternoon-schedule-widget .nzgdc-speaker-details-big { }
+```
+
+**CSS Variable Integration:**
 All new CSS variables must use the `--color-` or `--font-` prefix and be documented in the CSS file header and in the README.md color variable summary section. Do not use ambiguous or widget-specific names for shared variables.
 
-### 2.2. CSS Scoping
+### 2.2. CSS Scoping (UNIFIED RULES)
 
-- **All Afternoon widget CSS must be scoped to `.nzgdc-afternoon-schedule-widget`**
+- **All Afternoon widget schedule CSS must be scoped to `.nzgdc-afternoon-schedule-widget`**
 - **Do NOT reuse `.nzgdc-morning-schedule-widget` or `.nzgdc-schedule-widget` classes**
+- **NEVER add event panel CSS to schedule bundle files**
+- **Event panel styling handled by unified CSS with data attributes**
 
 ---
 
 **Utility Class Prefixes:**
 If a utility class or variable is needed across widgets, prefix it with `.nzgdc-util-` and document its usage in README.md. Otherwise, all classes must be widget-specific and use the `.nzgdc-afternoon-*` prefix.
 
-## 3. HTML Template
+## 3. HTML Template (UNIFIED ARCHITECTURE)
 
-### 3.1. Create a New Template
+### 3.1. Template Integration (NO NEW TEMPLATE NEEDED)
 
-- **File:** `templates/afternoon-event-panel.html`
-- **Base:** Copy from `morning-event-panel.html`
-- **Adjust:** Ensure all class names use the `nzgdc-afternoon-` prefix where appropriate.
-- **Colors:** Remove any inline styles; rely on CSS classes and variables.
+- **UNIFIED SYSTEM:** All widgets use `templates/unified-event-panel.html`
+- **NO SEPARATE TEMPLATE:** Do not create `afternoon-event-panel.html`
+- **Dynamic Content:** UnifiedEventLoader populates template based on widget context
+- **Context Parameter:** Afternoon widget passes "afternoon" as context to UnifiedEventLoader
+
+**UNIFIED TEMPLATE INTEGRATION:**
+```javascript
+// In afternoon-schedule-generator.js
+const panel = this.eventLoader.createEventPanel(
+    eventData, 
+    "big",        // Panel type
+    "afternoon"   // Widget context - differentiates from morning/thursday
+);
+```
+
+**Template Differentiation:**
+- Same HTML structure for all widgets
+- Different content populated based on widget context
+- CSS styling varies by widget via data attributes and CSS variables
 
 **Break Block & Special Section Handling:**
 For any new non-event section (e.g., lunch, announcements), consult the reference design for unique styling. Do not assume all such sections use the break block style. Document any new section types and their styling in README.md.
@@ -93,35 +130,83 @@ For any new non-event section (e.g., lunch, announcements), consult the referenc
 
 ## 4. JavaScript Integration
 
-### 4.1. Data Files
+### 4.1. Data Files (UNIFIED ARCHITECTURE)
 
 - **Create:** `js/afternoon-schedule-data.js` and `js/afternoon-events.js`
-- **Structure:** Mirror the structure of the morning equivalents.
-- **Naming:** Use `AFTERNOON_SCHEDULE_DATA` and `AFTERNOON_EVENTS` as global variables.
+- **Structure:** Mirror the structure of the morning equivalents
+- **Naming:** Use `AFTERNOON_SCHEDULE_DATA` and `AFTERNOON_EVENTS` as global variables
+- **Category Integration:** All events must include `categoryKey` and `category` fields
+
+**Category-Aware Event Data:**
+```javascript
+// Example afternoon event with category
+const AFTERNOON_EVENTS = {
+    "panel-a1": {
+        category: "Programming",
+        categoryKey: "PROGRAMMING",  // Maps to unified category system
+        title: "Advanced Game Programming",
+        speakers: [/* ... */],
+        // ... other event data
+    }
+};
+```
 
 **Global Namespace Rule:**
 All global variables and APIs for the Afternoon widget must use the `AFTERNOON_` prefix (e.g., `window.AFTERNOON_SCHEDULE_DATA`). Do not use generic or duplicate names. Avoid polluting the global namespace.
 
-### 4.2. Loader & Generator Classes
+### 4.2. Generator & Core Classes (NO EVENT LOADER NEEDED)
 
 - **Create:**
-  - `js/afternoon-event-loader.js`
-  - `js/afternoon-schedule-generator.js`
+  - `js/afternoon-schedule-generator.js` 
   - `js/afternoon-widget-core.js`
-- **Base:** Copy from morning widget JS files.
-- **Class Names:** Use `AfternoonEventLoader`, `AfternoonScheduleGenerator`, `NZGDCAfternoonScheduleWidget`.
-- **Scoping:** All DOM queries and class names must use `.nzgdc-afternoon-` prefixes.
+- **DO NOT CREATE:** `js/afternoon-event-loader.js` (uses UnifiedEventLoader)
+- **Base:** Copy from morning widget JS files
+- **Class Names:** Use `AfternoonScheduleGenerator`, `NZGDCAfternoonScheduleWidget`
+- **UnifiedEventLoader Integration:** Use existing UnifiedEventLoader with "afternoon" context
 
- - **Template Loading:** Load `afternoon-event-panel.html` as the template.
+**UNIFIED INTEGRATION PATTERN:**
+```javascript
+// In afternoon-schedule-generator.js
+constructor() {
+    this.eventLoader = new UnifiedEventLoader(); // Use unified system
+    this.widgetContext = "afternoon"; // Identifies widget type
+}
 
-### 4.3. Modular Entry Point
+createEventPanel(eventData) {
+    return this.eventLoader.createEventPanel(
+        eventData,
+        eventData.panelType || "big",
+        this.widgetContext // "afternoon"
+    );
+}
+```
+
+### 4.3. Modular Entry Point (UNIFIED ARCHITECTURE)
 
 - **Create:** `nzgdc-afternoon-schedule-widget-modular.js`
 - **Base:** Copy from `nzgdc-morning-schedule-widget-modular.js`
-- **Update:**
+- **Critical Updates:**
+  - Load `unified-event-panel.css` instead of separate event panel CSS
+  - Load `unified-event-loader.js` instead of afternoon-event-loader.js
+  - Load `unified-event-panel.html` template
+  - Set global template variable to `UNIFIED_EVENT_PANEL_TEMPLATE`
   - All references to "morning" → "afternoon"
-  - CSS, JS, and template paths
   - Global API: `window.NZGDCAfternoonWidget` (and alias `window.NZGDCAfternoonSchedule`)
+
+**UNIFIED LOADING PATTERN:**
+```javascript
+// CSS Loading Order (CRITICAL)
+await Promise.all([
+    this.loadCSS("css/unified-event-panel.css"),      // Load unified CSS first
+    this.loadCSS("css/afternoon-schedule-bundle.css") // Then schedule-specific CSS
+]);
+
+// JS Loading
+await this.loadJS("js/unified-event-loader.js"); // Use unified loader
+
+// Template Loading  
+await this.loadTemplate("templates/unified-event-panel.html", "UNIFIED_EVENT_PANEL_TEMPLATE");
+```
 
 **Data Structure & Event Mapping:**
 If the Afternoon schedule requires a different data structure or new fields, document the changes in README.md and update all relevant JS modules and templates accordingly. Do not force-fit data into the morning structure.
@@ -183,11 +268,30 @@ The following issues were encountered or narrowly avoided during the Morning Sch
   *Poor thinking process:* Copy-pasting function definitions without understanding JavaScript scope, or accidentally nesting functions during code editing.
   *Example error:* `Uncaught (in promise) ReferenceError: createAfternoonWidget is not defined` - occurs when `createAfternoonWidget()` is defined inside `createWidget()` but called from `showAfternoonWidget()`.
 
+#### **UNIFIED ARCHITECTURE VIOLATIONS (CRITICAL)**
+
+- **Creating separate event loaders:**
+  **FORBIDDEN:** Do not create `afternoon-event-loader.js` - use UnifiedEventLoader
+  *Poor thinking process:* Following old patterns without understanding the unified architecture
+
+- **Creating separate templates:**
+  **FORBIDDEN:** Do not create `afternoon-event-panel.html` - use unified-event-panel.html
+  *Poor thinking process:* Copying old integration patterns instead of using unified system
+
+- **Adding event panel CSS to schedule bundles:**
+  **FORBIDDEN:** Never add `.nzgdc-event-panel-*` CSS to afternoon-schedule-bundle.css
+  *Poor thinking process:* Not understanding the CSS consolidation and unified architecture
+
+- **Missing category integration:**
+  **REQUIRED:** All afternoon events must include `categoryKey` and `category` fields
+  *Poor thinking process:* Not considering the new category system requirements
+
 ---
 
 - **Mixing or reusing CSS classes between widgets:**
   The initial integration reused or overlapped class names, causing style conflicts.
-  **Always use unique `.nzgdc-afternoon-*` class prefixes and never reuse `.nzgdc-morning-*` or `.nzgdc-schedule-*` classes.**
+  **Always use unique `.nzgdc-afternoon-*` class prefixes for schedule elements, never reuse `.nzgdc-morning-*` or `.nzgdc-schedule-*` classes.**
+  **UNIFIED RULE:** Event panel classes are shared (`.nzgdc-event-panel-big`) - only schedule layout classes are widget-specific.
 
 - **Incorrect color assignments:**
   There were inconsistencies in yellow shades and background colors, especially for time categories and buttons.
@@ -203,11 +307,20 @@ The following issues were encountered or narrowly avoided during the Morning Sch
 
 - **Forgetting to scope new CSS:**
   Some styles leaked out of the widget due to missing scoping.
-  **Ensure all CSS is properly scoped to `.nzgdc-afternoon-schedule-widget`.**
+  **Ensure all schedule CSS is properly scoped to `.nzgdc-afternoon-schedule-widget`.**
+  **UNIFIED RULE:** Event panel CSS is not scoped to widgets - it's in unified-event-panel.css
 
-- **Not updating template or JS class names:**
-  Some template and JS code used the wrong class or variable names, causing rendering bugs.
-  **Audit all template and JS code for correct `.nzgdc-afternoon-*` usage.**
+- **Adding event panel CSS to schedule bundles:**
+  **CRITICAL ERROR:** Adding `.nzgdc-event-panel-*` CSS to afternoon-schedule-bundle.css breaks the unified architecture.
+  **SOLUTION:** All event panel CSS goes in unified-event-panel.css only.
+
+- **Not integrating with UnifiedEventLoader:**
+  Some integrations tried to create separate event loaders instead of using the unified system.
+  **SOLUTION:** Always use UnifiedEventLoader with appropriate widget context parameter.
+
+- **Missing category data in events:**
+  Event data without `categoryKey` and `category` fields causes rendering issues.
+  **SOLUTION:** Ensure all afternoon events include proper category information.
 
 - **Not cleaning up/destroying widgets properly:**
   Old widgets sometimes remained in the DOM, causing double-rendering or event leaks.
@@ -223,18 +336,25 @@ The following issues were encountered or narrowly avoided during the Morning Sch
 
 ---
 
-### 6.2. **Do NOT:**
-- Do **not** mix CSS classes or variables between morning and afternoon widgets.
-- Do **not** use the same root class for both widgets.
-- Do **not** hardcode colors; always use CSS variables.
-- Do **not** modify or break the Thursday or Morning widget code.
+### 6.2. **Do NOT (UNIFIED ARCHITECTURE):**
+- Do **not** create separate event loaders - use UnifiedEventLoader
+- Do **not** create separate event templates - use unified-event-panel.html  
+- Do **not** add event panel CSS to schedule bundle files
+- Do **not** mix schedule CSS classes between widgets
+- Do **not** hardcode colors; always use CSS variables
+- Do **not** modify or break the Thursday or Morning widget code
+- Do **not** create widget-specific event panel classes
 
-### 6.3. **DO:**
-- Use **unique class prefixes**: `.nzgdc-afternoon-*`
-- Use **separate CSS bundles** for each widget.
-- Use **separate JS modules** and **global variables** for each widget.
-- **Test** each widget independently and together in the demo page.
-- **Document** any new variables or architectural changes in `README.md`.
+### 6.3. **DO (UNIFIED ARCHITECTURE):**
+- Use **unique class prefixes**: `.nzgdc-afternoon-*` for schedule elements only
+- Use **UnifiedEventLoader** with "afternoon" context for all event panels
+- Use **unified-event-panel.css** for all event panel styling
+- Use **separate CSS bundles** for schedule layout only
+- Use **separate JS modules** and **global variables** for each widget
+- **Include category data** in all afternoon events (`categoryKey` and `category`)
+- **Test** each widget independently and together in the demo page
+- **Verify** event panels work consistently across all widget types
+- **Document** any new variables or architectural changes in `README.md`
 
 ---
 
@@ -253,6 +373,9 @@ The following issues were encountered or narrowly avoided during the Morning Sch
 - **Update `README.md`** to include the Afternoon widget in all architecture, API, and integration sections.
 - **Document** any new configuration options or data structures.
 - **Add** a summary of color variables and their intended usage.
+- **Update** unified architecture documentation to reflect afternoon widget integration.
+- **Document** category integration requirements for afternoon events.
+- **Update** CSS consolidation documentation with afternoon-specific notes.
 
 ---
 
@@ -398,27 +521,50 @@ For afternoon main panels, create a separate structure following the pattern in 
 
 ---
 
-## 14. Afternoon Widget Lifecycle Management
+## 15. Afternoon Widget Lifecycle Management (UNIFIED ARCHITECTURE)
 
 **Understanding the initialization sequence is critical for proper afternoon widget integration:**
 
-### 14.1. Module Loading Reference
+### 15.1. Module Loading Reference (UNIFIED PATTERN)
 **For the exact loading sequence and dependency management, reference:**
 
 - **Primary Reference:** `nzgdc-morning-schedule-widget-modular.js` - Shows complete module loading order in the `loadWidget()` method
-- **Key Pattern:** CSS first, then data files in parallel, then JS classes in parallel, then template last
+- **UNIFIED PATTERN:** Load unified CSS and JS first, then widget-specific components
+- **Key Pattern:** unified-event-panel.css first, then afternoon-schedule-bundle.css, then unified-event-loader.js, then widget-specific JS
 
-### 14.2. Widget Initialization Reference
+**UNIFIED LOADING SEQUENCE:**
+```javascript
+// 1. Load unified CSS first
+await this.loadCSS("css/unified-event-panel.css");
+// 2. Load schedule-specific CSS
+await this.loadCSS("css/afternoon-schedule-bundle.css");
+// 3. Load unified JS
+await this.loadJS("js/unified-event-loader.js");
+// 4. Load widget-specific JS
+await Promise.all([
+    this.loadJS("js/afternoon-schedule-data.js"),
+    this.loadJS("js/afternoon-events.js")
+]);
+// 5. Load unified template last
+await this.loadTemplate("templates/unified-event-panel.html", "UNIFIED_EVENT_PANEL_TEMPLATE");
+```
+
+### 15.2. Widget Initialization Reference (UNIFIED DEPENDENCIES)
 **For initialization dependencies and validation, reference:**
 
 - **Primary Reference:** `js/morning-widget-core.js` - See `validateDependencies()` method for required global variables
-- **Pattern:** All afternoon files must follow the same dependency pattern but with `AFTERNOON_` prefixes
+- **UNIFIED PATTERN:** Validate UnifiedEventLoader availability instead of separate loaders
+- **Required Dependencies:**
+  - `UnifiedEventLoader` (not AfternoonEventLoader)
+  - `UNIFIED_EVENT_PANEL_TEMPLATE` (not afternoon-specific template)
+  - `AFTERNOON_SCHEDULE_DATA` and `AFTERNOON_EVENTS`
 
-### 14.3. Widget Destruction Reference
+### 15.3. Widget Destruction Reference (UNIFIED CLEANUP)
 **For proper cleanup and resource management, reference:**
 
 - **Primary Reference:** `js/morning-widget-core.js` - See `destroy()` method for complete cleanup sequence
 - **Secondary Reference:** `js/morning-schedule-generator.js` - See `destroy()` method for component cleanup patterns
+- **UNIFIED RULE:** Clean up references to UnifiedEventLoader, not separate loaders
 - **Critical:** Follow the exact same cleanup order to prevent memory leaks
 
 ---
@@ -520,6 +666,13 @@ For afternoon main panels, create a separate structure following the pattern in 
 
 ---
 
-**If you follow this guide, the Afternoon schedule view will be integrated cleanly, modularly, and without breaking or polluting the existing widget system.**
+**If you follow this guide, the Afternoon schedule view will be integrated cleanly with the unified architecture, without breaking or polluting the existing widget system.**
 
-*For questions or further architectural guidance, consult the main README or contact the lead engineer.*
+**CRITICAL REMINDER:** This integration MUST use the unified architecture:
+- ✅ UnifiedEventLoader for all event panels
+- ✅ unified-event-panel.html for all templates  
+- ✅ unified-event-panel.css for all event panel styling
+- ✅ Category integration for all afternoon events
+- ❌ NO separate event loaders, templates, or event panel CSS
+
+*For questions or further architectural guidance, consult the main README, CONSOLIDATION_TASKS.md, or contact the lead engineer.*
