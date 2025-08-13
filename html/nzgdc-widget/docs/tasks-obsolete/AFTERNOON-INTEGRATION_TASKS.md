@@ -21,7 +21,7 @@ nzgdc-widget/ (CURRENT UNIFIED STRUCTURE)
 ├── css/
 │   ├── unified-event-panel.css            # ✅ UNIFIED: All event panel styles
 │   ├── thursday-schedule-bundle.css       # Thursday layout only
-│   ├── morning-schedule-bundle.css        # Morning layout only  
+│   ├── morning-schedule-bundle.css        # Morning layout only
 │   └── afternoon-schedule-bundle.css      # ← NEW: Afternoon layout only
 ├── js/
 │   ├── unified-event-loader.js            # ✅ UNIFIED: Single event loader
@@ -47,7 +47,7 @@ nzgdc-widget/ (CURRENT UNIFIED STRUCTURE)
 ```
 
 **KEY ARCHITECTURAL CHANGES:**
-- ❌ **REMOVED**: Separate event loaders (`morning-event-loader.js`, `afternoon-event-loader.js`)  
+- ❌ **REMOVED**: Separate event loaders (`morning-event-loader.js`, `afternoon-event-loader.js`)
 - ❌ **REMOVED**: Separate templates (`morning-event-panel.html`, `afternoon-event-panel.html`)
 - ✅ **UNIFIED**: Single `UnifiedEventLoader` handles all event panels
 - ✅ **UNIFIED**: Single `unified-event-panel.html` template for all widgets
@@ -112,7 +112,7 @@ If a utility class or variable is needed across widgets, prefix it with `.nzgdc-
 ```javascript
 // In afternoon-schedule-generator.js
 const panel = this.eventLoader.createEventPanel(
-    eventData, 
+    eventData,
     "big",        // Panel type
     "afternoon"   // Widget context - differentiates from morning/thursday
 );
@@ -157,7 +157,7 @@ All global variables and APIs for the Afternoon widget must use the `AFTERNOON_`
 ### 4.2. Generator & Core Classes (NO EVENT LOADER NEEDED)
 
 - **Create:**
-  - `js/afternoon-schedule-generator.js` 
+  - `js/afternoon-schedule-generator.js`
   - `js/afternoon-widget-core.js`
 - **DO NOT CREATE:** `js/afternoon-event-loader.js` (uses UnifiedEventLoader)
 - **Base:** Copy from morning widget JS files
@@ -204,7 +204,7 @@ await Promise.all([
 // JS Loading
 await this.loadJS("js/unified-event-loader.js"); // Use unified loader
 
-// Template Loading  
+// Template Loading
 await this.loadTemplate("templates/unified-event-panel.html", "UNIFIED_EVENT_PANEL_TEMPLATE");
 ```
 
@@ -338,7 +338,7 @@ The following issues were encountered or narrowly avoided during the Morning Sch
 
 ### 6.2. **Do NOT (UNIFIED ARCHITECTURE):**
 - Do **not** create separate event loaders - use UnifiedEventLoader
-- Do **not** create separate event templates - use unified-event-panel.html  
+- Do **not** create separate event templates - use unified-event-panel.html
 - Do **not** add event panel CSS to schedule bundle files
 - Do **not** mix schedule CSS classes between widgets
 - Do **not** hardcode colors; always use CSS variables
@@ -670,7 +670,7 @@ await this.loadTemplate("templates/unified-event-panel.html", "UNIFIED_EVENT_PAN
 
 **CRITICAL REMINDER:** This integration MUST use the unified architecture:
 - ✅ UnifiedEventLoader for all event panels
-- ✅ unified-event-panel.html for all templates  
+- ✅ unified-event-panel.html for all templates
 - ✅ unified-event-panel.css for all event panel styling
 - ✅ Category integration for all afternoon events
 - ❌ NO separate event loaders, templates, or event panel CSS

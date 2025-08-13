@@ -6,12 +6,13 @@ The END GOAL of the design of these schedule views is to have the 'Morning' sche
 
 By default, the first schedule view that the user should see when viewing the 'combined' schedule view for the first time is the 'Morning Events'.
 
-What I must expect after completing this consolidation plan is that if I open @widget-demo.html, everything is to be working as perfectly as it is right now. This means that the all the Event Panel designs are loaded correctly, the Thursday and Full-Day Schedule Views are loaded correctly (and toggleable to Afternoon and Morning, and vice versa), and that the Event Category filter dropdown works exactly as it is right now - including how it is designed, positioned, and laid out right now.
+What I must expect after completing this consolidation plan is that if I open 'widget-demo.html', everything is to be working as perfectly as it is right now. This means that the all the Event Panel designs are loaded correctly, the Thursday and Full-Day Schedule Views are loaded correctly (and toggleable to Afternoon and Morning, and vice versa), and that the Event Category filter dropdown works exactly as it is right now - including how it is designed, positioned, and laid out right now.
 
 YOU MUST NOT INTEFERE WITH THE JS WIDGET'S UI / UX DESIGN. If you do I will be very angry at you.
 
 Now, with all of that said, this is what you need to complete:
-- There's some prewritten documentation files from @tasks-drafts that attempted to outline the steps and instructions in completing some of this consolidation work. - After reviewing each file, you should know that there's a couple of missing information compared to the consolidation plan I've outlined earlier, so you must fill in the gaps in each file to ensure that each documentation file ios detailed enough to have this consolidation plan properly, and perfectly, executed - from start to finish.
-- Ensure that proper checks and cautions are put in place to prevent any possibility of AI hallucinations, development errors, or mishandling of CSS or JS code from taking place at all during this plan.
+- Outline the steps and instructions in completing this consolidation work, without compromising, destroying, or changing the current designs and layout of the schedule views already in place. Read through the appropriate documentation found in 'docs' to figuring out the right functions, CSS classes, and files you need to edit, reference, and protect from making changes.
 
-Let me know when those documentation files are fully updated.
+- Review the files in the 'tasks-obsolete' folder and fill in any gaps the above written documentation to ensure that proper checks and cautions are put in place to prevent any possibility of AI hallucinations, development errors, or mishandling of CSS or JS code from taking place at all during this plan.
+
+Write the new instructions and tasks to accomplish this consolidation plan in 'tasks-drafts'
