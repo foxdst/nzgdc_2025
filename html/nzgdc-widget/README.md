@@ -950,4 +950,5 @@ When reporting issues, include:
 **Maintainer**: Fox Studios NZ  
 **Architecture**: Modular JavaScript with Unified Event Panel System  
 **Production Status**: Deployed and Validated ✅  
-**Version**: 1.3.0 (August 2025)
+**Version**: 1.3.0 (August 2025)  
+**License**: Apache 2.0
