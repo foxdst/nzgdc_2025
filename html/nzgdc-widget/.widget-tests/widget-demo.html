@@ -266,23 +266,23 @@
         <!-- Background message when no widgets are loaded -->
         <div class="no-widgets-message" id="no-widgets-message">
             <h3>🎮 NZGDC Schedule Widgets</h3>
-            <p>This demo allows you to toggle between three schedule designs, one at a time:</p>
+            <p>This demo allows you to toggle between two schedule designs:</p>
 
             <ul>
                 <li><strong>Thursday Schedule:</strong> Workshop schedule with 10 events across morning and afternoon time slots</li>
-                <li><strong>Friday/Saturday Morning Schedule:</strong> Event schedule with 17 panels across multiple morning time slots and break periods</li>
-                <li><strong>Friday/Saturday Afternoon Schedule:</strong> Afternoon event schedule with blue background theme and similar layout to morning events</li>
+                <li><strong>Friday/Saturday Schedule:</strong> Unified event schedule with Morning Events and Afternoon Events tabs</li>
             </ul>
 
             <div class="instructions">
                 <p><strong>How to use:</strong></p>
                 <ul>
-                    <li>Use the <strong>toggle button</strong> above to cycle through all three schedules: Thursday → Morning → Afternoon → Thursday</li>
-                    <li>Only one schedule is visible at a time; toggling will hide the current schedule and show the next one</li>
+                    <li>Use the <strong>toggle button</strong> above to switch between Thursday and Friday/Saturday schedules</li>
+                    <li>In Friday/Saturday view, use the <strong>Morning Events</strong> and <strong>Afternoon Events</strong> buttons to switch views</li>
+                    <li>Only one schedule is visible at a time</li>
                     <li>Use the other controls to test, clear, or destroy the current schedule widget</li>
                 </ul>
 
-                <p><strong>Note:</strong> All previous issues with panel alignment, background colors, and navigation have been fixed for all three schedules.</p>
+                <p><strong>Note:</strong> Friday/Saturday schedule now includes seamless view switching using existing navigation buttons.</p>
             </div>
         </div>
 
@@ -292,16 +292,10 @@
             <!-- Widget content will be inserted here -->
         </div>
 
-        <!-- Morning Schedule Widget -->
-        <div class="widget-section morning-section" id="morning-container">
-            <h2>Friday & Saturday Morning Schedule</h2>
-            <!-- Widget content will be inserted here -->
-        </div>
-
-        <!-- Afternoon Schedule Widget -->
-        <div class="widget-section afternoon-section" id="afternoon-container">
-            <h2>Friday & Saturday Afternoon Schedule</h2>
-            <!-- Widget content will be inserted here -->
+        <!-- Friday/Saturday Schedule Widget -->
+        <div class="widget-section friday-saturday-section" id="friday-saturday-container">
+            <h2>Friday & Saturday Schedule</h2>
+            <!-- Unified widget content will be inserted here -->
         </div>
     </div>
 
@@ -314,15 +308,13 @@
 
     <script>
         let widgetLoaded = false;
-        let morningWidgetLoaded = false;
-        let afternoonWidgetLoaded = false;
+        let fridaySaturdayWidgetLoaded = false;
         let currentWidget = null;
-        let currentMorningWidget = null;
-        let currentAfternoonWidget = null;
+        let currentFridaySaturdayWidget = null;
         let debugEnabled = false;
 
-        // Track which widget is currently shown: "thursday", "morning", or "afternoon"
-        let currentWidgetType = "thursday";
+        // Track which widget is currently shown: "thursday" or "friday-saturday"
+        let currentWidgetType = null;
 
         function updateStatus(message, type = 'info') {
             const statusEl = document.getElementById('status');
@@ -333,13 +325,10 @@
 
             if (type === 'success') {
                 const thursdayLoaded = widgetLoaded;
-                const morningLoaded = morningWidgetLoaded;
-                const afternoonLoaded = afternoonWidgetLoaded;
-                const loadedCount = [thursdayLoaded, morningLoaded, afternoonLoaded].filter(Boolean).length;
-                if (loadedCount === 3) {
+                const fridaySatLoaded = fridaySaturdayWidgetLoaded;
+                const loadedCount = [thursdayLoaded, fridaySatLoaded].filter(Boolean).length;
+                if (loadedCount === 2) {
                     widgetStatusEl.textContent = 'All Loaded';
-                } else if (loadedCount === 2) {
-                    widgetStatusEl.textContent = 'Two Loaded';
                 } else if (loadedCount === 1) {
                     widgetStatusEl.textContent = 'One Loaded';
                 } else {
@@ -361,23 +350,20 @@
             const verifyBtn = document.getElementById('verifyBtn');
             const debugBtn = document.getElementById('debugBtn');
 
-            const anyWidgetLoaded = widgetLoaded || morningWidgetLoaded || afternoonWidgetLoaded;
+            const anyWidgetLoaded = widgetLoaded || fridaySaturdayWidgetLoaded;
             testBtn.disabled = !anyWidgetLoaded;
             clearBtn.disabled = !anyWidgetLoaded;
             destroyBtn.disabled = !anyWidgetLoaded;
 
             // Update toggle button text based on which widget is currently shown
             // --- Button Label Logic ---
-            // - If Thursday is loaded, label is "Show Friday/Saturday Morning Schedule"
-            // - If Morning is loaded, label is "Show Friday/Saturday Afternoon Schedule"
-            // - If Afternoon is loaded, label is "Show Thursday Schedule"
+            // - If Thursday is loaded, label is "Show Friday/Saturday Schedule"
+            // - If Friday/Saturday is loaded, label is "Show Thursday Schedule"
             // - If none is loaded, label is "Show Thursday Schedule" (initial state)
             if (toggleBtn) {
                 if (widgetLoaded) {
-                    toggleBtn.textContent = "Show Friday/Saturday Morning Schedule";
-                } else if (morningWidgetLoaded) {
-                    toggleBtn.textContent = "Show Friday/Saturday Afternoon Schedule";
-                } else if (afternoonWidgetLoaded) {
+                    toggleBtn.textContent = "Show Friday/Saturday Schedule";
+                } else if (fridaySaturdayWidgetLoaded) {
                     toggleBtn.textContent = "Show Thursday Schedule";
                 } else {
                     // Default to Thursday first
@@ -391,7 +377,7 @@
 
         function updateBackgroundMessage() {
             const backgroundMessage = document.getElementById('no-widgets-message');
-            const anyWidgetLoaded = widgetLoaded || morningWidgetLoaded || afternoonWidgetLoaded;
+            const anyWidgetLoaded = widgetLoaded || fridaySaturdayWidgetLoaded;
 
             if (anyWidgetLoaded) {
                 backgroundMessage.style.display = 'none';
@@ -431,68 +417,35 @@
             return null;
         }
 
-        async function createAfternoonWidget() {
-            // Create new Afternoon widget instance using afternoon API
-            if (window.NZGDCAfternoonWidget && window.NZGDCAfternoonWidget.isReady()) {
-                const container = document.getElementById('afternoon-container');
+        async function createFridaySaturdayWidgetLocal() {
+            try {
+                updateStatus("Creating Friday/Saturday Schedule Widget...");
 
-                try {
-                    // Clear any existing content except the header
-                    const header = container.querySelector('h2');
-                    container.innerHTML = '';
-                    if (header) {
-                        container.appendChild(header);
-                    } else {
-                        container.innerHTML = '<h2>Friday & Saturday Afternoon Schedule</h2>';
-                    }
-
-                    // Create new widget instance using the afternoon API
-                    const widget = await NZGDCAfternoonWidget.create(container, {
-                        showFilters: true,
-                        showFooter: true,
-                        showTimeNavigation: true
-                    });
-                    container.style.display = 'block';
-                    updateBackgroundMessage();
-                    return widget;
-                } catch (error) {
-                    console.error('Afternoon widget creation failed:', error);
-                    return null;
+                // Ensure Friday/Saturday container is visible and ready
+                const fridaySaturdayContainer = document.getElementById('friday-saturday-container');
+                if (fridaySaturdayContainer) {
+                    fridaySaturdayContainer.style.display = 'block';
                 }
+
+                // Create unified Friday/Saturday widget
+                currentFridaySaturdayWidget = await window.createFridaySaturdayWidget('friday-saturday-container', {
+                    enableDebug: debugEnabled,
+                    defaultView: 'morning'
+                });
+
+                fridaySaturdayWidgetLoaded = true;
+                currentWidgetType = 'friday-saturday';
+
+                updateStatus("Friday/Saturday Schedule Widget loaded successfully!", "success");
+                updateButtonStates();
+                updateBackgroundMessage();
+
+                return currentFridaySaturdayWidget;
+            } catch (error) {
+                console.error("Error creating Friday/Saturday widget:", error);
+                updateStatus(`Failed to create Friday/Saturday widget: ${error.message}`, "error");
+                throw error;
             }
-            return null;
-        }
-
-        async function createMorningWidget() {
-            // Create new Morning widget instance using morning API
-            if (window.NZGDCMorningWidget && window.NZGDCMorningWidget.isReady()) {
-                const container = document.getElementById('morning-container');
-
-                try {
-                    // Clear any existing content except the header
-                    const header = container.querySelector('h2');
-                    container.innerHTML = '';
-                    if (header) {
-                        container.appendChild(header);
-                    } else {
-                        container.innerHTML = '<h2>Friday & Saturday Morning Schedule</h2>';
-                    }
-
-                    // Create new widget instance using the morning API
-                    const widget = await NZGDCMorningWidget.create(container, {
-                        showFilters: true,
-                        showFooter: true,
-                        showTimeNavigation: true
-                    });
-                    container.style.display = 'block';
-                    updateBackgroundMessage();
-                    return widget;
-                } catch (error) {
-                    console.error('Morning widget creation failed:', error);
-                    return null;
-                }
-            }
-            return null;
         }
 
        /**
@@ -502,250 +455,144 @@
         * - Loads the Thursday widget and updates toggle button label
         */
         async function showThursdayWidget() {
-            // Destroy morning widget if loaded
-            if (currentMorningWidget && typeof currentMorningWidget.destroy === 'function') {
-                try {
-                    currentMorningWidget.destroy();
-                } catch (e) {}
-                currentMorningWidget = null;
-                morningWidgetLoaded = false;
-            }
-            // Destroy afternoon widget if loaded
-            if (currentAfternoonWidget && typeof currentAfternoonWidget.destroy === 'function') {
-                try {
-                    currentAfternoonWidget.destroy();
-                } catch (e) {}
-                currentAfternoonWidget = null;
-                afternoonWidgetLoaded = false;
-            }
-            // Hide morning container
-            const morningContainer = document.getElementById('morning-container');
-            if (morningContainer) {
-                morningContainer.style.display = 'none';
-                morningContainer.innerHTML = '<h2>Friday & Saturday Morning Schedule</h2>';
-            }
-            // Hide afternoon container
-            const afternoonContainer = document.getElementById('afternoon-container');
-            if (afternoonContainer) {
-                afternoonContainer.style.display = 'none';
-                afternoonContainer.innerHTML = '<h2>Friday & Saturday Afternoon Schedule</h2>';
-            }
+            try {
+                updateStatus("Loading Thursday Schedule Widget...");
 
-            // Show Thursday widget
-            if (typeof window.NZGDCWidget !== 'undefined') {
-                updateStatus('Creating Thursday widget...', 'info');
-                window.NZGDCWidget.ready(async () => {
-                    currentWidget = await createWidget();
-                    if (currentWidget) {
-                        widgetLoaded = true;
-                        currentWidgetType = "thursday";
-                        updateStatus('Thursday widget loaded successfully!', 'success');
-                        updateButtonStates();
+                // Hide Friday/Saturday container
+                document.getElementById('friday-saturday-container').style.display = 'none';
+
+                // Show Thursday container
+                document.getElementById('thursday-container').style.display = 'block';
+
+                // Create widget if not already created
+                if (!widgetLoaded) {
+                    if (typeof window.NZGDCWidget !== 'undefined') {
+                        window.NZGDCWidget.ready(async () => {
+                            currentWidget = await createWidget();
+                            if (currentWidget) {
+                                widgetLoaded = true;
+                                currentWidgetType = "thursday";
+                                updateStatus('Thursday widget loaded successfully!', 'success');
+                                updateButtonStates();
+                            } else {
+                                updateStatus('Failed to create Thursday widget', 'error');
+                            }
+                        });
                     } else {
-                        updateStatus('Failed to create Thursday widget', 'error');
+                        updateStatus('Thursday widget API not available - ensure script is loaded', 'error');
                     }
-                });
-                return;
+                } else {
+                    currentWidgetType = "thursday";
+                    updateButtonStates();
+                    updateBackgroundMessage();
+                    updateStatus("Thursday Schedule Widget displayed successfully!", "success");
+                }
+            } catch (error) {
+                console.error("Error showing Thursday widget:", error);
+                updateStatus(`Failed to show Thursday widget: ${error.message}`, "error");
             }
-            updateStatus('Thursday widget API not available - ensure script is loaded', 'error');
         }
 
        /**
-       * Show Friday/Saturday Morning Schedule Widget
-       * - Destroys other widgets if loaded
-       * - Hides other containers
-       * - Loads the Morning widget and updates toggle button label
+       * Show Friday/Saturday Schedule Widget
+       * - Hides Thursday container
+       * - Shows Friday/Saturday container with unified widget
        */
-       async function showMorningWidget() {
-           // Destroy other widgets if loaded
-           if (currentWidget && typeof currentWidget.destroy === 'function') {
-               try {
-                   currentWidget.destroy();
-               } catch (e) {}
-               currentWidget = null;
-               widgetLoaded = false;
-           }
-           if (currentAfternoonWidget && typeof currentAfternoonWidget.destroy === 'function') {
-               try {
-                   currentAfternoonWidget.destroy();
-               } catch (e) {}
-               currentAfternoonWidget = null;
-               afternoonWidgetLoaded = false;
-           }
-           // Hide other containers
-           const thursdayContainer = document.getElementById('thursday-container');
-           const afternoonContainer = document.getElementById('afternoon-container');
-           if (thursdayContainer) {
-               thursdayContainer.style.display = 'none';
-               thursdayContainer.innerHTML = '<h2>Thursday Workshop Schedule</h2>';
-           }
-           if (afternoonContainer) {
-               afternoonContainer.style.display = 'none';
-               afternoonContainer.innerHTML = '<h2>Friday & Saturday Afternoon Schedule</h2>';
-           }
+       async function showFridaySaturdayWidget() {
+           try {
+               updateStatus("Loading Friday/Saturday Schedule Widget...");
 
-           // Show morning widget using morning API
-           if (typeof window.NZGDCMorningWidget !== 'undefined') {
-               updateStatus('Creating morning widget...', 'info');
-               window.NZGDCMorningWidget.ready(async () => {
-                   currentMorningWidget = await createMorningWidget();
-                   if (currentMorningWidget) {
-                       morningWidgetLoaded = true;
-                       currentWidgetType = "morning";
-                       updateStatus('Morning widget loaded successfully!', 'success');
-                       updateButtonStates();
-                   } else {
-                       updateStatus('Failed to create morning widget', 'error');
-                   }
-               });
-               return;
-           }
-           updateStatus('Morning widget API not available - ensure morning script is loaded', 'error');
-       }
+               // Hide Thursday container
+               document.getElementById('thursday-container').style.display = 'none';
 
-       /**
-       * Show Friday/Saturday Afternoon Schedule Widget
-       * - Destroys other widgets if loaded
-       * - Hides other containers
-       * - Loads the Afternoon widget and updates toggle button label
-       */
-       async function showAfternoonWidget() {
-           // Destroy other widgets if loaded
-           if (currentWidget && typeof currentWidget.destroy === 'function') {
-               try {
-                   currentWidget.destroy();
-               } catch (e) {}
-               currentWidget = null;
-               widgetLoaded = false;
-           }
-           if (currentMorningWidget && typeof currentMorningWidget.destroy === 'function') {
-               try {
-                   currentMorningWidget.destroy();
-               } catch (e) {}
-               currentMorningWidget = null;
-               morningWidgetLoaded = false;
-           }
-           // Hide other containers
-           const thursdayContainer = document.getElementById('thursday-container');
-           const morningContainer = document.getElementById('morning-container');
-           if (thursdayContainer) {
-               thursdayContainer.style.display = 'none';
-               thursdayContainer.innerHTML = '<h2>Thursday Workshop Schedule</h2>';
-           }
-           if (morningContainer) {
-               morningContainer.style.display = 'none';
-               morningContainer.innerHTML = '<h2>Friday & Saturday Morning Schedule</h2>';
-           }
+               // Show Friday/Saturday container
+               document.getElementById('friday-saturday-container').style.display = 'block';
 
-           // Show afternoon widget using afternoon API
-           if (typeof window.NZGDCAfternoonWidget !== 'undefined') {
-               updateStatus('Creating afternoon widget...', 'info');
-               window.NZGDCAfternoonWidget.ready(async () => {
-                   currentAfternoonWidget = await createAfternoonWidget();
-                   if (currentAfternoonWidget) {
-                       afternoonWidgetLoaded = true;
-                       currentWidgetType = "afternoon";
-                       updateStatus('Afternoon widget loaded successfully!', 'success');
-                       updateButtonStates();
-                   } else {
-                       updateStatus('Failed to create afternoon widget', 'error');
-                   }
-               });
-               return;
+               // Create widget if not already created
+               if (!fridaySaturdayWidgetLoaded) {
+                   await createFridaySaturdayWidgetLocal();
+               }
+
+               currentWidgetType = 'friday-saturday';
+               updateButtonStates();
+               updateBackgroundMessage();
+
+               updateStatus("Friday/Saturday Schedule Widget displayed successfully!", "success");
+           } catch (error) {
+               console.error("Error showing Friday/Saturday widget:", error);
+               updateStatus(`Failed to show Friday/Saturday widget: ${error.message}`, "error");
            }
-           updateStatus('Afternoon widget API not available - ensure afternoon script is loaded', 'error');
        }
 
         async function toggleWidget() {
-            // Three-way cycle: Thursday → Morning → Afternoon → Thursday
-            // If none loaded, show Thursday first
-            if (!widgetLoaded && !morningWidgetLoaded && !afternoonWidgetLoaded) {
-                await showThursdayWidget();
-                return;
-            }
-            // If Thursday is loaded, switch to Morning
-            if (widgetLoaded) {
-                await showMorningWidget();
-                return;
-            }
-            // If Morning is loaded, switch to Afternoon
-            if (morningWidgetLoaded) {
-                await showAfternoonWidget();
-                return;
-            }
-            // If Afternoon is loaded, switch to Thursday
-            if (afternoonWidgetLoaded) {
-                await showThursdayWidget();
-                return;
+            try {
+                if (currentWidgetType === null || currentWidgetType === 'friday-saturday') {
+                    // Show Thursday widget
+                    await showThursdayWidget();
+                } else if (currentWidgetType === 'thursday') {
+                    // Show Friday/Saturday widget (unified)
+                    await showFridaySaturdayWidget();
+                }
+            } catch (error) {
+                console.error("Error toggling widget:", error);
+                updateStatus(`Toggle error: ${error.message}`, "error");
             }
         }
 
         function testWidget() {
-            if (!widgetLoaded && !morningWidgetLoaded && !afternoonWidgetLoaded) {
+            if (!widgetLoaded && !fridaySaturdayWidgetLoaded) {
                 updateStatus('Load at least one widget first', 'error');
                 return;
             }
 
             const thursdayWidgets = document.querySelectorAll('.nzgdc-schedule-widget');
+            const fridaySaturdayWidgets = document.querySelectorAll('.nzgdc-friday-saturday-schedule-widget');
             const morningWidgets = document.querySelectorAll('.nzgdc-morning-schedule-widget');
             const afternoonWidgets = document.querySelectorAll('.nzgdc-afternoon-schedule-widget');
             const workshops = document.querySelectorAll('.nzgdc-event-panel-big');
-            const morningPanels = document.querySelectorAll('.nzgdc-morning-event-panel-big, .nzgdc-event-panel-main');
-            const afternoonPanels = document.querySelectorAll('.nzgdc-afternoon-event-panel-big, .nzgdc-afternoon-event-panel-main');
+            const eventPanels = document.querySelectorAll('.nzgdc-event-panel-main, .nzgdc-event-panel-big');
 
             console.log('Widget test results:', {
                 'Thursday widget instances': thursdayWidgets.length,
-                'Morning widget instances': morningWidgets.length,
-                'Afternoon widget instances': afternoonWidgets.length,
+                'Friday/Saturday widget instances': fridaySaturdayWidgets.length,
+                'Morning widget components': morningWidgets.length,
+                'Afternoon widget components': afternoonWidgets.length,
                 'Thursday workshop panels': workshops.length,
-                'Morning event panels': morningPanels.length,
-                'Afternoon event panels': afternoonPanels.length,
+                'Event panels (unified)': eventPanels.length,
                 'Thursday API available': typeof window.NZGDCWidget !== 'undefined',
-                'Morning API available': typeof window.NZGDCMorningWidget !== 'undefined',
-                'Afternoon API available': typeof window.NZGDCAfternoonWidget !== 'undefined',
-                'Thursday ready': window.NZGDCWidget ? window.NZGDCWidget.isReady() : false,
-                'Morning ready': window.NZGDCMorningWidget ? window.NZGDCMorningWidget.isReady() : false,
-                'Afternoon ready': window.NZGDCAfternoonWidget ? window.NZGDCAfternoonWidget.isReady() : false
+                'Friday/Saturday API available': typeof window.createFridaySaturdayWidget !== 'undefined',
+                'Thursday ready': window.NZGDCWidget ? window.NZGDCWidget.isReady() : false
             });
 
-            const totalWidgets = thursdayWidgets.length + morningWidgets.length + afternoonWidgets.length;
-            const totalPanels = workshops.length + morningPanels.length + afternoonPanels.length;
+            const totalWidgets = thursdayWidgets.length + fridaySaturdayWidgets.length;
+            const totalPanels = workshops.length + eventPanels.length;
             updateStatus(`Test complete: ${totalWidgets} widgets, ${totalPanels} events`, 'success');
         }
 
         function clearWidget() {
             const thursdayContainer = document.getElementById('thursday-container');
-            const morningContainer = document.getElementById('morning-container');
-            const afternoonContainer = document.getElementById('afternoon-container');
+            const fridaySaturdayContainer = document.getElementById('friday-saturday-container');
 
             if (currentWidget && typeof currentWidget.destroy === 'function') {
                 try { currentWidget.destroy(); } catch (e) {}
                 currentWidget = null;
             }
-            if (currentMorningWidget && typeof currentMorningWidget.destroy === 'function') {
-                try { currentMorningWidget.destroy(); } catch (e) {}
-                currentMorningWidget = null;
-            }
-            if (currentAfternoonWidget && typeof currentAfternoonWidget.destroy === 'function') {
-                try { currentAfternoonWidget.destroy(); } catch (e) {}
-                currentAfternoonWidget = null;
+            if (currentFridaySaturdayWidget && typeof currentFridaySaturdayWidget.destroy === 'function') {
+                try { currentFridaySaturdayWidget.destroy(); } catch (e) {}
+                currentFridaySaturdayWidget = null;
             }
 
             thursdayContainer.style.display = 'none';
             thursdayContainer.innerHTML = '<h2>Thursday Workshop Schedule</h2>';
 
-            morningContainer.style.display = 'none';
-            morningContainer.innerHTML = '<h2>Friday & Saturday Morning Schedule</h2>';
-
-            afternoonContainer.style.display = 'none';
-            afternoonContainer.innerHTML = '<h2>Friday & Saturday Afternoon Schedule</h2>';
+            fridaySaturdayContainer.style.display = 'none';
+            fridaySaturdayContainer.innerHTML = '<h2>Friday & Saturday Schedule</h2>';
 
             updateStatus('All widgets cleared - click toggle button to show a schedule', 'info');
             document.getElementById('widget-status').textContent = 'Cleared';
             widgetLoaded = false;
-            morningWidgetLoaded = false;
-            afternoonWidgetLoaded = false;
-            currentWidgetType = "thursday";
+            fridaySaturdayWidgetLoaded = false;
+            currentWidgetType = null;
             updateBackgroundMessage();
             updateButtonStates();
         }
@@ -769,33 +616,18 @@
                 }
             }
 
-            // Destroy Morning widget
-            if (currentMorningWidget && typeof currentMorningWidget.destroy === 'function') {
+            // Destroy Friday/Saturday widget
+            if (currentFridaySaturdayWidget && typeof currentFridaySaturdayWidget.destroy === 'function') {
                 try {
-                    currentMorningWidget.destroy();
+                    currentFridaySaturdayWidget.destroy();
                     destroyedCount++;
-                    const container = document.getElementById('morning-container');
+                    const container = document.getElementById('friday-saturday-container');
                     container.style.display = 'none';
-                    morningWidgetLoaded = false;
-                    currentMorningWidget = null;
+                    fridaySaturdayWidgetLoaded = false;
+                    currentFridaySaturdayWidget = null;
                 } catch (error) {
-                    console.error('Error destroying Morning widget:', error);
-                    errors.push('Morning: ' + error.message);
-                }
-            }
-
-            // Destroy Afternoon widget
-            if (currentAfternoonWidget && typeof currentAfternoonWidget.destroy === 'function') {
-                try {
-                    currentAfternoonWidget.destroy();
-                    destroyedCount++;
-                    const container = document.getElementById('afternoon-container');
-                    container.style.display = 'none';
-                    afternoonWidgetLoaded = false;
-                    currentAfternoonWidget = null;
-                } catch (error) {
-                    console.error('Error destroying Afternoon widget:', error);
-                    errors.push('Afternoon: ' + error.message);
+                    console.error('Error destroying Friday/Saturday widget:', error);
+                    errors.push('Friday/Saturday: ' + error.message);
                 }
             }
 
@@ -1282,13 +1114,60 @@
             };
         }
 
+        // Debug function to test Friday/Saturday widget system independently
+        function debugFridaySaturdayWidget() {
+            console.log('\n🔍 DEBUGGING FRIDAY/SATURDAY WIDGET SYSTEM');
+            console.log('='.repeat(50));
+
+            // Test 1: Check global function availability
+            console.log('1. Global function availability:');
+            console.log('   window.createFridaySaturdayWidget:', typeof window.createFridaySaturdayWidget);
+            console.log('   window.NZGDCFridaySaturdayWidget:', typeof window.NZGDCFridaySaturdayWidget);
+            console.log('   window.FridaySaturdayWidgetCore:', typeof window.FridaySaturdayWidgetCore);
+
+            // Test 2: Check container element
+            console.log('\n2. Container element check:');
+            const container = document.getElementById('friday-saturday-container');
+            console.log('   friday-saturday-container exists:', !!container);
+            console.log('   container display style:', container ? container.style.display : 'N/A');
+
+            // Test 3: Try direct class instantiation
+            console.log('\n3. Direct class instantiation test:');
+            try {
+                if (window.FridaySaturdayWidgetCore) {
+                    const testWidget = new window.FridaySaturdayWidgetCore('friday-saturday-container', {
+                        enableDebug: true,
+                        defaultView: 'morning'
+                    });
+                    console.log('   ✅ Direct instantiation SUCCESS');
+                    console.log('   testWidget.containerId:', testWidget.containerId);
+                    console.log('   testWidget.uniqueId:', testWidget.uniqueId);
+                } else {
+                    console.log('   ❌ FridaySaturdayWidgetCore not available');
+                }
+            } catch (error) {
+                console.log('   ❌ Direct instantiation FAILED:', error.message);
+            }
+
+            // Test 4: Try global function call (dry run)
+            console.log('\n4. Global function call test (dry run):');
+            if (typeof window.createFridaySaturdayWidget === 'function') {
+                console.log('   ✅ Global function exists and is callable');
+                console.log('   Function length (parameter count):', window.createFridaySaturdayWidget.length);
+            } else {
+                console.log('   ❌ Global function not available');
+            }
+
+            console.log('\n🔍 Debug test complete');
+        }
+
         // Make testing functions available globally
         window.testMainEventPanelCSS = testMainEventPanelCSS;
+        window.debugFridaySaturdayWidget = debugFridaySaturdayWidget;
     </script>
 
-    <!-- Load all three widget scripts -->
+    <!-- Load widget scripts -->
     <script src="../nzgdc-schedule-widget-modular.js"></script>
-    <script src="../nzgdc-morning-schedule-widget-modular.js"></script>
-    <script src="../nzgdc-afternoon-schedule-widget-modular.js"></script>
+    <script src="../nzgdc-friday-saturday-schedule-widget-modular.js"></script>
 </body>
 </html>

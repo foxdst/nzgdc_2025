@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Friday/Saturday Widget Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .debug-section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .debug-section h2 {
+            color: #333;
+            border-bottom: 2px solid #007cba;
+            padding-bottom: 10px;
+        }
+
+        .test-container {
+            background: #f8f9fa;
+            border: 2px dashed #007cba;
+            padding: 20px;
+            margin: 20px 0;
+            min-height: 200px;
+            border-radius: 8px;
+        }
+
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #005a87;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .log-output {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin: 10px 0;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Friday/Saturday Widget Debug Test</h1>
+    <p>This page isolates and tests the Friday/Saturday widget system to identify the "Container element not found: undefined" issue.</p>
+
+    <div class="debug-section">
+        <h2>1. Environment Check</h2>
+        <button onclick="checkEnvironment()">Check Environment</button>
+        <div id="environment-results" class="log-output"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>2. Module Loading Test</h2>
+        <button onclick="testModuleLoading()">Test Module Loading</button>
+        <div id="module-results" class="log-output"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>3. Direct Class Test</h2>
+        <button onclick="testDirectClass()">Test Direct Class Instantiation</button>
+        <div id="class-results" class="log-output"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>4. Global Function Test</h2>
+        <button onclick="testGlobalFunction()">Test Global Function Call</button>
+        <div id="function-results" class="log-output"></div>
+    </div>
+
+    <div class="debug-section">
+        <h2>5. Widget Container</h2>
+        <div class="test-container" id="friday-saturday-container">
+            <h2>Friday & Saturday Schedule</h2>
+            <p>Widget will be rendered here...</p>
+        </div>
+        <button onclick="testWidgetCreation()">Create Widget</button>
+        <button onclick="clearContainer()">Clear Container</button>
+        <div id="widget-results" class="log-output"></div>
+    </div>
+
+    <script>
+        // Debug logging helper
+        function log(containerId, message, type = 'info') {
+            const container = document.getElementById(containerId);
+            const timestamp = new Date().toLocaleTimeString();
+            const logLine = `[${timestamp}] ${message}\n`;
+            container.textContent += logLine;
+            container.scrollTop = container.scrollHeight;
+
+            // Also log to console
+            if (type === 'error') {
+                console.error(message);
+            } else {
+                console.log(message);
+            }
+        }
+
+        function clearLog(containerId) {
+            document.getElementById(containerId).textContent = '';
+        }
+
+        // Test 1: Check Environment
+        function checkEnvironment() {
+            clearLog('environment-results');
+            log('environment-results', '=== ENVIRONMENT CHECK ===');
+
+            // Check DOM readiness
+            log('environment-results', `Document ready state: ${document.readyState}`);
+
+            // Check container element
+            const container = document.getElementById('friday-saturday-container');
+            log('environment-results', `Container exists: ${!!container}`);
+            if (container) {
+                log('environment-results', `Container tagName: ${container.tagName}`);
+                log('environment-results', `Container id: ${container.id}`);
+                log('environment-results', `Container display: ${container.style.display || 'default'}`);
+            }
+
+            // Check script loading
+            const scriptTags = document.querySelectorAll('script[src]');
+            log('environment-results', `Script tags found: ${scriptTags.length}`);
+            scriptTags.forEach((script, index) => {
+                log('environment-results', `  Script ${index + 1}: ${script.src}`);
+            });
+
+            log('environment-results', '=== ENVIRONMENT CHECK COMPLETE ===');
+        }
+
+        // Test 2: Module Loading
+        async function testModuleLoading() {
+            clearLog('module-results');
+            log('module-results', '=== MODULE LOADING TEST ===');
+
+            // Check if Friday/Saturday widget is available
+            log('module-results', `window.createFridaySaturdayWidget: ${typeof window.createFridaySaturdayWidget}`);
+            log('module-results', `window.NZGDCFridaySaturdayWidget: ${typeof window.NZGDCFridaySaturdayWidget}`);
+            log('module-results', `window.FridaySaturdayWidgetCore: ${typeof window.FridaySaturdayWidgetCore}`);
+
+            // Check generator classes
+            log('module-results', `window.MorningScheduleGenerator: ${typeof window.MorningScheduleGenerator}`);
+            log('module-results', `window.AfternoonScheduleGenerator: ${typeof window.AfternoonScheduleGenerator}`);
+            log('module-results', `window.UnifiedEventLoader: ${typeof window.UnifiedEventLoader}`);
+
+            // Check widget readiness
+            if (window.NZGDCFridaySaturdayWidget && window.NZGDCFridaySaturdayWidget.isReady) {
+                const isReady = window.NZGDCFridaySaturdayWidget.isReady();
+                log('module-results', `Widget ready status: ${isReady}`);
+            }
+
+            // Check related data/modules
+            log('module-results', `MORNING_SCHEDULE_DATA: ${typeof window.MORNING_SCHEDULE_DATA}`);
+            log('module-results', `AFTERNOON_SCHEDULE_DATA: ${typeof window.AFTERNOON_SCHEDULE_DATA}`);
+            log('module-results', `MORNING_EVENTS: ${typeof window.MORNING_EVENTS}`);
+            log('module-results', `AFTERNOON_EVENTS: ${typeof window.AFTERNOON_EVENTS}`);
+            log('module-results', `UNIFIED_EVENT_PANEL_TEMPLATE: ${typeof window.UNIFIED_EVENT_PANEL_TEMPLATE}`);
+
+            // Test generator instantiation
+            try {
+                if (window.UnifiedEventLoader && window.MorningScheduleGenerator) {
+                    log('module-results', 'Testing generator instantiation...');
+                    const testLoader = new window.UnifiedEventLoader();
+                    log('module-results', '  UnifiedEventLoader: ✅ SUCCESS');
+
+                    // Test generator with container (as required by constructor)
+                    const testContainer = document.createElement('div');
+                    const testGenerator = new window.MorningScheduleGenerator(testContainer);
+                    log('module-results', '  MorningScheduleGenerator: ✅ SUCCESS');
+                    log('module-results', '  Generator has renderSchedule method: ' + (typeof testGenerator.renderSchedule === 'function'));
+
+                    // Test afternoon generator too
+                    if (window.AfternoonScheduleGenerator) {
+                        const testAfternoonGenerator = new window.AfternoonScheduleGenerator(testContainer);
+                        log('module-results', '  AfternoonScheduleGenerator: ✅ SUCCESS');
+                        log('module-results', '  Afternoon generator has renderSchedule method: ' + (typeof testAfternoonGenerator.renderSchedule === 'function'));
+                    }
+                } else {
+                    log('module-results', '❌ Cannot test generator instantiation - classes not available');
+                }
+            } catch (genError) {
+                log('module-results', `❌ Generator instantiation failed: ${genError.message}`, 'error');
+            }
+
+            log('module-results', '=== MODULE LOADING TEST COMPLETE ===');
+        }
+
+        // Test 3: Direct Class Instantiation
+        function testDirectClass() {
+            clearLog('class-results');
+            log('class-results', '=== DIRECT CLASS TEST ===');
+
+            try {
+                if (!window.FridaySaturdayWidgetCore) {
+                    log('class-results', 'ERROR: FridaySaturdayWidgetCore not available', 'error');
+                    return;
+                }
+
+                log('class-results', 'Attempting direct class instantiation...');
+
+                // Test with string container ID
+                log('class-results', 'Creating widget with containerId: "friday-saturday-container"');
+                const widget = new window.FridaySaturdayWidgetCore('friday-saturday-container', {
+                    enableDebug: true,
+                    defaultView: 'morning'
+                });
+
+                log('class-results', `SUCCESS: Widget created`);
+                log('class-results', `  widget.containerId: "${widget.containerId}"`);
+                log('class-results', `  typeof widget.containerId: ${typeof widget.containerId}`);
+                log('class-results', `  widget.uniqueId: ${widget.uniqueId}`);
+                log('class-results', `  widget.options: ${JSON.stringify(widget.options)}`);
+
+                // Try to access container element
+                log('class-results', 'Testing container resolution...');
+                const containerElement = document.getElementById(widget.containerId);
+                log('class-results', `  Container resolution: ${!!containerElement}`);
+
+                log('class-results', 'Direct class instantiation: SUCCESS ✅');
+
+                // Clean up
+                if (widget.destroy) {
+                    widget.destroy();
+                    log('class-results', 'Widget cleaned up');
+                }
+
+            } catch (error) {
+                log('class-results', `FAILED: ${error.message}`, 'error');
+                log('class-results', `Error stack: ${error.stack}`, 'error');
+            }
+
+            log('class-results', '=== DIRECT CLASS TEST COMPLETE ===');
+        }
+
+        // Test 4: Global Function Call
+        async function testGlobalFunction() {
+            clearLog('function-results');
+            log('function-results', '=== GLOBAL FUNCTION TEST ===');
+
+            try {
+                if (!window.createFridaySaturdayWidget) {
+                    log('function-results', 'ERROR: createFridaySaturdayWidget not available', 'error');
+                    return;
+                }
+
+                log('function-results', 'Function exists, testing parameters...');
+                log('function-results', `Function length: ${window.createFridaySaturdayWidget.length}`);
+
+                // Test parameter passing
+                log('function-results', 'Calling createFridaySaturdayWidget("friday-saturday-container", {...})');
+
+                const widget = await window.createFridaySaturdayWidget('friday-saturday-container', {
+                    enableDebug: true,
+                    defaultView: 'morning'
+                });
+
+                log('function-results', `SUCCESS: Widget created via global function`);
+                log('function-results', `  widget type: ${typeof widget}`);
+                log('function-results', `  widget.containerId: "${widget.containerId}"`);
+                log('function-results', `  widget.uniqueId: ${widget.uniqueId}`);
+
+                log('function-results', 'Global function test: SUCCESS ✅');
+
+                // Store widget reference for cleanup
+                window.debugTestWidget = widget;
+
+            } catch (error) {
+                log('function-results', `FAILED: ${error.message}`, 'error');
+                log('function-results', `Error stack: ${error.stack}`, 'error');
+                log('function-results', 'Global function test: FAILED ❌');
+            }
+
+            log('function-results', '=== GLOBAL FUNCTION TEST COMPLETE ===');
+        }
+
+        // Test 5: Widget Creation (Full Process)
+        async function testWidgetCreation() {
+            clearLog('widget-results');
+            log('widget-results', '=== WIDGET CREATION TEST ===');
+
+            try {
+                // Clean up any existing widget
+                if (window.debugTestWidget) {
+                    if (window.debugTestWidget.destroy) {
+                        window.debugTestWidget.destroy();
+                    }
+                    window.debugTestWidget = null;
+                    log('widget-results', 'Cleaned up existing test widget');
+                }
+
+                // Clear container
+                const container = document.getElementById('friday-saturday-container');
+                if (container) {
+                    container.innerHTML = '<h2>Friday & Saturday Schedule</h2><p>Loading widget...</p>';
+                    container.style.display = 'block';
+                }
+
+                log('widget-results', 'Creating Friday/Saturday widget...');
+
+                const widget = await window.createFridaySaturdayWidget('friday-saturday-container', {
+                    enableDebug: true,
+                    defaultView: 'morning'
+                });
+
+                log('widget-results', `Widget creation: SUCCESS ✅`);
+                log('widget-results', `Widget initialized: ${widget.initialized || 'unknown'}`);
+
+                // Store for cleanup
+                window.debugTestWidget = widget;
+
+            } catch (error) {
+                log('widget-results', `Widget creation: FAILED ❌`, 'error');
+                log('widget-results', `Error: ${error.message}`, 'error');
+                log('widget-results', `Stack: ${error.stack}`, 'error');
+            }
+
+            log('widget-results', '=== WIDGET CREATION TEST COMPLETE ===');
+        }
+
+        // Clear container
+        function clearContainer() {
+            if (window.debugTestWidget && window.debugTestWidget.destroy) {
+                window.debugTestWidget.destroy();
+                window.debugTestWidget = null;
+            }
+
+            const container = document.getElementById('friday-saturday-container');
+            if (container) {
+                container.innerHTML = '<h2>Friday & Saturday Schedule</h2><p>Widget will be rendered here...</p>';
+            }
+
+            clearLog('widget-results');
+            log('widget-results', 'Container cleared and widget destroyed');
+        }
+
+        // Auto-run environment check when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            checkEnvironment();
+        });
+    </script>
+
+    <!-- Load widget scripts -->
+    <script src="../nzgdc-friday-saturday-schedule-widget-modular.js"></script>
+</body>
+</html>

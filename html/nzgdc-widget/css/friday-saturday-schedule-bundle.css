@@ -1,0 +1,1225 @@
+/* NZGDC Friday/Saturday Schedule Widget - Unified CSS Bundle
+   CRITICAL: This file MUST NOT contain any event panel styles
+   All event panel styles are in unified-event-panel.css */
+
+/* =============================================================================
+   WIDGET CONTAINER & BASE STYLING
+   ============================================================================= */
+
+.nzgdc-friday-saturday-schedule-widget {
+    width: 100%;
+    font-family: "Futura PT Heavy", "Futura", Arial, sans-serif;
+    background-color: #ffffff;
+    position: relative;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.nzgdc-friday-saturday-schedule-widget * {
+    box-sizing: border-box;
+}
+
+/* =============================================================================
+   VIEW CONTAINERS
+   ============================================================================= */
+
+.morning-view-container,
+.afternoon-view-container {
+    width: 100%;
+    position: relative;
+}
+
+/* Show/Hide Logic */
+.nzgdc-friday-saturday-schedule-widget.morning-view .afternoon-view-container {
+    display: none;
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view .morning-view-container {
+    display: none;
+}
+
+/* =============================================================================
+   MORNING VIEW STYLES (from morning-schedule-bundle.css)
+   NOTE: Import ALL existing styles with view-specific prefixes
+   ============================================================================= */
+
+/* CSS Custom Properties (Variables) for Morning View */
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-schedule-widget {
+    --color-yellow: rgba(255, 236, 81, 1);
+    --color-yellow-bright: rgba(240, 223, 86, 1);
+    --color-yellow-hover: rgba(255, 226, 61, 1);
+    --color-blue: rgba(23, 75, 235, 1);
+    --color-blue-hover: rgba(20, 65, 200, 1);
+    --color-white: rgba(255, 255, 255, 1);
+    --color-black: rgba(0, 0, 0, 1);
+    --color-gray-light: #f0f0f0;
+    --color-gray-medium: #666;
+    --color-gray-border: #ddd;
+
+    --font-primary: "Futura PT Heavy", "Futura", Arial, sans-serif;
+    --font-medium: "Futura PT Medium", "Futura", Arial, sans-serif;
+
+    --container-max-width: 1630px;
+    --event-panel-width: 620px;
+    --event-panel-height: 300px;
+
+    /* Base styling for proper rendering */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Main container - matches original .nzgdc-morning-schedule-view */
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-schedule-widget {
+    font-family: var(--font-primary);
+    background-color: var(--color-yellow);
+    width: 100%;
+    max-width: var(--container-max-width);
+    height: auto;
+    margin: 0 auto;
+    position: relative;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Morning Schedule Sub Navigation - Contains Time Navigation and Filters */
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-schedule-sub-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    width: 100%;
+    background-color: var(--color-white);
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    min-height: 60px;
+}
+
+/* Schedule Time Navigation - TOP LEFT POSITION as in original */
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-schedule-time-navigation {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    min-height: 60px;
+}
+
+/* Existing Morning Events Button Styles - PRESERVE EXACTLY */
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-events-button {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: var(--color-yellow-bright);
+    border: none;
+    cursor: pointer;
+    color: var(--color-black);
+    font-family: var(--font-primary);
+    min-height: 60px;
+    box-sizing: border-box;
+    font-size: 28px;
+    font-weight: 800;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-events-button:hover {
+    background-color: var(--color-yellow-hover);
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-afternoon-events-button {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: var(--color-blue);
+    border: none;
+    cursor: pointer;
+    color: var(--color-white);
+    font-family: var(--font-primary);
+    min-height: 60px;
+    box-sizing: border-box;
+    font-size: 28px;
+    font-weight: 800;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-afternoon-events-button:hover {
+    background-color: var(--color-blue-hover);
+}
+
+/* Morning Filters Section - TOP RIGHT POSITION */
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-filters-section {
+    display: flex;
+    align-items: stretch;
+    min-height: 60px;
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-filters-label {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 15px;
+    background-color: var(--color-yellow-bright);
+    min-height: 60px;
+    box-sizing: border-box;
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-filters-label-text {
+    color: var(--color-black);
+    font-family: var(--font-primary);
+    font-size: 28px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-filters-value {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 15px;
+    background-color: var(--color-white);
+    min-height: 60px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-filters-value-text {
+    color: var(--color-black);
+    font-family: var(--font-primary);
+    font-size: 28px;
+    font-weight: 600;
+    text-align: center;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+/* Time Categories - Base Styles */
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-time-category {
+    width: 100%;
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-time-category-early {
+    background-color: var(--color-yellow);
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-time-category-mid {
+    background-color: var(--color-yellow);
+}
+
+/* Session Schedule Header - Consolidated Base Styles */
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-session-schedule {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 46px;
+    margin: 17px 0 10px 0;
+    padding: 0 25px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-session-text {
+    width: auto;
+    height: 43px;
+    display: flex;
+    align-items: center;
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-time-category-early
+    .nzgdc-morning-session-text {
+    color: var(--color-black);
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-time-category-mid
+    .nzgdc-morning-session-text {
+    color: var(--color-black);
+}
+
+/* Theme-specific colors */
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-session-times,
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-session-title {
+    color: var(--color-black);
+    font-family: var(--font-primary);
+    font-size: 36px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-time-category-early
+    .nzgdc-morning-session-times,
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-time-category-early
+    .nzgdc-morning-session-title {
+    color: var(--color-black);
+    font-family: var(--font-primary);
+    font-size: 36px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-time-category-mid
+    .nzgdc-morning-session-times,
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-time-category-mid
+    .nzgdc-morning-session-title {
+    color: var(--color-black);
+    font-family: var(--font-primary);
+    font-size: 36px;
+    font-weight: 800;
+    text-align: center;
+}
+
+/* Underline elements */
+.nzgdc-friday-saturday-schedule-widget.morning-view .nzgdc-morning-underline {
+    width: calc(100% - 50px);
+    height: 5px;
+    margin: 0 auto;
+    display: block;
+    flex-shrink: 0;
+    background-color: var(--color-black);
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-event-times-early
+    .nzgdc-morning-underline {
+    background-color: var(--color-black);
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-event-times-mid
+    .nzgdc-morning-underline {
+    background-color: var(--color-black);
+}
+
+/* Event Times Containers */
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-event-times-early {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    height: 81px;
+    background-color: var(--color-yellow);
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-event-times-mid {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    height: 81px;
+    background-color: var(--color-yellow);
+}
+
+/* Scheduled Morning Events Container */
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-scheduled-morning-events {
+    width: 100%;
+    padding: 40px;
+    background-color: inherit;
+    box-sizing: border-box;
+}
+
+/* Break Schedule Styling - FIXED: BLACK BACKGROUND WITH WHITE TEXT */
+.nzgdc-friday-saturday-schedule-widget.morning-view .nzgdc-break-schedule {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 233px;
+    background-color: var(--color-black);
+    margin: 0 auto;
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view .nzgdc-break-schedule h2 {
+    color: var(--color-white);
+    font-family: var(--font-primary);
+    font-size: 48px;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin: 0;
+    padding: 0;
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view .nzgdc-break-schedule p {
+    color: var(--color-white);
+    font-family: var(--font-medium);
+    font-size: 24px;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
+}
+
+/* Morning Event Rows - Flexible Layout */
+.nzgdc-friday-saturday-schedule-widget.morning-view .nzgdc-morning-event-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    min-height: var(--event-panel-height);
+    margin: 0 0 40px 0;
+}
+
+/* Big panel alignment - matches original exactly */
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-event-row[data-row^="big"] {
+    justify-content: flex-start;
+    padding-left: 0;
+    margin-left: 0;
+}
+
+/* Calculate exact alignment for big panels to match main panels */
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-event-row[data-row^="big"]
+    .nzgdc-morning-event:first-child {
+    margin-left: calc((100% - (5 * 300px) - (4 * 20px)) / 2);
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-event-row:last-child {
+    margin-bottom: 0;
+}
+
+/* Morning Event Containers - Flexible Sizing */
+.nzgdc-friday-saturday-schedule-widget.morning-view .nzgdc-morning-event {
+    flex: 0 0 auto;
+    max-width: var(--event-panel-width);
+    width: var(--event-panel-width);
+    height: var(--event-panel-height);
+}
+
+/* Morning Event Main Container - For Square Panels */
+.nzgdc-friday-saturday-schedule-widget.morning-view .nzgdc-morning-event-main {
+    flex: 0 0 auto;
+    max-width: 300px;
+    width: 300px;
+    height: 300px;
+}
+
+/* Event Panel Container - Optimized for Dynamic Content */
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-event-panel-container {
+    width: var(--event-panel-width);
+    height: var(--event-panel-height);
+    overflow: hidden;
+    position: relative;
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-event-panel-main-container {
+    width: 300px;
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Schedule Footer Navigation */
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-schedule-footer-navigation {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%;
+    background-color: var(--color-white);
+}
+
+/* Back to Top Button */
+.nzgdc-friday-saturday-schedule-widget.morning-view .nzgdc-morning-back-to-top {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 15px;
+    background-color: var(--color-yellow);
+    border: none;
+    cursor: pointer;
+    color: var(--color-black);
+    font-family: var(--font-primary);
+    font-size: 28px;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-back-to-top:hover {
+    background-color: var(--color-yellow-bright);
+}
+
+/* Loading and Error States */
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-loading-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-gray-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-medium);
+    color: var(--color-gray-medium);
+    border: 1px solid var(--color-gray-border);
+    font-size: 16px;
+    text-align: center;
+    padding: 20px;
+}
+
+.nzgdc-friday-saturday-schedule-widget.morning-view
+    .nzgdc-morning-error-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: #ffe6e6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-medium);
+    color: #cc0000;
+    border: 1px solid #ffcccc;
+    font-size: 14px;
+    text-align: center;
+    padding: 20px;
+}
+
+/* =============================================================================
+   AFTERNOON VIEW STYLES (from afternoon-schedule-bundle.css)
+   NOTE: Import ALL existing styles with view-specific prefixes
+   ============================================================================= */
+
+/* CSS Custom Properties (Variables) for Afternoon View */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-schedule-widget {
+    --color-blue: rgba(23, 75, 235, 1);
+    --color-blue-bright: rgba(20, 65, 200, 1);
+    --color-blue-hover: rgba(15, 55, 180, 1);
+    --color-yellow: rgba(255, 236, 81, 1);
+    --color-white: rgba(255, 255, 255, 1);
+    --color-black: rgba(0, 0, 0, 1);
+    --color-gray-light: #f0f0f0;
+    --color-gray-medium: #666;
+    --color-gray-border: #ddd;
+
+    --font-primary: "Futura PT Heavy", "Futura", Arial, sans-serif;
+    --font-medium: "Futura PT Medium", "Futura", Arial, sans-serif;
+
+    --container-max-width: 1630px;
+    --event-panel-width: 620px;
+    --event-panel-height: 300px;
+
+    /* Base styling for proper rendering */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Main container - blue background theme */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-schedule-widget {
+    font-family: var(--font-primary);
+    background-color: var(--color-blue);
+    width: 100%;
+    max-width: var(--container-max-width);
+    height: auto;
+    margin: 0 auto;
+    position: relative;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Afternoon Schedule Sub Navigation - Contains Time Navigation and Filters */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-schedule-sub-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    width: 100%;
+    background-color: var(--color-white);
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    min-height: 60px;
+}
+
+/* Schedule Time Navigation - TOP LEFT POSITION as in original */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-schedule-time-navigation {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    min-height: 60px;
+}
+
+/* Existing Afternoon Events Button Styles - PRESERVE EXACTLY */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-morning-events-button {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: var(--color-yellow);
+    border: none;
+    cursor: pointer;
+    color: var(--color-black);
+    font-family: var(--font-primary);
+    min-height: 60px;
+    box-sizing: border-box;
+    font-size: 28px;
+    font-weight: 800;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-morning-events-button:hover {
+    background-color: rgba(255, 226, 61, 1);
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-events-button {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: var(--color-blue-bright);
+    border: none;
+    cursor: pointer;
+    color: var(--color-white);
+    font-family: var(--font-primary);
+    min-height: 60px;
+    box-sizing: border-box;
+    font-size: 28px;
+    font-weight: 800;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-events-button:hover {
+    background-color: var(--color-blue-hover);
+}
+
+/* Afternoon Filters Section - TOP RIGHT POSITION */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-filters-section {
+    display: flex;
+    align-items: stretch;
+    min-height: 60px;
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-filters-label {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 5px 15px;
+    background-color: var(--color-blue-bright);
+    min-height: 60px;
+    box-sizing: border-box;
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-filters-label-text {
+    color: var(--color-white);
+    font-family: var(--font-primary);
+    font-size: 28px;
+    font-weight: 600;
+    text-align: center;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-filters-value {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 15px;
+    background-color: var(--color-white);
+    min-height: 60px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-filters-value-text {
+    color: var(--color-black);
+    font-family: var(--font-primary);
+    font-size: 28px;
+    font-weight: 600;
+    text-align: center;
+    text-transform: uppercase;
+    line-height: 1;
+}
+
+/* Time Categories - Base Styles for Afternoon */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-time-category {
+    width: 100%;
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-time-category-early {
+    background-color: var(--color-blue);
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-time-category-mid {
+    background-color: var(--color-blue);
+}
+
+/* Session Schedule Header - Consolidated Base Styles for Afternoon */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-session-schedule {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 46px;
+    margin: 17px 0 10px 0;
+    padding: 0 25px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-session-text {
+    width: auto;
+    height: 43px;
+    display: flex;
+    align-items: center;
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-time-category-early
+    .nzgdc-afternoon-session-text {
+    color: var(--color-white);
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-time-category-mid
+    .nzgdc-afternoon-session-text {
+    color: var(--color-white);
+}
+
+/* Theme-specific colors for afternoon */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-session-times,
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-session-title {
+    color: var(--color-white);
+    font-family: var(--font-primary);
+    font-size: 36px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-time-category-early
+    .nzgdc-afternoon-session-times,
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-time-category-early
+    .nzgdc-afternoon-session-title {
+    color: var(--color-white);
+    font-family: var(--font-primary);
+    font-size: 36px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-time-category-mid
+    .nzgdc-afternoon-session-times,
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-time-category-mid
+    .nzgdc-afternoon-session-title {
+    color: var(--color-white);
+    font-family: var(--font-primary);
+    font-size: 36px;
+    font-weight: 800;
+    text-align: center;
+}
+
+/* Underline elements for afternoon */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-underline {
+    width: calc(100% - 50px);
+    height: 5px;
+    margin: 0 auto;
+    display: block;
+    flex-shrink: 0;
+    background-color: var(--color-white);
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-event-times-early
+    .nzgdc-afternoon-underline {
+    background-color: var(--color-white);
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-event-times-mid
+    .nzgdc-afternoon-underline {
+    background-color: var(--color-white);
+}
+
+/* Event Times Containers for afternoon */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-event-times-early {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    height: 81px;
+    background-color: var(--color-blue);
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-event-times-mid {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 100%;
+    height: 81px;
+    background-color: var(--color-blue);
+}
+
+/* Scheduled Afternoon Events Container */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-scheduled-afternoon-events {
+    width: 100%;
+    padding: 40px;
+    background-color: inherit;
+    box-sizing: border-box;
+}
+
+/* Break Schedule Styling for afternoon - BLACK BACKGROUND WITH WHITE TEXT */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view .nzgdc-break-schedule {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    height: 233px;
+    background-color: var(--color-black);
+    margin: 0 auto;
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view .nzgdc-break-schedule h2 {
+    color: var(--color-white);
+    font-family: var(--font-primary);
+    font-size: 48px;
+    font-weight: 800;
+    text-transform: uppercase;
+    margin: 0;
+    padding: 0;
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view .nzgdc-break-schedule p {
+    color: var(--color-white);
+    font-family: var(--font-medium);
+    font-size: 24px;
+    font-weight: 400;
+    margin: 0;
+    padding: 0;
+}
+
+/* Afternoon Event Rows - Flexible Layout */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-event-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+    min-height: var(--event-panel-height);
+    margin: 0 0 40px 0;
+}
+
+/* Big panel alignment - matches original exactly */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-event-row[data-row^="big"] {
+    justify-content: flex-start;
+    padding-left: 0;
+    margin-left: 0;
+}
+
+/* Calculate exact alignment for big panels to match main panels */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-event-row[data-row^="big"]
+    .nzgdc-afternoon-event:first-child {
+    margin-left: calc((100% - (5 * 300px) - (4 * 20px)) / 2);
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-event-row:last-child {
+    margin-bottom: 0;
+}
+
+/* Afternoon Event Containers - Flexible Sizing */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view .nzgdc-afternoon-event {
+    flex: 0 0 auto;
+    max-width: var(--event-panel-width);
+    width: var(--event-panel-width);
+    height: var(--event-panel-height);
+}
+
+/* Afternoon Event Main Container - For Square Panels */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-event-main {
+    flex: 0 0 auto;
+    max-width: 300px;
+    width: 300px;
+    height: 300px;
+}
+
+/* Event Panel Container - Optimized for Dynamic Content */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-event-panel-container {
+    width: var(--event-panel-width);
+    height: var(--event-panel-height);
+    overflow: hidden;
+    position: relative;
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-event-panel-main-container {
+    width: 300px;
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Schedule Footer Navigation for afternoon */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-schedule-footer-navigation {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%;
+    background-color: var(--color-white);
+}
+
+/* Back to Top Button - blue theme */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-back-to-top {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 8px 15px;
+    background-color: var(--color-blue);
+    border: none;
+    cursor: pointer;
+    color: var(--color-white);
+    font-family: var(--font-primary);
+    font-size: 28px;
+    font-weight: 600;
+    text-transform: uppercase;
+    transition: background-color 0.3s ease;
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-back-to-top:hover {
+    background-color: var(--color-blue-bright);
+}
+
+/* Loading and Error States for afternoon */
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-loading-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-gray-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-medium);
+    color: var(--color-gray-medium);
+    border: 1px solid var(--color-gray-border);
+    font-size: 16px;
+    text-align: center;
+    padding: 20px;
+}
+
+.nzgdc-friday-saturday-schedule-widget.afternoon-view
+    .nzgdc-afternoon-error-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: #ffe6e6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-medium);
+    color: #cc0000;
+    border: 1px solid #ffcccc;
+    font-size: 14px;
+    text-align: center;
+    padding: 20px;
+}
+
+/* =============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================= */
+
+@media (max-width: 1680px) {
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-morning-schedule-widget,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-afternoon-schedule-widget {
+        padding: 0;
+    }
+}
+
+@media (max-width: 1300px) {
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-morning-event-row,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-afternoon-event-row {
+        flex-direction: column;
+        height: auto;
+        gap: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-schedule-time-navigation,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-schedule-time-navigation {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-morning-events-button,
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-afternoon-events-button,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-morning-events-button,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-afternoon-events-button {
+        width: 100%;
+        max-width: 200px;
+    }
+
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-morning-filters-section,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-afternoon-filters-section {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-morning-filters-value,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-afternoon-filters-value {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-morning-session-schedule,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-afternoon-session-schedule {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+        height: auto;
+        padding: 10px;
+    }
+
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-morning-time-category-early
+        .nzgdc-morning-session-times,
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-morning-time-category-early
+        .nzgdc-morning-session-title,
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-morning-time-category-mid
+        .nzgdc-morning-session-times,
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-morning-time-category-mid
+        .nzgdc-morning-session-title,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-afternoon-time-category-early
+        .nzgdc-afternoon-session-times,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-afternoon-time-category-early
+        .nzgdc-afternoon-session-title,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-afternoon-time-category-mid
+        .nzgdc-afternoon-session-times,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-afternoon-time-category-mid
+        .nzgdc-afternoon-session-title {
+        font-size: 24px;
+    }
+
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-scheduled-morning-events,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-scheduled-afternoon-events {
+        padding: 20px;
+    }
+
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-morning-event-row,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-afternoon-event-row {
+        margin-bottom: 20px;
+    }
+
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-morning-back-to-top,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-afternoon-back-to-top {
+        font-size: 28px;
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-morning-schedule-widget,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-afternoon-schedule-widget {
+        padding: 0;
+    }
+
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-scheduled-morning-events,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-scheduled-afternoon-events {
+        padding: 10px;
+    }
+
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-morning-filters-section,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-afternoon-filters-section {
+        padding: 10px 15px;
+    }
+
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-morning-filters-label-text,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-afternoon-filters-label-text {
+        font-size: 24px;
+    }
+
+    .nzgdc-friday-saturday-schedule-widget.morning-view
+        .nzgdc-morning-filters-value-text,
+    .nzgdc-friday-saturday-schedule-widget.afternoon-view
+        .nzgdc-afternoon-filters-value-text {
+        font-size: 22px;
+    }
+}
+
+/* =============================================================================
+   LOADING STATES
+   ============================================================================= */
+
+.friday-saturday-widget-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 50px;
+    font-size: 16px;
+    color: #666;
+}
+
+.friday-saturday-widget-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 50px;
+    font-size: 16px;
+    color: #d32f2f;
+    background-color: #ffebee;
+    border-radius: 4px;
+    border: 1px solid #ffcdd2;
+}
+
+/* =============================================================================
+   ACCESSIBILITY ENHANCEMENTS
+   ============================================================================= */
+
+.nzgdc-friday-saturday-schedule-widget .nzgdc-morning-events-button:focus,
+.nzgdc-friday-saturday-schedule-widget .nzgdc-afternoon-events-button:focus {
+    outline: 2px solid #4caf50;
+    outline-offset: 2px;
+}
+
+.nzgdc-friday-saturday-schedule-widget
+    .nzgdc-morning-events-button:focus-visible,
+.nzgdc-friday-saturday-schedule-widget
+    .nzgdc-afternoon-events-button:focus-visible {
+    outline: 2px solid #4caf50;
+    outline-offset: 2px;
+}
+
+/* Screen reader only text */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
