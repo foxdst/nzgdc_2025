@@ -689,8 +689,8 @@
     .nzgdc-afternoon-event-panel-main-container.filtered-out,
 .nzgdc-afternoon-schedule-widget
     .nzgdc-afternoon-event-panel-container.filtered-out {
-    opacity: 0.3;
-    filter: grayscale(70%);
+    opacity: 0.5;
+    filter: grayscale(80%);
 }
 
 /* Filtered IN events - keep them highlighted/normal */
@@ -872,7 +872,7 @@
 }
 
 /* Keep original filtered-out event styling from existing filter system */
-.nzgdc-morning-schedule-widget
+/*.nzgdc-morning-schedule-widget
     .nzgdc-morning-event-panel-container.filtered-out,
 .nzgdc-morning-schedule-widget
     .nzgdc-morning-event-panel-main-container.filtered-out,
@@ -882,7 +882,7 @@
     .nzgdc-afternoon-event-panel-main-container.filtered-out {
     opacity: 0.3;
     filter: grayscale(70%);
-}
+}*/
 
 /* Time slots without filtered events get reduced emphasis - JavaScript controlled */
 .nzgdc-morning-schedule-widget .nzgdc-morning-time-category.no-filtered-events,
@@ -1193,8 +1193,8 @@
 /* Filtered Out Events - Grey Out Big Event Panels */
 .nzgdc-schedule-widget .nzgdc-event-panel-container.filtered-out,
 .nzgdc-schedule-widget .nzgdc-event-panel-big.filtered-out {
-    opacity: 0.3 !important;
-    filter: grayscale(70%) !important;
+    opacity: 0.5 !important;
+    filter: grayscale(80%) !important;
 }
 
 /* Filtered In Events - Highlight Big Event Panels */

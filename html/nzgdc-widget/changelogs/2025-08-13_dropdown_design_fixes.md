@@ -124,6 +124,26 @@ This fix relies on:
 - Added `this.morningCategoryKey = "ALL"` and `this.afternoonCategoryKey = "ALL"`
 - Enables independent filter state tracking for morning and afternoon views
 
+#### 8. Added Clear Filter Functionality
+**New Methods Added (Lines 641-765)**:
+- **`clearFilter(viewType)`**: Resets filter to "All Events" and applies to generators
+- **`overrideGeneratorFiltering()`**: Overrides generator filtering methods to inject clear filter buttons
+- **`showClearFilterButtons(viewType)`**: Creates clear filter buttons when filtering is applied
+- **`hideClearFilterButtons(viewType)`**: Removes clear filter buttons when filtering is cleared
+
+#### 9. Auto-Clear Filters When Switching Views
+**Modified `switchToView()` (Lines 454)**:
+- Added automatic filter clearing when switching between morning/afternoon views
+- Ensures clean slate when users change views
+
+#### 10. Dedicated Clear Filter Button Rows
+**Generator Method Override (Lines 370, 667-760)**:
+- Overrides `applyEventFiltering()` and `clearEventFiltering()` methods in both generators
+- Creates dedicated clear filter button rows inserted after each event panel row
+- Buttons appear exactly when events get grayed out during filtering
+- Clean integration without overlaying on existing content
+- Perfect timing synchronization with the actual filtering process
+
 ### Dynamic Features Implemented
 
 #### Filter Label Updates
@@ -139,7 +159,19 @@ This fix relies on:
 #### Independent View States
 - **Morning View**: Maintains its own category selection and filter state
 - **Afternoon View**: Maintains separate category selection and filter state  
-- **State Persistence**: Filter states persist when switching between morning/afternoon views
+- **Auto-Clear on Switch**: Filter states automatically reset to "All Events" when switching views
+
+#### Clear Filter Buttons
+- **Clean Design**: White background with subtle shadow, no border, no rounded corners
+- **Dedicated Rows**: Each button gets its own row inserted after event panel rows
+- **Consistent Spacing**: Matches event panel row spacing with 40px bottom margin
+- **Perfect Alignment**: Left-aligned buttons with no unnecessary padding or margins
+- **Enhanced Visibility**: Larger button size (20px font, 12px/20px padding) for better prominence
+- **No Overlay Issues**: Buttons don't overlay existing content - proper structural integration
+- **Perfect Timing**: Appear exactly when event filtering is applied (events get grayed out)
+- **Automatic Management**: Show when `applyEventFiltering()` runs, hide when `clearEventFiltering()` runs
+- **Instant Reset**: One-click return to "All Events" view without scrolling to top
+- **Design Consistency**: Sharp corners match the design language used throughout the widget
 
 ## Result
 
@@ -148,5 +180,44 @@ The unified Friday/Saturday widget now has fully functional, dynamically updatin
 1. **Dynamic Filter Labels**: Selected categories appear in the filter button with proper colors
 2. **Triangle Animation**: Visual feedback with rotating triangle on dropdown interaction
 3. **Category-Specific Styling**: Each selected category shows its distinctive background color
-4. **Independent State Management**: Morning and afternoon views maintain separate filter states
-5. **Proper Visual Hierarchy**: Only relevant categories appear based on actual event data
+4. **Auto-Clear on View Switch**: Filters automatically reset when switching between morning/afternoon
+5. **Dedicated Clear Button Rows**: Clean button rows appear beneath event panels when filtering is applied
+6. **Proper Visual Hierarchy**: Only relevant categories appear based on actual event data
+
+## Spacing and Alignment Improvements
+**CSS Updates (Lines 497, 507-518, 1017, 1028-1039)**:
+- **Consistent Row Spacing**: Changed to match event panel rows with 40px bottom margin
+- **Perfect Left Alignment**: Removed unnecessary left margins and padding from buttons
+- **Enhanced Button Size**: Increased font size to 20px and padding to 12px/20px for better visibility
+- **Mobile Optimization**: Adjusted mobile sizing to 18px font with center alignment and 20px margin
+- **Professional Appearance**: Clean alignment that integrates seamlessly with existing schedule layout
+
+## Thursday Schedule Clear Filter Integration
+**JavaScript Updates (`JS Embed/html/nzgdc-widget/js/widget-core.js` - Lines 422, 528-600)**:
+- **Generator Override Integration**: Added `overrideGeneratorFiltering()` method to hook into Thursday schedule filtering
+- **Clear Filter Button Management**: Implemented `showClearFilterButtons()` and `hideClearFilterButtons()` methods
+- **Workshop Row Integration**: Clear filter buttons appear after `.nzgdc-workshop-row` elements during filtering
+- **Consistent Timing**: Buttons show when `applyEventFiltering()` runs, hide when `clearEventFiltering()` runs
+- **Same Design Pattern**: Matches Friday/Saturday implementation for consistent user experience
+
+**CSS Updates (`JS Embed/html/nzgdc-widget/css/thursday-schedule-bundle.css` - Lines 235-264, 354-362)**:
+- **Matching Button Styles**: Same white background, 20px font, 12px/20px padding as Friday/Saturday
+- **Consistent Row Layout**: 40px bottom margin matching workshop rows, left-aligned on desktop
+- **Responsive Design**: 18px font and center alignment on mobile devices
+- **Design Consistency**: No rounded corners, subtle shadow, proper hover states
+
+## Container Padding Optimization
+**CSS Updates (Lines 357, 874)**:
+- **Reduced Horizontal Padding**: Changed `.nzgdc-scheduled-morning-events` and `.nzgdc-scheduled-afternoon-events` from `padding: 40px` to `padding: 40px 20px`
+- **Improved Layout**: Maintains 40px top/bottom padding while reducing left/right padding to 20px for better content flow
+- **Consistent Spacing**: Creates more balanced whitespace around event panels and clear filter buttons
+
+## Files Modified
+
+### JavaScript Files
+- `JS Embed/html/nzgdc-widget/js/friday-saturday-widget-core.js` - Added clear filter button functionality for Friday/Saturday views
+- `JS Embed/html/nzgdc-widget/js/widget-core.js` - Added clear filter button functionality for Thursday schedule
+
+### CSS Files
+- `JS Embed/html/nzgdc-widget/css/friday-saturday-schedule-bundle.css` - Added clear filter button styles, spacing, and optimized container padding
+- `JS Embed/html/nzgdc-widget/css/thursday-schedule-bundle.css` - Added clear filter button styles matching Friday/Saturday design

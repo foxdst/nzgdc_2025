@@ -367,20 +367,21 @@
       }
 
       this.debugLog("All generators initialized successfully");
+
+      // Override generator filtering methods to inject clear filter buttons
+      this.overrideGeneratorFiltering();
     }
 
     setupEventListeners() {
-      this.debugLog(
-        "Setting up event listeners for navigation, filters, and back-to-top buttons",
-      );
+      this.debugLog("Setting up event listeners");
 
       // Wire up navigation buttons
       this.wireUpExistingButtons();
 
-      // Wire up category dropdowns
+      // Wire up dropdowns after generators are ready
       this.wireUpCategoryDropdowns();
 
-      // Wire up back-to-top buttons
+      // Wire up back to top buttons
       this.wireUpBackToTopButtons();
     }
 
@@ -444,6 +445,9 @@
           morningViewContainer.style.display = "none";
           afternoonViewContainer.style.display = "block";
         }
+
+        // Clear any active filters when switching views
+        this.clearFilter(viewName);
 
         // Load the requested view if not already loaded
         await this.loadView(viewName);
@@ -632,15 +636,126 @@
       }
     }
 
+    clearFilter(viewType) {
+      // Reset category key
+      this[`${viewType}CategoryKey`] = "ALL";
+
+      // Update filter text back to default
+      this.updateFilterValueText("All Events", viewType);
+
+      // Apply clear filter to generator
+      const generator =
+        viewType === "morning"
+          ? this.morningGenerator
+          : this.afternoonGenerator;
+      if (generator && generator.resetFilter) {
+        generator.resetFilter();
+      }
+    }
+
     wireUpBackToTopButtons() {
       const backToTopButtons = this.container.querySelectorAll(
         ".nzgdc-morning-back-to-top, .nzgdc-afternoon-back-to-top",
       );
       backToTopButtons.forEach((button) => {
-        button.addEventListener("click", (e) => {
-          e.preventDefault();
-          window.scrollTo({ top: 0, behavior: "smooth" });
+        button.addEventListener("click", () => {
+          this.container.scrollIntoView({ behavior: "smooth", block: "start" });
         });
+      });
+    }
+
+    overrideGeneratorFiltering() {
+      // Override morning generator filtering methods
+      if (this.morningGenerator) {
+        const originalMorningFilter =
+          this.morningGenerator.applyEventFiltering.bind(this.morningGenerator);
+        const originalMorningClear =
+          this.morningGenerator.clearEventFiltering.bind(this.morningGenerator);
+
+        this.morningGenerator.applyEventFiltering = (categoryKey) => {
+          originalMorningFilter(categoryKey);
+          this.showClearFilterButtons("morning");
+        };
+
+        this.morningGenerator.clearEventFiltering = () => {
+          originalMorningClear();
+          this.hideClearFilterButtons("morning");
+        };
+      }
+
+      // Override afternoon generator filtering methods
+      if (this.afternoonGenerator) {
+        const originalAfternoonFilter =
+          this.afternoonGenerator.applyEventFiltering.bind(
+            this.afternoonGenerator,
+          );
+        const originalAfternoonClear =
+          this.afternoonGenerator.clearEventFiltering.bind(
+            this.afternoonGenerator,
+          );
+
+        this.afternoonGenerator.applyEventFiltering = (categoryKey) => {
+          originalAfternoonFilter(categoryKey);
+          this.showClearFilterButtons("afternoon");
+        };
+
+        this.afternoonGenerator.clearEventFiltering = () => {
+          originalAfternoonClear();
+          this.hideClearFilterButtons("afternoon");
+        };
+      }
+    }
+
+    showClearFilterButtons(viewType) {
+      // Remove any existing clear filter buttons first
+      this.hideClearFilterButtons(viewType);
+
+      const scheduleContainer = this.container.querySelector(
+        viewType === "morning"
+          ? `#morning-schedule-content-${this.uniqueId}`
+          : `#afternoon-schedule-content-${this.uniqueId}`,
+      );
+
+      if (!scheduleContainer) return;
+
+      // Find all event rows
+      const eventRows = scheduleContainer.querySelectorAll(
+        viewType === "morning"
+          ? ".nzgdc-morning-event-row"
+          : ".nzgdc-afternoon-event-row",
+      );
+
+      eventRows.forEach((eventRow) => {
+        // Create dedicated clear filter button row
+        const clearFilterRow = document.createElement("div");
+        clearFilterRow.className = `nzgdc-${viewType}-clear-filter-row`;
+
+        // Create the clear filter button
+        const clearButton = document.createElement("button");
+        clearButton.className = `nzgdc-${viewType}-clear-filter-button`;
+        clearButton.textContent = "CLEAR FILTER";
+        clearButton.setAttribute("data-view-type", viewType);
+
+        // Add click handler
+        clearButton.addEventListener("click", () => {
+          this.clearFilter(viewType);
+        });
+
+        // Add button to the row
+        clearFilterRow.appendChild(clearButton);
+
+        // Insert the clear filter row after the event row
+        eventRow.parentNode.insertBefore(clearFilterRow, eventRow.nextSibling);
+      });
+    }
+
+    hideClearFilterButtons(viewType) {
+      const clearFilterRows = this.container.querySelectorAll(
+        `.nzgdc-${viewType}-clear-filter-row`,
+      );
+
+      clearFilterRows.forEach((row) => {
+        row.remove();
       });
     }
 
