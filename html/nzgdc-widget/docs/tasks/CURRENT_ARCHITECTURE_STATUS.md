@@ -472,7 +472,7 @@ window.NZGDC_DEBUG = true    // Enable detailed debugging
 **Architecture Documentation:**
 - ✅ `CURRENT_ARCHITECTURE_STATUS.md` - This document (authoritative reference)
 - ✅ `CONSOLIDATION_TASKS.md` - Consolidation history and achievements
-- ✅ `Event-Categories-Implementation-Guide.md` - Category integration guide
+- ✅ `EVENT_CATEGORIES_IMPLEMENTATION_GUIDE.md` - Category integration guide
 
 **Integration Documentation:**  
 - ✅ `AFTERNOON-INTEGRATION_TASKS.md` - Widget integration patterns

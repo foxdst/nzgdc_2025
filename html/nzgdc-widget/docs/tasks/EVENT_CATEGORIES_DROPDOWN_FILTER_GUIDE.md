@@ -8,7 +8,7 @@
 
 **CRITICAL DISCOVERY:** Current system has NO existing filter system. This implementation will ADD filtering capability to Morning and Afternoon widgets.
 
-**PREREQUISITE:** Event Categories system must be implemented first (see `Event-Categories-Implementation-Guide.md`).
+**PREREQUISITE:** Event Categories system must be implemented first (see `EVENT_CATEGORIES_IMPLEMENTATION_GUIDE.md`).
 
 ---
 
@@ -40,7 +40,7 @@ This document provides **step-by-step, expert-level instructions** for implement
 - **Visual State Indicator:** Triangle direction changes: ▶ (closed) ↔ ▼ (open)
 - **⚠️ CRITICAL:** DO NOT redesign existing "Filters:" label or filter value styling - only add dropdown overlay functionality and triangle state changes
 
-### Event Categories Specification (from Event-Categories-Implementation-Guide.md)
+### Event Categories Specification (from EVENT_CATEGORIES_IMPLEMENTATION_GUIDE.md)
 
 **The 11 Fixed Categories with Correct Properties:**
 1. **STORY_NARRATIVE** - "Story & Narrative" - #fff47f (light yellow), black text
@@ -668,7 +668,7 @@ This document provides **step-by-step, expert-level instructions** for implement
 
 ### Pre-Implementation
 - [ ] Read `CSS_REDUNDANCY_WARNING.md` thoroughly  
-- [ ] Verify Event Categories system implemented (prerequisite from `Event-Categories-Implementation-Guide.md`)
+- [ ] Verify Event Categories system implemented (prerequisite from `EVENT_CATEGORIES_IMPLEMENTATION_GUIDE.md`)
 - [ ] UNDERSTAND: Existing filter UI structure exists in widget cores - enhance existing `renderFiltersInline()` method
 - [ ] **CRITICAL:** Examine existing "Filters:" and "NONE ▶" UI - this MUST be preserved unchanged
 - [ ] Test current system using `.widget-tests/widget-demo.html` interface

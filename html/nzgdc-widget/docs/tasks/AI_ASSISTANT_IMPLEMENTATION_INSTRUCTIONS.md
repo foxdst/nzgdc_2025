@@ -68,7 +68,7 @@ diff <(head -50 js/morning-widget-core.js) <(head -50 js/afternoon-widget-core.j
 **ARCHITECTURE STATUS:** This system uses UNIFIED ARCHITECTURE (v1.9) where all event panels share a single UnifiedEventLoader, unified template, and unified CSS system.
 
 **Project:** NZGDC JS Widget System Optimization  
-**Reference Document:** `JS-Widget-Codebase-Optimization-and-Accessibility-Audit.md`  
+**Reference Document:** `JS_WIDGET_CODEBASE_OPTIMIZATION_AND_ACCESSIBILITY_AUDIT.md`
 **Target:** Streamline codebase while preserving all current functionality  
 **Timeline:** 8 weeks of phased implementation
 
@@ -1026,7 +1026,7 @@ await Promise.all([
 
 **Files to Update:**
 1. `README.md` - Update class descriptions and file listings
-2. `JS-Widget-Codebase-Optimization-and-Accessibility-Audit.md` - Mark optimizations complete
+2. `JS_WIDGET_CODEBASE_OPTIMIZATION_AND_ACCESSIBILITY_AUDIT.md` - Mark optimizations complete
 
 ---
 
@@ -1189,7 +1189,7 @@ destroy() {
 
 ### Event Categories Integration Constraints
 
-**IF IMPLEMENTING CATEGORIES (FROM Event-Categories-Implementation-Guide.md):**
+**IF IMPLEMENTING CATEGORIES (FROM EVENT_CATEGORIES_IMPLEMENTATION_GUIDE.md):**
 - ✅ **ONLY** add category CSS to `css/unified-event-panel.css`
 - ✅ **REQUIRED** 11 fixed categories with exact colors specified in guide
 - ✅ **MANDATORY** overlay compatibility for light/dark category backgrounds

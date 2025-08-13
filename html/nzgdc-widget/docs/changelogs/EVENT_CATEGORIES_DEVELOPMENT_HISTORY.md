@@ -1,7 +1,7 @@
 # Event Categories Development History
 
 **Project:** NZGDC JS Widget Event Categories System
-**Implementation Guide:** `Event-Categories-Implementation-Guide.md`
+**Implementation Guide:** `EVENT_CATEGORIES_IMPLEMENTATION_GUIDE.md`
 **Final Status:** ✅ **PRODUCTION READY**
 
 ## Development History Overview
@@ -134,7 +134,7 @@ This document chronicles the complete development journey of implementing the Ev
 
 **Documentation Created:**
 - `Event-Categories-Implementation-Changelog.md`
-- `Event-Categories-Implementation-Summary.md`
+- `EVENT_CATEGORIES_IMPLEMENTATION_SUMMARY.md`
 - `Event-Categories-Implementation-Review.md`
 - `Version-History.md`
 

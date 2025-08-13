@@ -1,7 +1,7 @@
 # Event Categories Implementation Summary
 
 **Final Version:** v1.6
-**Implementation Guide Reference:** `Event-Categories-Implementation-Guide.md`
+**Implementation Guide Reference:** `EVENT_CATEGORIES_IMPLEMENTATION_GUIDE.md`
 **Implementation Status:** ✅ **COMPLETE AND PRODUCTION-READY**
 
 ## Executive Summary
