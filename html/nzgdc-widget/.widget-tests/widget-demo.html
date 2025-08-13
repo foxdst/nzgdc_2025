@@ -510,11 +510,25 @@
                 currentMorningWidget = null;
                 morningWidgetLoaded = false;
             }
+            // Destroy afternoon widget if loaded
+            if (currentAfternoonWidget && typeof currentAfternoonWidget.destroy === 'function') {
+                try {
+                    currentAfternoonWidget.destroy();
+                } catch (e) {}
+                currentAfternoonWidget = null;
+                afternoonWidgetLoaded = false;
+            }
             // Hide morning container
             const morningContainer = document.getElementById('morning-container');
             if (morningContainer) {
                 morningContainer.style.display = 'none';
                 morningContainer.innerHTML = '<h2>Friday & Saturday Morning Schedule</h2>';
+            }
+            // Hide afternoon container
+            const afternoonContainer = document.getElementById('afternoon-container');
+            if (afternoonContainer) {
+                afternoonContainer.style.display = 'none';
+                afternoonContainer.innerHTML = '<h2>Friday & Saturday Afternoon Schedule</h2>';
             }
 
             // Show Thursday widget

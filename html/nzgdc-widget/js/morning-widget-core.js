@@ -160,9 +160,9 @@ class NZGDCMorningScheduleWidget {
   }
 
   // Generate category options HTML
+  // Generate category options based on available categories
   generateCategoryOptions() {
-    const categories = [
-      { key: "ALL", name: "All Events" },
+    const allCategories = [
       { key: "GAME_DESIGN", name: "Game Design" },
       { key: "ART", name: "Art" },
       { key: "PROGRAMMING", name: "Programming" },
@@ -176,14 +176,77 @@ class NZGDCMorningScheduleWidget {
       { key: "SERIOUS_EDUCATIONAL", name: "Serious & Educational Games" },
     ];
 
+    // Get categories that actually exist in the morning events data
+    const availableCategories = this.getAvailableCategories();
+
+    // Filter to only show categories that exist in the data
+    const categories = allCategories.filter((category) =>
+      availableCategories.has(category.key),
+    );
+
+    this.debug(
+      `Showing ${categories.length} available categories in dropdown:`,
+      categories.map((c) => c.name),
+    );
+
+    // If no categories found, show all as fallback
+    if (categories.length === 0) {
+      this.debug(
+        "No categories found in data, showing all categories as fallback",
+      );
+      return this.generateAllCategoryOptions(allCategories);
+    }
+
+    // Always add "All Events" option at the beginning
+    const finalCategories = [{ key: "ALL", name: "All Events" }, ...categories];
+
     // Sort categories alphabetically by name, keeping "All Events" first
-    const sortedCategories = categories.sort((a, b) => {
+    const sortedCategories = finalCategories.sort((a, b) => {
       if (a.key === "ALL") return -1; // "All Events" always first
       if (b.key === "ALL") return 1;
       return a.name.localeCompare(b.name); // Alphabetical sort for the rest
     });
 
     return sortedCategories
+      .map(
+        (category) =>
+          `<div class="category-dropdown-item" data-category="${category.key}" tabindex="0">
+        ${category.name.toUpperCase()}
+      </div>`,
+      )
+      .join("");
+  }
+
+  // Get categories that actually exist in the morning events data
+  getAvailableCategories() {
+    const availableCategories = new Set();
+
+    if (window.MORNING_EVENTS) {
+      Object.values(window.MORNING_EVENTS).forEach((event) => {
+        if (event.categoryKey) {
+          availableCategories.add(event.categoryKey);
+        }
+      });
+    }
+
+    this.debug(
+      `Found ${availableCategories.size} available categories in morning events:`,
+      Array.from(availableCategories),
+    );
+
+    return availableCategories;
+  }
+
+  // Generate all category options as fallback
+  generateAllCategoryOptions(allCategories) {
+    this.debug("Using fallback: showing all categories");
+
+    const finalCategories = [
+      { key: "ALL", name: "All Events" },
+      ...allCategories,
+    ];
+
+    return finalCategories
       .map(
         (category) =>
           `<div class="category-dropdown-item" data-category="${category.key}" tabindex="0">

@@ -17,14 +17,14 @@ const MORNING_EVENTS = {
     ],
   },
   "panel-b2": {
-    category: "Programming",
-    categoryKey: "PROGRAMMING",
-    title: "Workshop: Advanced Unity Techniques",
+    category: "Business & Marketing",
+    categoryKey: "BUSINESS_MARKETING",
+    title: "Workshop: Monetization Strategies for Indies",
     timeframe: "50 minutes",
     thumbnail: "",
     speakers: [
-      { name: "Dana Kim", position: "Senior Developer at TechStudio" },
-      { name: "Marcus Cole", position: "Unity Specialist at CodeCraft" },
+      { name: "Dana Kim", position: "Business Analyst at GameBiz" },
+      { name: "Marcus Cole", position: "Revenue Consultant at ProfitPlay" },
     ],
   },
   "panel-e1": {
@@ -39,8 +39,8 @@ const MORNING_EVENTS = {
   },
   "panel-e2": {
     category: "Programming",
-    categoryKey: "ART",
-    title: "Character Art Workshop",
+    categoryKey: "PROGRAMMING",
+    title: "Character Development Workshop",
     timeframe: "30 minutes",
     thumbnail: "",
     speakers: [
@@ -48,8 +48,8 @@ const MORNING_EVENTS = {
     ],
   },
   "panel-e3": {
-    category: "Story & Narrative",
-    categoryKey: "STORY_NARRATIVE",
+    category: "Art",
+    categoryKey: "ART",
     title: "Interactive Narrative Design",
     timeframe: "30 minutes",
     thumbnail: "",
@@ -58,9 +58,9 @@ const MORNING_EVENTS = {
     ],
   },
   "panel-e4": {
-    category: "Programming",
-    categoryKey: "PROGRAMMING",
-    title: "Branching Code Structures",
+    category: "Audio",
+    categoryKey: "AUDIO",
+    title: "Branching Storylines",
     timeframe: "30 minutes",
     thumbnail: "",
     speakers: [
@@ -68,17 +68,17 @@ const MORNING_EVENTS = {
     ],
   },
   "panel-e5": {
-    category: "Story & Narrative",
-    categoryKey: "STORY_NARRATIVE",
+    category: "Culture",
+    categoryKey: "CULTURE",
     title: "Writing for Games",
     timeframe: "30 minutes",
     thumbnail: "",
     speakers: [{ name: "Mike Johnson", position: "Freelance Game Writer" }],
   },
   "panel-e6": {
-    category: "Programming",
-    categoryKey: "PROGRAMMING",
-    title: "Dialogue Systems Programming",
+    category: "Production & QA",
+    categoryKey: "PRODUCTION_QA",
+    title: "Dialogue Systems",
     timeframe: "30 minutes",
     thumbnail: "",
     speakers: [
@@ -86,24 +86,24 @@ const MORNING_EVENTS = {
     ],
   },
   "panel-e7": {
-    category: "Story & Narrative",
-    categoryKey: "STORY_NARRATIVE",
-    title: "Interactive Narrative Design",
+    category: "Realities (VR, AR, MR)",
+    categoryKey: "REALITIES_VR_AR_MR",
+    title: "Narrative in VR",
     timeframe: "30 minutes",
     thumbnail: "",
     speakers: [{ name: "Tom Wilson", position: "VR Narrative Designer" }],
   },
   "panel-e8": {
-    category: "Game Design",
-    categoryKey: "GAME_DESIGN",
-    title: "Player Choice Design",
+    category: "Data, Testing or Research",
+    categoryKey: "DATA_TESTING_RESEARCH",
+    title: "Player Choice Impact",
     timeframe: "30 minutes",
     thumbnail: "",
     speakers: [{ name: "Lisa Park", position: "Game Design Consultant" }],
   },
   "panel-e9": {
-    category: "Story & Narrative",
-    categoryKey: "STORY_NARRATIVE",
+    category: "Serious & Educational Games",
+    categoryKey: "SERIOUS_EDUCATIONAL",
     title: "Emotional Storytelling",
     timeframe: "30 minutes",
     thumbnail: "",
@@ -122,9 +122,9 @@ const MORNING_EVENTS = {
     ],
   },
   "panel-m1": {
-    category: "Programming",
-    categoryKey: "PROGRAMMING",
-    title: "Audio Programming Fundamentals",
+    category: "Audio",
+    categoryKey: "AUDIO",
+    title: "Game Audio Fundamentals",
     timeframe: "50 minutes",
     thumbnail: "",
     speakers: [
@@ -144,7 +144,7 @@ const MORNING_EVENTS = {
   "panel-m3": {
     category: "Art",
     categoryKey: "ART",
-    title: "UI/UX Design for Indies",
+    title: "UI/UX for Indies",
     timeframe: "50 minutes",
     thumbnail: "",
     speakers: [
@@ -162,9 +162,9 @@ const MORNING_EVENTS = {
     ],
   },
   "panel-m5": {
-    category: "Game Design",
-    categoryKey: "GAME_DESIGN",
-    title: "Game Community Design",
+    category: "Culture",
+    categoryKey: "CULTURE",
+    title: "Community Management 101",
     timeframe: "50 minutes",
     thumbnail: "",
     speakers: [
@@ -192,9 +192,9 @@ const MORNING_EVENTS = {
     ],
   },
   "panel-l3": {
-    category: "Game Design",
-    categoryKey: "GAME_DESIGN",
-    title: "Player Engagement Design",
+    category: "Business & Marketing",
+    categoryKey: "BUSINESS_MARKETING",
+    title: "Social Media for Game Developers",
     timeframe: "30 minutes",
     thumbnail: "",
     speakers: [
@@ -202,9 +202,9 @@ const MORNING_EVENTS = {
     ],
   },
   "panel-l4": {
-    category: "Programming",
-    categoryKey: "PROGRAMMING",
-    title: "Technical Project Planning",
+    category: "Business & Marketing",
+    categoryKey: "BUSINESS_MARKETING",
+    title: "Funding Your Game Studio",
     timeframe: "30 minutes",
     thumbnail: "",
     speakers: [
@@ -212,9 +212,9 @@ const MORNING_EVENTS = {
     ],
   },
   "panel-l5": {
-    category: "Art",
-    categoryKey: "ART",
-    title: "Art Portfolio Building Workshop",
+    category: "Production & QA",
+    categoryKey: "PRODUCTION_QA",
+    title: "Portfolio Building Workshop",
     timeframe: "30 minutes",
     thumbnail: "",
     speakers: [{ name: "Jason Park", position: "Portfolio Consultant" }],

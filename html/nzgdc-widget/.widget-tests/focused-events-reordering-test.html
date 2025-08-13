@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NZGDC Focused Events Reordering Test Demo</title>
+    <!-- Load CSS files in proper order -->
+    <link rel="stylesheet" href="../css/unified-event-panel.css">
+    <link rel="stylesheet" href="../css/morning-schedule-bundle.css">
+    <link rel="stylesheet" href="../css/afternoon-schedule-bundle.css">
+    <link rel="stylesheet" href="../css/category-filter-overlay.css">
+    <style>
+        /* Focused Events Reordering Test Demo - Unique Visual Design */
+        :root {
+            --color-dropdown-primary: rgba(139, 69, 19, 1); /* Saddle Brown */
+            --color-dropdown-secondary: rgba(255, 165, 0, 1); /* Orange */
+            --color-dropdown-accent: rgba(255, 215, 0, 1); /* Gold */
+            --color-dropdown-dark: rgba(101, 67, 33, 1); /* Dark Brown */
+            --color-dropdown-light: rgba(255, 248, 220, 1); /* Cornsilk */
+            --color-white: rgba(255, 255, 255, 1);
+            --color-black: rgba(0, 0, 0, 1);
+            --font-primary: 'Futura PT Heavy', 'Futura', Arial, sans-serif;
+            --font-secondary: 'Arial', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--color-dropdown-light) 0%, #faf0e6 50%, var(--color-dropdown-light) 100%);
+            min-height: 100vh;
+        }
+
+        .demo-header {
+            background: linear-gradient(45deg, var(--color-dropdown-primary), var(--color-dropdown-dark));
+            color: var(--color-white);
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .demo-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" patternUnits="userSpaceOnUse" width="100" height="100"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        .demo-header h1 {
+            margin: 0;
+            font-size: 36px;
+            font-weight: 900;
+            font-family: var(--font-primary);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .demo-header p {
+            margin: 10px 0 0 0;
+            font-size: 18px;
+            font-weight: 400;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .demo-section {
+            margin: 30px auto;
+            max-width: 1630px;
+            background: var(--color-white);
+            border: 3px solid var(--color-dropdown-secondary);
+            box-shadow: 0 8px 24px rgba(139, 69, 19, 0.15);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .demo-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-dropdown-secondary), var(--color-dropdown-accent), var(--color-dropdown-secondary));
+        }
+
+        .demo-section h2 {
+            background: linear-gradient(90deg, var(--color-dropdown-secondary), var(--color-dropdown-accent));
+            color: var(--color-black);
+            margin: 0;
+            padding: 20px 25px;
+            font-size: 28px;
+            font-weight: 900;
+            text-shadow: 1px 1px 2px rgba(255,255,255,0.5);
+            border-bottom: 2px solid var(--color-dropdown-dark);
+        }
+
+        .widget-container {
+            padding: 0;
+            background: #fefefe;
+        }
+
+        .test-instructions {
+            padding: 30px;
+            background: linear-gradient(135deg, #fff8dc 0%, #faf0e6 100%);
+            border-left: 6px solid var(--color-dropdown-secondary);
+            border-right: 6px solid var(--color-dropdown-accent);
+            margin: 25px;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(139, 69, 19, 0.1);
+        }
+
+        .test-instructions::before {
+            content: '🎯';
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+        }
+
+        .test-instructions h3 {
+            margin-top: 0;
+            color: var(--color-dropdown-primary);
+            font-size: 24px;
+            font-weight: 800;
+            border-bottom: 2px solid var(--color-dropdown-accent);
+            padding-bottom: 10px;
+        }
+
+        .test-instructions h4 {
+            color: var(--color-dropdown-dark);
+            font-size: 18px;
+            font-weight: 700;
+            margin: 20px 0 10px 0;
+        }
+
+        .test-instructions ul {
+            margin: 15px 0;
+            padding-left: 25px;
+        }
+
+        .test-instructions li {
+            margin: 8px 0;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .test-instructions li strong {
+            color: var(--color-dropdown-primary);
+        }
+
+        .debug-info {
+            margin: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: #ecf0f1;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            border: 2px solid var(--color-dropdown-dark);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .debug-toggle {
+            margin: 25px;
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--color-dropdown-light), #fff);
+            border: 2px solid var(--color-dropdown-accent);
+        }
+
+        .debug-toggle button {
+            padding: 12px 24px;
+            background: linear-gradient(45deg, var(--color-dropdown-secondary), var(--color-dropdown-accent));
+            color: var(--color-black);
+            border: 2px solid var(--color-dropdown-dark);
+            cursor: pointer;
+            font-family: var(--font-primary);
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 6px rgba(139, 69, 19, 0.2);
+        }
+
+        .debug-toggle button:hover {
+            background: linear-gradient(45deg, var(--color-dropdown-accent), var(--color-dropdown-secondary));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+        }
+
+        /* Ensure widgets display properly */
+        .nzgdc-morning-schedule-widget,
+        .nzgdc-afternoon-schedule-widget {
+            width: 100%;
+            margin: 0;
+        }
+
+        /* Add visual emphasis to filter areas */
+        .nzgdc-morning-filters-section,
+        .nzgdc-afternoon-filters-section {
+            position: relative;
+        }
+
+        .nzgdc-morning-filters-section::after,
+        .nzgdc-afternoon-filters-section::after {
+            content: '👆 Click Here to Test Dropdown';
+            position: absolute;
+            top: -25px;
+            right: 0;
+            background: var(--color-dropdown-secondary);
+            color: var(--color-black);
+            padding: 4px 8px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: var(--font-secondary);
+            border-radius: 0;
+            animation: pulse 2s infinite;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Responsive design improvements */
+        @media (max-width: 768px) {
+            .demo-header h1 {
+                font-size: 28px;
+            }
+
+            .demo-section {
+                margin: 15px;
+            }
+
+            .test-instructions {
+                margin: 15px;
+                padding: 20px;
+            }
+
+            .nzgdc-morning-filters-section::after,
+            .nzgdc-afternoon-filters-section::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="demo-header">
+        <h1>🎯 Time Slot Reordering Test Demo</h1>
+        <p>Testing environment for the new time slot reordering feature - entire time slots containing filtered events move to the top of the schedule</p>
+    </header>
+
+    <div class="test-instructions">
+        <h3>🎯 Time Slot Reordering Test Protocol</h3>
+        <p><strong>This specialized testing environment validates the NEW Time Slot Reordering feature - when a category filter is applied, entire time slots containing matching events are automatically moved to the top of the schedule for enhanced visibility.</strong></p>
+
+        <h4>🚀 NEW FEATURE: Smart Time Slot Reordering</h4>
+        <ul>
+            <li><strong>🎯 Time Slot Priority:</strong> Entire time slots containing filtered events move to the TOP of the schedule</li>
+            <li><strong>📈 Visual Hierarchy:</strong> Time slots with filtered events get blue accent backgrounds and higher prominence</li>
+            <li><strong>🔄 Smooth Animations:</strong> Time slot movement uses smooth CSS transitions</li>
+            <li><strong>💫 Enhanced Focus:</strong> Time slots without filtered events become slightly dimmed for better contrast</li>
+            <li><strong>⚡ Perfect Reset:</strong> Everything smoothly returns to original positions when filter is cleared</li>
+            <li><strong>✨ Content Preservation:</strong> Individual events maintain their original positions within their time slots</li>
+        </ul>
+
+        <h4>🔬 Testing Steps:</h4>
+        <ol>
+            <li><strong>Activate Filter:</strong> Click "ALL EVENTS ▶" to open the dropdown</li>
+            <li><strong>Select Category:</strong> Choose any category (e.g., "Game Design", "Programming", "Art")</li>
+            <li><strong>🎯 OBSERVE TIME SLOT REORDERING:</strong> Watch entire time slots with filtered events move to the TOP of the schedule</li>
+            <li><strong>✨ Visual Enhancement:</strong> Time slots with filtered events get blue accent backgrounds</li>
+            <li><strong>📉 Dimmed Time Slots:</strong> Time slots without filtered events become slightly transparent and move to bottom</li>
+            <li><strong>🔍 Event Highlighting:</strong> Within each time slot, filtered events keep their original positions but get visual highlighting</li>
+            <li><strong>🔄 Smooth Transitions:</strong> Time slot movements use smooth CSS animations</li>
+            <li><strong>Test Multiple Categories:</strong> Try different categories to see various time slot reordering patterns</li>
+            <li><strong>Reset & Restore:</strong> Click "All Events" to see everything return to original positions smoothly</li>
+        </ol>
+
+        <h4>🔍 Key Features to Validate:</h4>
+        <ul>
+            <li><strong>Time Slot Priority:</strong> Time slots with filtered events always appear at the top - no more buried content!</li>
+            <li><strong>Smooth Animation:</strong> Time slot movements use CSS transitions instead of jarring DOM manipulation</li>
+            <li><strong>Time Slot Emphasis:</strong> Relevant time slots get blue accent backgrounds and higher prominence</li>
+            <li><strong>Content Preservation:</strong> All event panel content stays intact during time slot reordering</li>
+            <li><strong>Visual Contrast:</strong> Non-relevant time slots dim to 70% opacity for better focus</li>
+            <li><strong>Event Highlighting:</strong> Individual events maintain original positions but get visual filtering (highlighted/dimmed)</li>
+            <li><strong>Performance:</strong> Instant, smooth transitions using CSS animations</li>
+            <li><strong>Perfect Restoration:</strong> Time slot order restores to exact original positions</li>
+        </ul>
+    </div>
+
+    <div class="debug-toggle">
+        <button onclick="toggleDebug()">Toggle Debug Mode</button>
+        <button onclick="getDebugInfo()">Show Debug Info</button>
+    </div>
+
+    <div class="debug-info" id="debug-info" style="display: none;">
+        <strong>Debug Information:</strong><br>
+        <div id="debug-content">Click "Show Debug Info" to see widget status</div>
+    </div>
+
+    <!-- Morning Widget Test Section -->
+    <div class="demo-section">
+        <h2>🌅 Morning Schedule Widget - Advanced Dropdown Filter Testing Environment</h2>
+        <div class="widget-container">
+            <div id="morning-test-widget" data-nzgdc-morning-schedule></div>
+        </div>
+    </div>
+
+    <!-- Afternoon Widget Test Section -->
+    <div class="demo-section">
+        <h2>🌇 Afternoon Schedule Widget - Advanced Dropdown Filter Testing Environment</h2>
+        <div class="widget-container">
+            <div id="afternoon-test-widget" data-nzgdc-afternoon-schedule></div>
+        </div>
+    </div>
+
+    <!-- Load widget JavaScript files -->
+    <script src="../js/morning-schedule-data.js"></script>
+    <script src="../js/morning-events.js"></script>
+    <script src="../js/afternoon-schedule-data.js"></script>
+    <script src="../js/afternoon-events.js"></script>
+    <script src="../js/unified-event-loader.js"></script>
+    <script src="../js/morning-schedule-generator.js"></script>
+    <script src="../js/afternoon-schedule-generator.js"></script>
+    <script src="../js/morning-widget-core.js"></script>
+    <script src="../js/afternoon-widget-core.js"></script>
+
+    <script>
+        // Enable debug mode for testing
+        window.NZGDC_DEBUG = true;
+
+        let morningWidget = null;
+        let afternoonWidget = null;
+
+        function toggleDebug() {
+            window.NZGDC_DEBUG = !window.NZGDC_DEBUG;
+            console.log('Debug mode:', window.NZGDC_DEBUG ? 'ENABLED' : 'DISABLED');
+
+            // Update button text
+            const button = event.target;
+            button.textContent = window.NZGDC_DEBUG ? 'Disable Debug Mode' : 'Enable Debug Mode';
+        }
+
+        function getDebugInfo() {
+            const debugDiv = document.getElementById('debug-info');
+            const contentDiv = document.getElementById('debug-content');
+
+            let debugInfo = '<strong>Widget Status:</strong><br>';
+
+            // Morning widget debug info
+            if (morningWidget) {
+                debugInfo += `Morning Widget: ✅ Active (ID: ${morningWidget.uniqueId})<br>`;
+                debugInfo += `- Filter State: ${morningWidget.currentFilterCategory || 'None'}<br>`;
+                debugInfo += `- Dropdown Controller: ${morningWidget.dropdownController ? '✅' : '❌'}<br>`;
+            } else {
+                debugInfo += 'Morning Widget: ❌ Not initialized<br>';
+            }
+
+            // Afternoon widget debug info
+            if (afternoonWidget) {
+                debugInfo += `Afternoon Widget: ✅ Active (ID: ${afternoonWidget.uniqueId})<br>`;
+                debugInfo += `- Filter State: ${afternoonWidget.currentFilterCategory || 'None'}<br>`;
+                debugInfo += `- Dropdown Controller: ${afternoonWidget.dropdownController ? '✅' : '❌'}<br>`;
+            } else {
+                debugInfo += 'Afternoon Widget: ❌ Not initialized<br>';
+            }
+
+            // Global debug info
+            debugInfo += '<br><strong>Global Status:</strong><br>';
+            debugInfo += `Debug Mode: ${window.NZGDC_DEBUG ? '✅ Enabled' : '❌ Disabled'}<br>`;
+            debugInfo += `Morning Events Data: ${typeof window.MORNING_EVENTS !== 'undefined' ? '✅' : '❌'}<br>`;
+            debugInfo += `Afternoon Events Data: ${typeof window.AFTERNOON_EVENTS !== 'undefined' ? '✅' : '❌'}<br>`;
+            debugInfo += `CSS Loaded: ${document.querySelector('link[href*="category-filter-overlay"]') ? '✅' : '❌'}<br>`;
+
+            contentDiv.innerHTML = debugInfo;
+            debugDiv.style.display = debugDiv.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Initialize widgets when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Initializing Dropdown Filter Test Demo');
+
+            // Check if required data is available
+            if (typeof window.MORNING_SCHEDULE_DATA === 'undefined' ||
+                typeof window.MORNING_EVENTS === 'undefined') {
+                console.error('❌ Morning widget data not available');
+                return;
+            }
+
+            if (typeof window.AFTERNOON_SCHEDULE_DATA === 'undefined' ||
+                typeof window.AFTERNOON_EVENTS === 'undefined') {
+                console.error('❌ Afternoon widget data not available');
+                return;
+            }
+
+            // Initialize Morning Widget
+            try {
+                morningWidget = new NZGDCMorningScheduleWidget('morning-test-widget', {
+                    showFilters: true,
+                    showTimeNavigation: true,
+                    showFooter: false
+                });
+                console.log('✅ Morning widget initialized successfully');
+            } catch (error) {
+                console.error('❌ Failed to initialize morning widget:', error);
+            }
+
+            // Initialize Afternoon Widget
+            try {
+                afternoonWidget = new NZGDCAfternoonScheduleWidget('afternoon-test-widget', {
+                    showFilters: true,
+                    showTimeNavigation: true,
+                    showFooter: false
+                });
+                console.log('✅ Afternoon widget initialized successfully');
+            } catch (error) {
+                console.error('❌ Failed to initialize afternoon widget:', error);
+            }
+
+            console.log('🎯 Dropdown Filter Test Demo ready!');
+            console.log('💡 Open browser console to see debug messages');
+            console.log('🔍 Click filter areas to test dropdown functionality');
+        });
+
+        // Cleanup when page unloads
+        window.addEventListener('beforeunload', function() {
+            if (morningWidget && typeof morningWidget.destroy === 'function') {
+                morningWidget.destroy();
+            }
+            if (afternoonWidget && typeof afternoonWidget.destroy === 'function') {
+                afternoonWidget.destroy();
+            }
+        });
+
+        // Global error handler
+        window.addEventListener('error', function(event) {
+            console.error('🚨 Global Error:', event.error);
+        });
+
+        // Log when CSS files are loaded
+        document.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+            link.addEventListener('load', function() {
+                console.log(`✅ CSS loaded: ${this.href.split('/').pop()}`);
+            });
+            link.addEventListener('error', function() {
+                console.error(`❌ CSS failed to load: ${this.href.split('/').pop()}`);
+            });
+        });
+    </script>
+</body>
+</html>

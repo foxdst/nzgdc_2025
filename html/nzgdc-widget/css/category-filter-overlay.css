@@ -819,6 +819,79 @@
     position: relative;
 }
 
+/* ===== TIME SLOT REORDERING ANIMATIONS ===== */
+
+/* Time slot level reordering transitions */
+.nzgdc-morning-schedule-widget .nzgdc-morning-time-category,
+.nzgdc-afternoon-schedule-widget .nzgdc-afternoon-time-category {
+    transition:
+        transform 0.4s ease-in-out,
+        opacity 0.3s ease-in-out;
+}
+
+/* Keep original filtered-in event styling from existing filter system */
+.nzgdc-morning-schedule-widget .nzgdc-morning-event-panel-container.filtered-in,
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-main-container.filtered-in,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-container.filtered-in,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-main-container.filtered-in {
+    opacity: 1;
+    filter: none;
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+/* Enhanced visual hierarchy for time slots with filtered events - JavaScript controlled */
+.nzgdc-morning-schedule-widget .nzgdc-morning-time-category.has-filtered-events,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-time-category.has-filtered-events {
+    position: relative;
+    z-index: 10;
+}
+
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-time-category.has-filtered-events::before,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-time-category.has-filtered-events::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(
+        45deg,
+        rgba(0, 123, 255, 0.1),
+        rgba(0, 123, 255, 0.05)
+    );
+    border-radius: 4px;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Keep original filtered-out event styling from existing filter system */
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-container.filtered-out,
+.nzgdc-morning-schedule-widget
+    .nzgdc-morning-event-panel-main-container.filtered-out,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-container.filtered-out,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-event-panel-main-container.filtered-out {
+    opacity: 0.3;
+    filter: grayscale(70%);
+}
+
+/* Time slots without filtered events get reduced emphasis - JavaScript controlled */
+.nzgdc-morning-schedule-widget .nzgdc-morning-time-category.no-filtered-events,
+.nzgdc-afternoon-schedule-widget
+    .nzgdc-afternoon-time-category.no-filtered-events {
+    opacity: 0.7;
+    transition: opacity 0.4s ease-in-out;
+}
+
 /* ===== THURSDAY SCHEDULE WIDGET CATEGORY DROPDOWN STYLES ===== */
 
 /* Thursday Category Dropdown Items with Colors */
@@ -923,24 +996,24 @@
 
 .nzgdc-schedule-widget
     .category-dropdown-item[data-category="DATA_TESTING_RESEARCH"] {
-    background-color: #ffb3ba;
-    color: #000000;
+    background-color: #917b89;
+    color: #ffffff;
 }
 
 .nzgdc-schedule-widget
     .category-dropdown-item[data-category="DATA_TESTING_RESEARCH"]:hover {
-    background-color: #ffa3ae;
+    background-color: #816b79;
 }
 
 .nzgdc-schedule-widget
     .category-dropdown-item[data-category="SERIOUS_EDUCATIONAL"] {
-    background-color: #bae1ff;
+    background-color: #ffafaf;
     color: #000000;
 }
 
 .nzgdc-schedule-widget
     .category-dropdown-item[data-category="SERIOUS_EDUCATIONAL"]:hover {
-    background-color: #aad7ff;
+    background-color: #ff9f9f;
 }
 
 /* ===== THURSDAY FILTER LABEL CATEGORY COLORS ===== */
@@ -1090,21 +1163,21 @@
 .nzgdc-schedule-widget
     .nzgdc-filters-section
     .nzgdc-filters-value.category-data-testing-research {
-    background-color: #ffb3ba !important;
-    color: #000000 !important;
+    background-color: #917b89 !important;
+    color: #ffffff !important;
 }
 
 .nzgdc-schedule-widget
     .nzgdc-filters-section
     .nzgdc-filters-value.category-data-testing-research
     .nzgdc-filters-value-text {
-    color: #000000 !important;
+    color: #ffffff !important;
 }
 
 .nzgdc-schedule-widget
     .nzgdc-filters-section
     .nzgdc-filters-value.category-serious-educational {
-    background-color: #bae1ff !important;
+    background-color: #ffafaf !important;
     color: #000000 !important;
 }
 
