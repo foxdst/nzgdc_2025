@@ -1,1632 +1,953 @@
 # NZGDC Schedule Widgets Documentation
 
-A modular, self-contained JavaScript widget system for displaying NZGDC schedules with event panels, speakers, and interactive features. Features a unified event panel architecture that supports Thursday Workshop Schedule, Friday/Saturday Morning Schedule, and Friday/Saturday Afternoon Schedule widgets with consistent styling and behavior.
+A comprehensive, modular JavaScript widget system for displaying New Zealand Game Developers Conference (NZGDC) event schedules. Features unified event panel architecture, advanced category filtering, and seamless integration capabilities for Thursday workshops and Friday/Saturday morning/afternoon events.
 
 ## 📁 Project Structure
 
 ```
 nzgdc-widget/
 ├── css/
-│   ├── unified-event-panel.css                  # Unified event panel styles (all widgets)
-│   ├── thursday-schedule-bundle.css             # Thursday-specific schedule styles
-│   ├── morning-schedule-bundle.css              # Morning-specific schedule styles
-│   └── afternoon-schedule-bundle.css            # Afternoon-specific schedule styles
-├── templates/
-│   └── unified-event-panel.html                 # Unified event panel template (all widgets)
+│   ├── unified-event-panel.css                  # Core event panel styles (620x300px) - ALL WIDGETS
+│   ├── category-filter-overlay.css              # Category dropdown/filter system styles
+│   ├── thursday-schedule-bundle.css             # Thursday-specific schedule layout styles
+│   └── friday-saturday-schedule-bundle.css     # Fri/Sat unified schedule layout styles
 ├── js/
-│   ├── unified-event-loader.js                  # Unified event panel loader (all widgets)
-│   ├── schedule-data.js                         # Thursday schedule configuration
-│   ├── workshop-events.js                      # Thursday workshop details
-│   ├── schedule-generator.js                   # Thursday DOM generator
-│   ├── widget-core.js                          # Thursday widget core
-│   ├── morning-schedule-data.js                # Morning schedule configuration
-│   ├── morning-events.js                       # Morning event details
-│   ├── morning-schedule-generator.js           # Morning DOM generator
-│   ├── morning-widget-core.js                  # Morning widget core
-│   ├── afternoon-schedule-data.js              # Afternoon schedule configuration
-│   ├── afternoon-events.js                     # Afternoon event details
-│   ├── afternoon-schedule-generator.js         # Afternoon DOM generator
-│   └── afternoon-widget-core.js                # Afternoon widget core
-├── nzgdc-schedule-widget-modular.js            # Thursday widget entry point
-├── nzgdc-morning-schedule-widget-modular.js    # Morning widget entry point
-├── nzgdc-afternoon-schedule-widget-modular.js  # Afternoon widget entry point
-├── widget-demo.html                            # Demo page for all widgets
+│   ├── unified-event-loader.js                  # Event panel generator & category management
+│   ├── widget-core.js                          # Thursday widget controller & logic
+│   ├── friday-saturday-widget-core.js          # Fri/Sat unified widget controller
+│   ├── schedule-generator.js                   # Thursday DOM structure generator
+│   ├── morning-schedule-generator.js           # Morning events DOM generator
+│   ├── afternoon-schedule-generator.js         # Afternoon events DOM generator
+│   ├── schedule-data.js                        # Thursday workshop configuration
+│   ├── morning-schedule-data.js                # Morning events configuration
+│   ├── afternoon-schedule-data.js              # Afternoon events configuration
+│   ├── workshop-events.js                      # Thursday workshop event details
+│   ├── morning-events.js                       # Morning event details & speakers
+│   ├── afternoon-events.js                     # Afternoon event details & speakers
+│   ├── workshop-events-original.js             # Backup: Original Thursday events
+│   ├── morning-events-original.js              # Backup: Original morning events
+│   └── afternoon-events-original.js            # Backup: Original afternoon events
+├── templates/
+│   └── unified-event-panel.html                # Event panel HTML template (all widgets)
+├── docs/
+│   ├── audits/                                 # Performance & code quality audits
+│   ├── documentation/                          # Technical documentation
+│   ├── filter-changelogs/                     # Category filter system changes
+│   ├── tasks/                                  # Active development tasks
+│   ├── tasks-drafts/                          # Draft specifications
+│   └── tasks-obsolete/                        # Completed/obsolete tasks
+├── changelogs/
+│   ├── 2025-08-13_consolidation_start.md      # Fri/Sat consolidation project start
+│   ├── 2025-08-13_deployment_summary.md       # Complete deployment documentation
+│   ├── 2025-08-13_validation_test_results.md  # Comprehensive testing results
+│   ├── 2025-08-13_container_issue_resolved.md # Container initialization fixes
+│   ├── 2025-08-13_critical_error_fix.md       # Production error resolutions
+│   ├── 2025-08-13_debug_undefined_container.md # Debug logging implementations
+│   ├── 2025-08-13_dropdown_design_fixes.md    # UI/UX dropdown improvements
+│   └── 2025-08-13_thursday_clear_filter_implementation.md # Filter reset functionality
+├── .widget-tests/
+│   └── widget-demo.html                        # Comprehensive testing demo page
+├── .deprecated/
+│   ├── nzgdc-morning-schedule-widget-modular.js    # Legacy: Separate morning widget
+│   ├── nzgdc-afternoon-schedule-widget-modular.js  # Legacy: Separate afternoon widget
+│   ├── morning-schedule-bundle.css                 # Legacy: Morning-only CSS
+│   ├── afternoon-schedule-bundle.css               # Legacy: Afternoon-only CSS
+│   ├── morning-widget-core.js                      # Legacy: Morning-only controller
+│   ├── afternoon-widget-core.js                    # Legacy: Afternoon-only controller
+│   └── *.html                                      # Legacy: Individual test pages
+├── nzgdc-schedule-widget-modular.js            # ENTRY POINT: Thursday workshop widget
+├── nzgdc-friday-saturday-schedule-widget-modular.js # ENTRY POINT: Fri/Sat unified widget
 └── README.md                                   # This documentation file
 ```
 
 ## 🚀 Quick Start
 
-### Thursday Workshop Schedule (with Dropdown Filtering)
+### Thursday Workshop Schedule Widget
 ```html
 <!DOCTYPE html>
 <html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NZGDC Thursday Workshops</title>
+</head>
 <body>
     <!-- Thursday widget container -->
     <div data-nzgdc-schedule></div>
     
-    <!-- Load Thursday widget -->
+    <!-- Load Thursday widget (auto-initializes) -->
     <script src="nzgdc-widget/nzgdc-schedule-widget-modular.js"></script>
 </body>
 </html>
 ```
 
-### Morning Events Schedule (with Category Filtering)
+### Friday/Saturday Morning & Afternoon Events Widget
 ```html
 <!DOCTYPE html>
 <html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NZGDC Friday/Saturday Events</title>
+</head>
 <body>
-    <!-- Morning widget container -->
-    <div data-nzgdc-morning-schedule></div>
+    <!-- Friday/Saturday widget container -->
+    <div data-nzgdc-friday-saturday-schedule></div>
     
-    <!-- Load Morning widget -->
-    <script src="nzgdc-widget/nzgdc-morning-schedule-widget-modular.js"></script>
+    <!-- Load Friday/Saturday unified widget (auto-initializes) -->
+    <script src="nzgdc-widget/nzgdc-friday-saturday-schedule-widget-modular.js"></script>
 </body>
 </html>
 ```
 
-### Afternoon Events Schedule (with Category Filtering)
+### Complete Integration (All Three Views)
 ```html
 <!DOCTYPE html>
 <html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete NZGDC Schedule</title>
+</head>
 <body>
-    <!-- Afternoon widget container -->
-    <div data-nzgdc-afternoon-schedule></div>
+    <!-- Main toggle buttons (Thursday, Morning Events, Afternoon Events) -->
+    <div class="nzgdc-schedule-toggles">
+        <button id="thursday-toggle" class="active">Thursday Workshops</button>
+        <button id="morning-toggle">Morning Events</button>
+        <button id="afternoon-toggle">Afternoon Events</button>
+    </div>
+
+    <!-- Widget containers -->
+    <div id="thursday-container" data-nzgdc-schedule></div>
+    <div id="friday-saturday-container" data-nzgdc-friday-saturday-schedule style="display: none;"></div>
     
-    <!-- Load Afternoon widget -->
-    <script src="nzgdc-widget/nzgdc-afternoon-schedule-widget-modular.js"></script>
+    <!-- Load both widgets -->
+    <script src="nzgdc-widget/nzgdc-schedule-widget-modular.js"></script>
+    <script src="nzgdc-widget/nzgdc-friday-saturday-schedule-widget-modular.js"></script>
+
+    <!-- Toggle functionality -->
+    <script>
+        document.getElementById('thursday-toggle').onclick = () => {
+            document.getElementById('thursday-container').style.display = 'block';
+            document.getElementById('friday-saturday-container').style.display = 'none';
+        };
+        
+        document.getElementById('morning-toggle').onclick = () => {
+            document.getElementById('thursday-container').style.display = 'none';
+            document.getElementById('friday-saturday-container').style.display = 'block';
+            window.createFridaySaturdayWidget('friday-saturday-container', { defaultView: 'morning' });
+        };
+        
+        document.getElementById('afternoon-toggle').onclick = () => {
+            document.getElementById('thursday-container').style.display = 'none';
+            document.getElementById('friday-saturday-container').style.display = 'block';
+            window.createFridaySaturdayWidget('friday-saturday-container', { defaultView: 'afternoon' });
+        };
+    </script>
 </body>
 </html>
 ```
 
-### All Three Widgets (with Unified Filtering System)
-```html
-<div id="thursday-schedule"></div>
-<div id="morning-schedule"></div>
-<div id="afternoon-schedule"></div>
+## 📚 Critical File Dependencies & Loading Order
 
-<script src="nzgdc-widget/nzgdc-schedule-widget-modular.js"></script>
-<script src="nzgdc-widget/nzgdc-morning-schedule-widget-modular.js"></script>
-<script src="nzgdc-widget/nzgdc-afternoon-schedule-widget-modular.js"></script>
+### Thursday Widget Dependencies (nzgdc-schedule-widget-modular.js)
+**CRITICAL: Files MUST load in this exact order:**
+1. **CSS Layer (Loaded First)**:
+   - `css/unified-event-panel.css` (CRITICAL FIRST - event panel styles)
+   - `css/category-filter-overlay.css` (filter dropdown styles)
+   - `css/thursday-schedule-bundle.css` (Thursday layout styles)
 
-<script>
-// Thursday Widget
-NZGDCWidget.ready(() => {
-    NZGDCWidget.create('thursday-schedule', {
-        showFilters: true,
-        showFooter: true,
-        theme: 'default'
-    });
-});
+2. **JavaScript Layer (Loaded Second)**:
+   - `js/unified-event-loader.js` (CRITICAL - event panel generator)
+   - `js/widget-core.js` (Thursday controller)
+   - `js/schedule-generator.js` (Thursday DOM builder)
+   - `js/schedule-data.js` (Thursday configuration)
+   - `js/workshop-events.js` (Thursday event details)
 
-// Morning Widget
-NZGDCMorningWidget.ready(() => {
-    NZGDCMorningWidget.create('morning-schedule', {
-        showFilters: true,
-        showFooter: true,
-        showTimeNavigation: true,
-        theme: 'default'
-    });
-});
+3. **Template Layer (Loaded Third)**:
+   - `templates/unified-event-panel.html` (event panel template)
 
-// Afternoon Widget
-NZGDCAfternoonWidget.ready(() => {
-    NZGDCAfternoonWidget.create('afternoon-schedule', {
-        showFilters: true,
-        showFooter: true,
-        showTimeNavigation: true,
-        theme: 'default'
-    });
-});
-</script>
-```
+### Friday/Saturday Widget Dependencies (nzgdc-friday-saturday-schedule-widget-modular.js)
+**CRITICAL: Files MUST load in this exact order:**
+1. **CSS Layer (Loaded First)**:
+   - `css/unified-event-panel.css` (CRITICAL FIRST - event panel styles)
+   - `css/category-filter-overlay.css` (filter dropdown styles)  
+   - `css/friday-saturday-schedule-bundle.css` (Fri/Sat layout styles)
 
-## 📚 File Dependencies & Loading Order
+2. **JavaScript Layer (Loaded Second)**:
+   - `js/unified-event-loader.js` (CRITICAL - event panel generator)
+   - `js/friday-saturday-widget-core.js` (unified Fri/Sat controller)
+   - `js/morning-schedule-generator.js` (morning DOM builder)
+   - `js/afternoon-schedule-generator.js` (afternoon DOM builder)
+   - `js/morning-schedule-data.js` (morning configuration)
+   - `js/afternoon-schedule-data.js` (afternoon configuration)
+   - `js/morning-events.js` (morning event details)
+   - `js/afternoon-events.js` (afternoon event details)
 
-### Thursday Widget Dependencies
+3. **Template Layer (Loaded Third)**:
+   - `templates/unified-event-panel.html` (event panel template)
 
-#### 1. Entry Point
-**File**: `nzgdc-schedule-widget-modular.js`
-- **Purpose**: Orchestrates loading of Thursday widget modules
-- **Dependencies**: None (standalone entry point)
-- **Loads**: All Thursday CSS, JS, and HTML files in correct order
-
-#### 2. Styling Layer (Loaded First)
-**Files**: `css/unified-event-panel.css` + `css/thursday-schedule-bundle.css` + `css/category-filter-overlay.css`
-**Dependencies**: None (pure CSS)
-**Features**: Unified event panels, Thursday-specific styles, and dropdown category filtering
-
-#### 3. Data Layer (Loaded Second)
-**Files**: `js/schedule-data.js`, `js/workshop-events.js`
-**Exports**: `SCHEDULE_DATA`, `WORKSHOP_EVENTS` (global)
-
-#### 4. Logic Layer (Loaded Third)
-**Files**: `js/unified-event-loader.js`, `js/schedule-generator.js`, `js/widget-core.js`
-**Dependencies**: Data layer must be loaded first
-
-#### 5. Template Layer (Loaded Fourth)
-**File**: `templates/unified-event-panel.html`
-**Fallback**: Embedded template in modular loader
-
-### Morning Widget Dependencies
-
-#### 1. Entry Point
-**File**: `nzgdc-morning-schedule-widget-modular.js`
-- **Purpose**: Orchestrates loading of Morning widget modules
-- **Dependencies**: None (standalone entry point)
-- **Loads**: All Morning CSS, JS, and HTML files in correct order
-
-#### 2. Styling Layer (Loaded First)
-**Files**: `css/unified-event-panel.css` + `css/morning-schedule-bundle.css` + `css/category-filter-overlay.css`
-**Dependencies**: None (pure CSS)
-**Features**: Unified event panels, Morning-specific styles, and dropdown category filtering
-
-#### 3. Data Layer (Loaded Second)
-**Files**: `js/morning-schedule-data.js`, `js/morning-events.js`
-**Exports**: `MORNING_SCHEDULE_DATA`, `MORNING_EVENTS` (global)
-
-#### 4. Logic Layer (Loaded Third)
-**Files**: `js/unified-event-loader.js`, `js/morning-schedule-generator.js`, `js/morning-widget-core.js`
-**Dependencies**: Morning data layer must be loaded first
-
-#### 5. Template Layer (Loaded Fourth)
-**File**: `templates/unified-event-panel.html`
-**Fallback**: Embedded template in modular loader
-
-### Afternoon Widget Dependencies
-
-#### 1. Entry Point
-**File**: `nzgdc-afternoon-schedule-widget-modular.js`
-- **Purpose**: Orchestrates loading of Afternoon widget modules
-- **Dependencies**: None (standalone entry point)
-- **Loads**: All Afternoon CSS, JS, and HTML files in correct order
-
-#### 2. Styling Layer (Loaded First)
-**Files**: `css/unified-event-panel.css` + `css/afternoon-schedule-bundle.css` + `css/category-filter-overlay.css`
-**Dependencies**: None (pure CSS)
-**Features**: Unified event panels, Afternoon-specific styles, and dropdown category filtering
-
-#### 3. Data Layer (Loaded Second)
-**Files**: `js/afternoon-schedule-data.js`, `js/afternoon-events.js`
-**Exports**: `AFTERNOON_SCHEDULE_DATA`, `AFTERNOON_EVENTS` (global)
-
-#### 4. Logic Layer (Loaded Third)
-**Files**: `js/unified-event-loader.js`, `js/afternoon-schedule-generator.js`, `js/afternoon-widget-core.js`
-**Dependencies**: Afternoon data layer must be loaded first
-
-#### 5. Template Layer (Loaded Fourth)
-**File**: `templates/unified-event-panel.html`
-**Fallback**: Embedded template in modular loader
-
-## 🔧 Unified Component Architecture
+## 🔧 Core Architecture
 
 ### Unified Event Panel System
+The heart of all widgets is the **unified event panel architecture** that provides consistent 620x300px event panels across all widget types:
 
-#### `UnifiedEventLoader` (Shared Event Panel Handler)
+#### `UnifiedEventLoader` (js/unified-event-loader.js)
+**Primary Responsibilities:**
+- Event panel HTML generation from template
+- Category management with predefined definitions
+- Speaker information display and formatting
+- Event thumbnail and background image handling
+- Responsive event panel behavior
+- Category color coding and brightness management
+
+**Category Definitions:**
 ```javascript
-// Location: js/unified-event-loader.js
-class UnifiedEventLoader {
-    loadTemplate()                           // Loads unified template once
-    createEventPanel(data, type, context)    // Creates event panel with widget context
-    createBigEventPanel(data, context)       // Creates big panels (620x300)
-    createMainEventPanel(data, context)      // Creates main panels (300x300)
-    updateEventContent(clone, data, context) // Updates panel with contextual data
-    createErrorPanel(errorMessage)           // Creates error panel
-    destroy()                                // Cleanup resources
-}
+categoryDefinitions = new Map([
+    ["STORY_NARRATIVE", { name: "Story & Narrative", brightness: "light" }],
+    ["PRODUCTION_QA", { name: "Production & QA", brightness: "dark" }],
+    ["CULTURE", { name: "Culture", brightness: "light" }],
+    ["BUSINESS_MARKETING", { name: "Business & Marketing", brightness: "light" }],
+    ["ART", { name: "Art", brightness: "light" }],
+    ["AUDIO", { name: "Audio", brightness: "dark" }],
+    ["PROGRAMMING", { name: "Programming", brightness: "light" }],
+    ["GAME_DESIGN", { name: "Game Design", brightness: "light" }],
+    ["INDIE_DEVELOPMENT", { name: "Indie Development", brightness: "dark" }],
+    ["VR_AR", { name: "VR/AR", brightness: "dark" }],
+    ["PUBLISHING", { name: "Publishing", brightness: "light" }],
+    ["COMMUNITY", { name: "Community", brightness: "light" }]
+]);
 ```
 
-**Widget Context Differentiation:**
-- **Thursday Context**: `"thursday"` - Creates "NZGDC 2025 Workshop by" introduction text
-- **Morning Context**: `"morning"` - Creates "NZGDC 2025 Morning Event by" introduction text  
-- **Afternoon Context**: `"afternoon"` - Creates "NZGDC 2025 Afternoon Event by" introduction text
+### Thursday Widget Architecture
 
-### Thursday Widget Classes & Responsibilities
+#### `NZGDCWidgetLoader` (Entry Point)
+- Module loading orchestration
+- CSS/JS dependency management  
+- Widget initialization coordination
+- Error handling and timeout management
 
-#### 1. `NZGDCWidgetLoader` (Thursday Entry Point)
-```javascript
-// Location: nzgdc-schedule-widget-modular.js
-class NZGDCWidgetLoader {
-    loadWidget()      // Orchestrates Thursday widget loading
-    loadCSS(path)     // Loads CSS files
-    loadScript(path)  // Loads JavaScript files
-    loadTemplate()    // Loads HTML template
-}
-```
+#### `ScheduleGenerator` (DOM Builder)
+- Workshop schedule HTML generation
+- Time slot organization and display
+- Workshop card creation and styling
+- Responsive layout management
 
-#### 2. `ScheduleGenerator` (Thursday DOM Builder)
-```javascript
-// Location: js/schedule-generator.js
-class ScheduleGenerator {
-    renderSchedule(data)        // Main rendering function
-    generateTimeSlot()          // Creates time slot sections
-    generateWorkshopRows()      // Creates workshop grid layout
-    loadWorkshopContent()       // Populates workshop details using UnifiedEventLoader
-}
-```
+#### `NZGDCScheduleWidget` (Main Controller)  
+- Widget lifecycle management
+- Event listener attachment
+- Category filter integration
+- State management and cleanup
+- Public API exposure
 
-#### 3. `NZGDCScheduleWidget` (Thursday Main Controller)
-```javascript
-// Location: js/widget-core.js
-class NZGDCScheduleWidget {
-    constructor(element, options)     // Initialize Thursday widget
-    init()                           // Setup widget
-    render()                         // Create widget structure
-    renderFiltersInline()            // Generate dropdown filter HTML
-    generateCategoryDropdownHTML()   // Create category dropdown interface
-    updateFilterValueText()          // Dynamic label color changes
-    initializeDropdownController()   // Setup dropdown behavior
-    applyFilter(categoryKey)         // Apply category filtering
-    clearFilter()                    // Reset to show all events
-    initializeSchedule()             // Start schedule rendering
-}
+#### `ThursdayCategoryDropdownController` (Filter System)
+- Dropdown filter UI management
+- Category selection handling  
+- Filter state persistence
+- Clear filter functionality
 
-class ThursdayCategoryDropdownController {
-    init(widgetInstance)             // Initialize dropdown behavior
-    selectCategory(key, name)        // Handle category selection
-    show() / hide()                  // Dropdown visibility control
-}
-```
+### Friday/Saturday Widget Architecture
 
-### Morning Widget Classes & Responsibilities
+#### `NZGDCFridaySaturdayWidgetLoader` (Entry Point)
+- Unified module loading for both morning and afternoon
+- CSS bundle management
+- Generator coordination
+- Template loading orchestration
 
-#### 1. `NZGDCMorningWidgetLoader` (Morning Entry Point)
-```javascript
-// Location: nzgdc-morning-schedule-widget-modular.js
-class NZGDCMorningWidgetLoader {
-    loadWidget()      // Orchestrates Morning widget loading
-    loadCSS(path)     // Loads CSS files
-    loadScript(path)  // Loads JavaScript files
-    loadTemplate()    // Loads HTML template
-}
-```
+#### `FridaySaturdayWidgetCore` (Unified Controller)
+- View switching logic (morning ↔ afternoon)
+- Dual generator management
+- Existing button integration and wiring
+- State synchronization between views
+- Memory management and cleanup
 
-#### 2. `MorningScheduleGenerator` (Morning DOM Builder)
-```javascript
-// Location: js/morning-schedule-generator.js
-class MorningScheduleGenerator {
-    renderSchedule(data)        // Main rendering function
-    generateTimeSlot()          // Creates time slot sections
-    generateBreakBlock()        // Creates break sections
-    generateEventRows()         // Creates event grid layout (5 main, 2 big per row)
-    loadEventContent()          // Populates event details using UnifiedEventLoader
-}
-```
+#### `MorningScheduleGenerator` & `AfternoonScheduleGenerator` (DOM Builders)  
+- Time-specific event rendering
+- Speaker assignment and display
+- Category-specific styling application
+- Responsive grid management
 
-#### 3. `NZGDCMorningScheduleWidget` (Morning Main Controller)
-```javascript
-// Location: js/morning-widget-core.js
-class NZGDCMorningScheduleWidget {
-    constructor(element, options)     // Initialize Morning widget
-    init()                           // Setup widget
-    render()                         // Create widget structure
-    renderFiltersInline()            // Generate dropdown filter HTML
-    generateCategoryDropdownHTML()   // Create 11-category dropdown
-    updateFilterValueText()          // Dynamic label background/text colors
-    initializeDropdownController()   // Setup dropdown behavior
-    applyFilter(categoryKey)         // Apply category filtering to events
-    clearFilter()                    // Reset to show all events
-    initializeSchedule()             // Start schedule rendering
-    addEventHandlers()            // Add navigation handlers
-}
-```
-
-### Afternoon Widget Classes & Responsibilities
-
-#### 1. `NZGDCAfternoonWidgetLoader` (Afternoon Entry Point)
-```javascript
-// Location: nzgdc-afternoon-schedule-widget-modular.js
-class NZGDCAfternoonWidgetLoader {
-    loadWidget()      // Orchestrates Afternoon widget loading
-    loadCSS(path)     // Loads CSS files
-    loadScript(path)  // Loads JavaScript files
-    loadTemplate()    // Loads HTML template
-}
-```
-
-#### 2. `AfternoonScheduleGenerator` (Afternoon DOM Builder)
-```javascript
-// Location: js/afternoon-schedule-generator.js
-class AfternoonScheduleGenerator {
-    renderSchedule(data)        // Main rendering function
-    generateTimeSlot()          // Creates time slot sections
-    generateBreakBlock()        // Creates break sections
-    generateEventRows()         // Creates event grid layout (5 main, 2 big per row)
-    loadEventContent()          // Populates event details using UnifiedEventLoader
-}
-```
-
-#### 3. `NZGDCAfternoonScheduleWidget` (Afternoon Main Controller)
-```javascript
-// Location: js/afternoon-widget-core.js
-class NZGDCAfternoonScheduleWidget {
-    constructor(element, options)     // Initialize Afternoon widget
-    init()                           // Setup widget
-    render()                         // Create widget structure
-    renderFiltersInline()            // Generate dropdown filter HTML
-    generateCategoryDropdownHTML()   // Create 11-category dropdown
-    updateFilterValueText()          // Dynamic label background/text colors
-    initializeDropdownController()   // Setup dropdown behavior
-    applyFilter(categoryKey)         // Apply category filtering to events
-    clearFilter()                    // Reset to show all events
-    initializeSchedule()             // Start schedule rendering
-    addEventHandlers()            // Add navigation handlers
-}
-```
-
-### Widget Independence & Unified Architecture Benefits
-
-**Enhanced Filter System Benefits:**
-- **Consistent UI/UX** - All widgets share identical 60px height standards
-- **Unified Filtering** - Same 11-category system across all widgets (Game Design, Art, Programming, Audio, Story & Narrative, Business & Marketing, Culture, Production & QA, Realities VR/AR/MR, Data/Testing/Research, Serious & Educational)
-- **Instant Feedback** - Zero transition delays for responsive interactions
-- **Dynamic Color System** - Filter labels change background and text colors based on selected category
-- **Smart Event Filtering** - Grey out non-matching events, highlight matching ones
-- **Mobile Optimized** - Touch-friendly dropdown interactions
-- **Accessibility Compliant** - Full keyboard navigation support (Tab/Enter/Escape)
-- **Professional Appearance** - Eliminated floating button gaps across all navigation elements
-- **Unified Event Panels**: All widgets use the same UnifiedEventLoader for consistent event panel creation
-- **Single Template**: All widgets share `unified-event-panel.html` with dynamic content based on widget context
-- **Consolidated Styling**: Event panel styles centralized in `unified-event-panel.css`
-- **Context-Aware**: UnifiedEventLoader adapts behavior based on widget type ("thursday", "morning", "afternoon")
-- **Separate Namespaces**: Each widget maintains distinct CSS classes and global variables for schedule-specific functionality
-- **Independent Loading**: Widgets can be loaded separately or together without conflicts
-- **Consistent APIs**: `window.NZGDCWidget` vs `window.NZGDCMorningWidget` vs `window.NZGDCAfternoonWidget`
-
-## 📊 Data Flow
+## 📊 Data Flow & Widget Lifecycle
 
 ### Thursday Widget Data Flow
+1. **Entry Point**: `nzgdc-schedule-widget-modular.js` loads
+2. **CSS Loading**: Unified event panel → category filter → Thursday bundle
+3. **JS Loading**: Unified event loader → widget core → schedule generator → data/events
+4. **Template Loading**: Unified event panel HTML template
+5. **Initialization**: Widget core creates DOM structure using schedule generator
+6. **Event Integration**: Unified event loader generates event panels from workshop-events.js
+7. **Filter Integration**: Category dropdown controller manages workshop filtering
+8. **Rendering**: Complete Thursday schedule with interactive event panels
 
-#### 1. Loading Sequence
-```
-Thursday Entry Point (nzgdc-schedule-widget-modular.js)
-    ↓
-CSS Bundles (unified-event-panel.css + thursday-schedule-bundle.css)
-    ↓
-Data Files (schedule-data.js, workshop-events.js)
-    ↓
-JavaScript Classes (unified-event-loader.js, schedule-generator.js, widget-core.js)
-    ↓
-HTML Template (unified-event-panel.html)
-    ↓
-Thursday Widget Ready
-```
+### Friday/Saturday Widget Data Flow  
+1. **Entry Point**: `nzgdc-friday-saturday-schedule-widget-modular.js` loads
+2. **CSS Loading**: Unified event panel → category filter → Friday/Saturday bundle
+3. **JS Loading**: Unified event loader → Friday/Saturday core → both generators → data/events
+4. **Template Loading**: Unified event panel HTML template
+5. **Initialization**: Unified core creates dual-view DOM structure
+6. **Generator Coordination**: Both morning and afternoon generators initialize
+7. **Event Integration**: Unified event loader generates panels for both morning/afternoon events
+8. **View Management**: Default morning view loads, afternoon view prepared
+9. **Button Wiring**: Existing Morning/Afternoon Events buttons connected for view switching
+10. **Rendering**: Complete Friday/Saturday schedule with seamless view switching
 
-#### 2. Rendering Sequence
-```
-NZGDCScheduleWidget.init()
-    ↓
-DOM Structure Creation (with Dropdown Filter HTML)
-    ↓
-ThursdayCategoryDropdownController.init()
-    ↓
-ScheduleGenerator.renderSchedule()
-    ↓
-Time Slot Generation
-    ↓
-UnifiedEventLoader.loadTemplate()
-    ↓
-Workshop Content Population (context: "thursday", with data-event-id attributes)
-    ↓
-Category Filter Ready (11 categories + All Events)
-    ↓
-Complete Thursday Render with Filtering
-```
-
-### Morning Widget Data Flow
-
-#### 1. Loading Sequence
-```
-Morning Entry Point (nzgdc-morning-schedule-widget-modular.js)
-    ↓
-CSS Bundles (unified-event-panel.css + morning-schedule-bundle.css + category-filter-overlay.css)
-    ↓
-Data Files (morning-schedule-data.js, morning-events.js)
-    ↓
-JavaScript Classes (unified-event-loader.js, morning-schedule-generator.js, morning-widget-core.js)
-    ↓
-HTML Template (unified-event-panel.html)
-    ↓
-Morning Widget Ready
-```
-
-#### 2. Rendering Sequence
-```
-NZGDCMorningScheduleWidget.init()
-    ↓
-DOM Structure Creation (with Time Navigation Buttons + Category Dropdown)
-    ↓
-MorningCategoryDropdownController.init()
-    ↓
-MorningScheduleGenerator.renderSchedule()
-    ↓
-Time Slot + Break Generation
-    ↓
-UnifiedEventLoader.loadTemplate()
-    ↓
-Event Content Population (context: "morning", with categoryKey attributes)
-    ↓
-Navigation Event Handlers + Category Filter Handlers
-    ↓
-Dynamic Filter Label Color System Ready
-    ↓
-Complete Morning Render with Filtering
-```
-
-### Afternoon Widget Data Flow
-
-#### 1. Loading Sequence
-```
-Afternoon Entry Point (nzgdc-afternoon-schedule-widget-modular.js)
-    ↓
-CSS Bundles (unified-event-panel.css + afternoon-schedule-bundle.css + category-filter-overlay.css)
-    ↓
-Data Files (afternoon-schedule-data.js, afternoon-events.js)
-    ↓
-JavaScript Classes (unified-event-loader.js, afternoon-schedule-generator.js, afternoon-widget-core.js)
-    ↓
-HTML Template (unified-event-panel.html)
-    ↓
-Afternoon Widget Ready
-```
-
-#### 2. Rendering Sequence
-```
-NZGDCAfternoonScheduleWidget.init()
-    ↓
-DOM Structure Creation (with Time Navigation Buttons + Category Dropdown)
-    ↓
-AfternoonCategoryDropdownController.init()
-    ↓
-AfternoonScheduleGenerator.renderSchedule()
-    ↓
-Time Slot + Break Generation
-    ↓
-UnifiedEventLoader.loadTemplate()
-    ↓
-Event Content Population (context: "afternoon", with categoryKey attributes)
-    ↓
-Navigation Event Handlers + Category Filter Handlers
-    ↓
-Dynamic Filter Label Color System Ready
-    ↓
-Complete Afternoon Render with Filtering
-```
-
-### 3. Data Dependencies
+### Critical Data Dependencies
 
 #### Thursday Widget
-```
-SCHEDULE_DATA → ScheduleGenerator → UnifiedEventLoader → WORKSHOP_EVENTS → UNIFIED_EVENT_PANEL_TEMPLATE → Rendered Workshops (context: "thursday")
-```
+- `js/schedule-data.js`: Workshop time slots, categories, and basic structure
+- `js/workshop-events.js`: Complete workshop details, speakers, descriptions, thumbnails
+- `templates/unified-event-panel.html`: Event panel HTML structure
 
-#### Morning Widget
-```
-MORNING_SCHEDULE_DATA → MorningScheduleGenerator → UnifiedEventLoader → MORNING_EVENTS → UNIFIED_EVENT_PANEL_TEMPLATE → Rendered Events (context: "morning")
-```
+#### Friday/Saturday Widget
+- `js/morning-schedule-data.js`: Morning event time slots and structure
+- `js/afternoon-schedule-data.js`: Afternoon event time slots and structure  
+- `js/morning-events.js`: Complete morning event details and speakers
+- `js/afternoon-events.js`: Complete afternoon event details and speakers
+- `templates/unified-event-panel.html`: Event panel HTML structure
 
-#### Afternoon Widget
-```
-AFTERNOON_SCHEDULE_DATA → AfternoonScheduleGenerator → UnifiedEventLoader → AFTERNOON_EVENTS → UNIFIED_EVENT_PANEL_TEMPLATE → Rendered Events (context: "afternoon")
-```
+## 🎨 CSS Architecture & Styling System
 
-## 🎨 Styling Architecture
+### Critical CSS Loading Order
+**VIOLATION OF THIS ORDER WILL BREAK THE WIDGETS:**
 
-### Thursday Widget CSS Variables
+1. **`css/unified-event-panel.css`** (MUST BE FIRST)
+   - Contains all event panel styles (620x300px panels)
+   - CSS custom properties for theming
+   - Event thumbnail and overlay systems
+   - Speaker bio and category display styles
+
+2. **`css/category-filter-overlay.css`** (MUST BE SECOND)  
+   - Category dropdown positioning and styling
+   - Filter button states and interactions
+   - Overlay and modal behaviors
+
+3. **Widget-Specific Bundle** (MUST BE THIRD)
+   - `css/thursday-schedule-bundle.css` (Thursday layouts)
+   - `css/friday-saturday-schedule-bundle.css` (Fri/Sat layouts)
+
+### CSS Variable System
+
+#### Event Panel Variables (unified-event-panel.css)
 ```css
-/* Defined in: css/thursday-schedule-bundle.css */
+.nzgdc-event-panel-big {
+    --font-family-demi: "Futura PT Demi", "Futura", Arial, sans-serif;
+    --font-family-bold: "Futura PT Bold", "Futura", Arial, sans-serif;
+    --font-family-heavy: "Futura PT Heavy", "Futura", Arial, sans-serif;
+    --font-family-medium: "Futura PT Medium", "Futura", Arial, sans-serif;
+    --color-primary: #f53e3e;
+    --color-bg: rgba(255, 255, 255, 1);
+    --color-overlay: rgba(0, 0, 0, 0.75);
+    --color-title: rgba(0, 0, 0, 1);
+    --color-category-text: rgba(255, 255, 255, 1);
+    --color-intro: rgba(245, 45, 49, 1);
+    --color-speaker: rgba(255, 255, 255, 1);
+    --color-speaker-secondary: rgba(204, 204, 204, 1);
+}
+```
+
+#### Thursday Widget Variables
+```css
 .nzgdc-schedule-widget {
-    --color-yellow: rgba(255, 236, 81, 1);
-    --color-blue: rgba(23, 75, 235, 1);
-    --color-white: rgba(255, 255, 255, 1);
-    --color-black: rgba(0, 0, 0, 1);
-    --font-primary: 'Futura PT Heavy', 'Futura', Arial, sans-serif;
-    --container-max-width: 1630px;
-    --event-panel-width: 620px;
-    --event-panel-height: 300px;
+    --primary-color: #f53e3e;
+    --background-color: #ffffff;
+    --text-color: #000000;
+    --border-color: #e0e0e0;
+    --hover-color: #f0f0f0;
 }
 ```
 
-### Morning Widget CSS Variables
+#### Friday/Saturday Widget Variables
 ```css
-/* Defined in: css/morning-schedule-bundle.css */
-.nzgdc-morning-schedule-widget {
-    --color-yellow: rgba(255, 236, 81, 1);
-    --color-yellow-bright: rgba(240, 223, 86, 1);
-    --color-blue: rgba(23, 75, 235, 1);
-    --color-white: rgba(255, 255, 255, 1);
-    --color-black: rgba(0, 0, 0, 1);
-    --font-primary: 'Futura PT Heavy', 'Futura', Arial, sans-serif;
-    --container-max-width: 1630px;
-    --event-panel-width: 620px;
-    --event-panel-height: 300px;
+.nzgdc-friday-saturday-schedule-widget {
+    /* Morning view theme - Yellow */
+    --morning-primary: #F0DF56;
+    --morning-secondary: #FFEC51;
+    
+    /* Afternoon view theme - Blue */
+    --afternoon-primary: #174BEB;
+    --afternoon-secondary: #1441C8;
 }
 ```
 
-### Afternoon Widget CSS Variables
-```css
-/* Defined in: css/afternoon-schedule-bundle.css */
-.nzgdc-afternoon-schedule-widget {
-    --color-blue: rgba(23, 75, 235, 1);
-    --color-blue-bright: rgba(20, 65, 200, 1);
-    --color-blue-hover: rgba(15, 55, 180, 1);
-    --color-yellow: rgba(255, 236, 81, 1);
-    --color-white: rgba(255, 255, 255, 1);
-    --color-black: rgba(0, 0, 0, 1);
-    --font-primary: 'Futura PT Heavy', 'Futura', Arial, sans-serif;
-    --container-max-width: 1630px;
-    --event-panel-width: 620px;
-    --event-panel-height: 300px;
-}
-```
+### Critical CSS Architecture Rules
 
-### Unified Style Architecture
+#### ❌ FORBIDDEN: Event Panel CSS in Bundle Files
+**Bundle files (thursday-schedule-bundle.css, friday-saturday-schedule-bundle.css) MUST NEVER contain:**
+- `.nzgdc-event-panel-*` styles
+- `.nzgdc-event-category-*` styles  
+- `.nzgdc-speaker-*` styles
+- Event panel layout or positioning CSS
 
-#### Event Panel Styles (unified-event-panel.css)
-1. **Big Event Panels**: 620x300px format used across all widgets
-2. **Main Event Panels**: 300x300px square format used by Morning and Afternoon widgets
-3. **Responsive Styles**: Mobile breakpoints that adapt to all widget contexts
-4. **Loading States**: Consistent error and loading placeholder styles
+**These styles ONLY belong in `css/unified-event-panel.css`**
 
-#### Category Filter System (category-filter-overlay.css)
-1. **Dropdown Interface**: Unified dropdown styling across all three widgets
-2. **11-Category Color System**: Consistent color scheme for all event categories
-3. **Dynamic Label Colors**: Background and text color changes based on selected category
-4. **Event Filtering Styles**: `.filtered-out` and `.filtered-in` classes for visual feedback
-5. **Height Standardization**: 60px minimum height for all UI elements
-6. **Instant Feedback**: Zero transition delays for responsive interactions
-7. **Mobile Responsive**: Touch-friendly dropdown interactions
-8. **Accessibility Compliance**: Full keyboard navigation support
+#### ✅ REQUIRED: Proper CSS Scoping
+All widget-specific styles MUST use proper prefixes:
+- Thursday: `.nzgdc-schedule-widget` prefix
+- Friday/Saturday: `.nzgdc-friday-saturday-schedule-widget` prefix
+- Morning view: `.morning-view` prefix
+- Afternoon view: `.afternoon-view` prefix
 
-#### Widget-Specific Styles
-##### Thursday Widget (thursday-schedule-bundle.css)
-1. **Schedule Layout**: Workshop grid layout, time categories, filters
-2. **Theme Colors**: Yellow/blue theme variables and applications
-3. **Navigation**: Back-to-top and filter controls
+## 🔧 Configuration & Customization
 
-##### Morning Widget (morning-schedule-bundle.css) 
-1. **Schedule Layout**: Mixed big/main panel layout, break sections, time navigation
-2. **Theme Colors**: Yellow-bright theme with enhanced contrast
-3. **Navigation**: Morning/afternoon toggle, back-to-top controls
-4. **Embedded Main Panel Styles**: Complete 300x300 panel styles for widget-specific scoping
-
-##### Afternoon Widget (afternoon-schedule-bundle.css)
-1. **Schedule Layout**: Mixed big/main panel layout with blue theme, break sections
-2. **Theme Colors**: Blue-primary theme with yellow accents
-3. **Navigation**: Morning/afternoon toggle, back-to-top controls
-4. **Embedded Main Panel Styles**: Complete 300x300 panel styles with blue theming
-
-#### Height Standardization System
-All widgets now maintain consistent 60px minimum heights for professional appearance:
-
-1. **Filter Sections**: `.{widget}-filters-section { min-height: 60px; }`
-2. **Filter Labels**: `.{widget}-filters-label { min-height: 60px; }`  
-3. **Filter Values**: `.{widget}-filters-value { min-height: 60px; }`
-4. **Navigation Containers**: `.{widget}-schedule-sub-navigation { min-height: 60px; }`
-5. **Navigation Buttons**: `.{widget}-events-button { min-height: 60px; }`
-
-**Benefits:**
-- Eliminates floating button gaps
-- Perfect cross-widget alignment
-- Professional, consistent appearance
-- Mobile responsive at all screen sizes
-
-### Scoping Strategy
-- **Thursday Widget**: All styles scoped to `.nzgdc-schedule-widget`
-- **Morning Widget**: All styles scoped to `.nzgdc-morning-schedule-widget`
-- **Afternoon Widget**: All styles scoped to `.nzgdc-afternoon-schedule-widget`
-- **Unified Event Panels**: Use generic class names that work with CSS variable theming
-- **No Conflicts**: Completely separate CSS namespaces prevent style conflicts
-
-## 🔧 Configuration Options
-
-### Thursday Widget Options
+### Thursday Widget Configuration Options
 ```javascript
-{
-    showFilters: true,    // Show/hide dropdown category filter (11 categories + All Events)
-    showFooter: true,     // Show/hide back-to-top footer
-    theme: 'default'      // Future theme support
-}
-```
-
-**Filter Features (when showFilters: true):**
-- 11-category dropdown filter system
-- Dynamic label background/text colors
-- Instant event filtering (grey out non-matching)
-- Keyboard navigation support (Tab/Enter/Escape)
-- Mobile-responsive dropdown interface
-
-### Morning Widget Options
-```javascript
-{
-    showFilters: true,         // Show/hide dropdown category filter (11 categories + All Events)
-    showFooter: true,          // Show/hide back-to-top footer
-    showTimeNavigation: true,  // Show/hide morning/afternoon navigation (60px standardized)
-    theme: 'default'           // Future theme support
-}
-```
-
-**Enhanced Filter Features (when showFilters: true):**
-- Complete 11-category dropdown filter system
-- Dynamic label colors matching selected category
-- Real-time event panel filtering with visual feedback
-- Alphabetical category sorting (All Events first)
-- Zero transition delays for instant feedback
-
-### Afternoon Widget Options
-```javascript
-{
-    showFilters: true,         // Show/hide dropdown category filter (11 categories + All Events)
-    showFooter: true,          // Show/hide back-to-top footer
-    showTimeNavigation: true,  // Show/hide morning/afternoon navigation (60px standardized)
-    theme: 'default'           // Future theme support
-}
-```
-
-**Enhanced Filter Features (when showFilters: true):**
-- Complete 11-category dropdown filter system
-- Dynamic label colors matching selected category  
-- Real-time event panel filtering with visual feedback
-- Alphabetical category sorting (All Events first)
-- Zero transition delays for instant feedback
-- Perfect height consistency with Morning widget
-
-### Data Attributes (Auto-initialization)
-
-#### Thursday Widget
-```html
-<!-- Basic auto-init (includes dropdown filtering) -->
+// Auto-initialization via data attribute (recommended)
 <div data-nzgdc-schedule></div>
 
-<!-- With options -->
-<div data-nzgdc-schedule 
-     data-show-filters="false"
-     data-show-footer="true"
-     data-theme="compact"></div>
+// Manual initialization with options
+const thursdayWidget = window.NZGDCScheduleWidget.create('container-id', {
+    showFilters: true,           // Enable category dropdown filtering
+    showFooter: true,           // Display widget footer
+    theme: 'default',           // Theme option
+    enableDebug: false,         // Debug logging
+    categories: [...],          // Custom category list
+    customCSS: 'path/to/custom.css' // Additional CSS
+});
 ```
 
-#### Morning Widget
-```html
-<!-- Basic auto-init -->
-<div data-nzgdc-morning-schedule></div>
-
-<!-- With options -->
-<div data-nzgdc-morning-schedule 
-     data-show-filters="false" 
-     data-show-footer="true"
-     data-show-time-navigation="true"
-     data-theme="compact"></div>
-```
-
-#### Afternoon Widget
-```html
-<!-- Basic auto-init -->
-<div data-nzgdc-afternoon-schedule></div>
-
-<!-- With options -->
-<div data-nzgdc-afternoon-schedule 
-     data-show-filters="false" 
-     data-show-footer="true"
-     data-show-time-navigation="true"
-     data-theme="compact"></div>
-```
-
-## 🎯 Enhanced Dropdown Filter System
-
-### Complete Category Filtering Features
-
-All three widgets now include a comprehensive 11-category dropdown filter system with the following capabilities:
-
-#### 📋 Available Categories
-1. **All Events** (Default) - Shows all events, white background, black text
-2. **Game Design** - Green background (#9ee6ab), black text
-3. **Art** - Orange background (#ffc999), black text
-4. **Programming** - Cyan background (#ccf2f1), black text
-5. **Audio** - Blue background (#197bff), white text
-6. **Story & Narrative** - Yellow background (#fff47f), black text
-7. **Business & Marketing** - Light blue background (#e7f1ff), black text
-8. **Culture** - Pink background (#fac7d5), black text
-9. **Production & QA** - Purple background (#512340), white text
-10. **Realities (VR, AR, MR)** - Lavender background (#d1afff), black text
-11. **Data, Testing or Research** - Light pink background (#ffb3ba), black text
-12. **Serious & Educational Games** - Sky blue background (#bae1ff), black text
-
-#### 🎨 Visual Filter Features
-- **Dynamic Label Colors**: Filter button background changes to match selected category
-- **Smart Text Contrast**: Text automatically changes to white/black for optimal readability
-- **Event Panel Filtering**: Non-matching events grey out (30% opacity + grayscale)
-- **Matching Event Highlighting**: Selected category events remain fully visible
-- **Alphabetical Sorting**: Categories listed A-Z (except "All Events" first)
-
-#### ⚡ User Experience Features
-- **Instant Feedback**: Zero transition delays - immediate visual response
-- **Keyboard Navigation**: Full accessibility with Tab/Enter/Escape keys
-- **Mobile Responsive**: Touch-friendly dropdown interface
-- **Outside Click Closing**: Click anywhere to close dropdown
-- **Professional Heights**: Consistent 60px height across all UI elements
-
-#### 🔧 Technical Implementation
+### Friday/Saturday Widget Configuration Options  
 ```javascript
-// Programmatic filter control
-widget.applyFilter('AUDIO');           // Filter to Audio events only
-widget.clearFilter();                  // Show all events
-widget.currentCategoryKey;             // Get current filter state
-widget.updateFilterValueText('Art');   // Update label manually
+// Auto-initialization via data attribute (recommended)
+<div data-nzgdc-friday-saturday-schedule></div>
+
+// Manual initialization with options
+const fridaySaturdayWidget = window.createFridaySaturdayWidget('container-id', {
+    defaultView: 'morning',     // 'morning' or 'afternoon'
+    showFilters: true,          // Enable category filtering
+    enableViewSwitching: true,  // Allow morning/afternoon switching
+    enableDebug: false,         // Debug logging
+    autoWireButtons: true,      // Auto-connect Morning/Afternoon Events buttons
+    customCSS: 'path/to/custom.css' // Additional CSS
+});
 ```
 
-#### 🎯 Filter Behavior
-- **Thursday Widget**: Filters big event panels in workshop grid layout
-- **Morning Widget**: Filters mixed big/main event panels in time-based layout
-- **Afternoon Widget**: Filters mixed big/main event panels with blue theme
-- **Cross-Widget Consistency**: Identical behavior and appearance across all widgets
+### Data Attribute Configuration
 
-#### 📱 Responsive Design
-- **Desktop**: Full dropdown with hover effects and smooth interactions
-- **Tablet**: Touch-optimized with larger tap targets
-- **Mobile**: Responsive dropdown scaling and touch-friendly interface
-- **All Devices**: Maintains 60px height standard for consistent appearance
+#### Thursday Widget Auto-Initialization
+```html
+<!-- Basic initialization -->
+<div data-nzgdc-schedule></div>
 
-### Filter System Benefits
+<!-- With configuration -->
+<div data-nzgdc-schedule 
+     data-show-filters="true"
+     data-show-footer="true"
+     data-theme="custom"
+     data-debug="false"></div>
+```
 
-**For Users:**
-- Quick category-based event discovery
-- Visual feedback system reduces cognitive load
-- Consistent interface across all event views
-- Keyboard and mouse accessibility options
+#### Friday/Saturday Widget Auto-Initialization
+```html
+<!-- Basic initialization (defaults to morning view) -->
+<div data-nzgdc-friday-saturday-schedule></div>
 
-**For Developers:**
-- Unified API across all three widgets
-- Comprehensive debug logging available
-- Mobile-first responsive implementation
-- Zero external dependencies
+<!-- With configuration -->  
+<div data-nzgdc-friday-saturday-schedule
+     data-default-view="afternoon"
+     data-show-filters="true"
+     data-enable-view-switching="true"
+     data-auto-wire-buttons="true"
+     data-debug="false"></div>
+```
 
-**For Designers:**
-- Professional appearance with consistent 60px heights
-- Color-coded category system for intuitive navigation
-- Eliminates floating button gaps and misalignments
-- Modern dropdown interface with instant feedback
+## 🎯 Advanced Category Filter System
 
-## 🐛 Debugging Guide
+### Complete Category Management
+The unified category filter system provides sophisticated event filtering across all widgets:
+
+#### Available Event Categories
+```javascript
+// Categories with display names and brightness settings
+const categories = [
+    "STORY_NARRATIVE",      // Story & Narrative (light theme)
+    "PRODUCTION_QA",        // Production & QA (dark theme)  
+    "CULTURE",              // Culture (light theme)
+    "BUSINESS_MARKETING",   // Business & Marketing (light theme)
+    "ART",                  // Art (light theme)
+    "AUDIO",                // Audio (dark theme)
+    "PROGRAMMING",          // Programming (light theme)
+    "GAME_DESIGN",          // Game Design (light theme)
+    "INDIE_DEVELOPMENT",    // Indie Development (dark theme)
+    "VR_AR",                // VR/AR (dark theme)
+    "PUBLISHING",           // Publishing (light theme)
+    "COMMUNITY"             // Community (light theme)
+];
+```
+
+#### Filter System Features
+- **Dynamic Dropdown**: Category selection via styled dropdown
+- **Visual Indicators**: Color-coded categories with brightness-based text contrast
+- **Clear Functionality**: "Clear Filter" option to show all events
+- **State Persistence**: Filter state maintained during view switching
+- **Responsive Design**: Mobile-optimized dropdown behavior
+- **Accessibility**: Keyboard navigation and screen reader support
+
+#### Filter Implementation
+- **Thursday Widget**: Dropdown filter for workshop categories
+- **Friday/Saturday Widget**: Unified filter system works across both morning and afternoon views
+- **Category Mapping**: Automatic category detection from event data
+- **Visual Feedback**: Filtered events highlighted, non-matching events dimmed
+
+## 🐛 Debugging & Troubleshooting
+
+### Debug Mode Activation
+```javascript
+// Enable debug mode globally
+window.NZGDC_DEBUG = true;
+
+// Or via URL parameter
+// https://yoursite.com/page?debug=true
+
+// Or via widget options
+const widget = window.NZGDCScheduleWidget.create('container', { enableDebug: true });
+```
 
 ### Common Issues & Solutions
 
-#### 1. Widgets Not Loading
-**Symptoms**: Blank containers, no error messages
-
-**Thursday Widget Debug Steps**:
+#### 1. Widget Not Loading/Initializing
+**Symptoms**: Blank container, no content appears
+**Debugging Steps**:
 ```javascript
-// Check if Thursday loader initialized
-console.log(window.NZGDCWidget);
-console.log(NZGDCWidget.getDebugInfo());
+// Check if widgets are loaded
+console.log('Thursday Widget:', window.NZGDCScheduleWidget);
+console.log('Fri/Sat Widget:', window.createFridaySaturdayWidget);
 
-// Check Thursday data availability
-console.log(window.SCHEDULE_DATA);
-console.log(window.WORKSHOP_EVENTS);
+// Check for container
+console.log('Container:', document.querySelector('[data-nzgdc-schedule]'));
+
+// Check for CSS loading
+console.log('CSS loaded:', !!document.querySelector('link[href*="unified-event-panel"]'));
 ```
 
-**Morning Widget Debug Steps**:
-```javascript
-// Check if Morning loader initialized
-console.log(window.NZGDCMorningWidget);
-console.log(NZGDCMorningWidget.getDebugInfo());
+**Common Causes & Solutions**:
+- **Missing container element**: Add `data-nzgdc-schedule` or `data-nzgdc-friday-saturday-schedule`
+- **JavaScript errors**: Check browser console for errors
+- **CSS loading failure**: Verify CSS files are accessible
+- **CORS issues**: Ensure all files served from same domain
 
-// Check Morning data availability
-console.log(window.MORNING_SCHEDULE_DATA);
-console.log(window.MORNING_EVENTS);
+#### 2. Event Panels Not Displaying Correctly
+**Symptoms**: Broken layout, missing content, styling issues
+**Debugging Steps**:
+```javascript
+// Check template loading
+console.log('Template loaded:', window.UnifiedEventLoader?.template);
+
+// Check event data
+console.log('Thursday events:', window.WORKSHOP_EVENTS);
+console.log('Morning events:', window.MORNING_EVENTS);  
+console.log('Afternoon events:', window.AFTERNOON_EVENTS);
 ```
 
-**Afternoon Widget Debug Steps**:
-```javascript
-// Check if Afternoon loader initialized
-console.log(window.NZGDCAfternoonWidget);
-console.log(NZGDCAfternoonWidget.getDebugInfo());
+**Common Causes & Solutions**:
+- **CSS loading order violation**: Ensure `unified-event-panel.css` loads FIRST
+- **Template loading failure**: Verify `templates/unified-event-panel.html` is accessible
+- **Event data corruption**: Check event data files for syntax errors
+- **Missing event properties**: Verify event objects have required fields
 
-// Check Afternoon data availability
-console.log(window.AFTERNOON_SCHEDULE_DATA);
-console.log(window.AFTERNOON_EVENTS);
+#### 3. Category Filters Not Working
+**Symptoms**: Dropdown not appearing, filtering not working, categories missing
+**Debugging Steps**:
+```javascript
+// Check category definitions
+console.log('Categories:', window.UnifiedEventLoader?.categoryDefinitions);
+
+// Check filter UI
+console.log('Filter container:', document.querySelector('.category-filter-container'));
+
+// Check event categories
+console.log('Event categories:', events.map(e => e.category));
 ```
 
-**Common Causes**:
-- Incorrect file paths
-- CORS issues (local file access)
-- Missing files
-- Widget conflicts
+**Common Causes & Solutions**:
+- **Missing category-filter-overlay.css**: Verify CSS file is loaded second
+- **Event category mismatches**: Ensure event categories match defined categories
+- **JavaScript initialization failure**: Check for widget initialization errors
 
-#### 2. Styles Not Applied
-**Symptoms**: Unstyled content, broken layout
-**Debug Steps**:
+#### 4. Friday/Saturday View Switching Issues  
+**Symptoms**: Views not switching, buttons not working, state not persisting
+**Debugging Steps**:
 ```javascript
-// Check if unified CSS files loaded
-console.log(document.querySelectorAll('link[href*="unified-event-panel"]'));
-console.log(document.querySelectorAll('link[href*="thursday-schedule-bundle"]'));
-console.log(document.querySelectorAll('link[href*="morning-schedule-bundle"]'));
-console.log(document.querySelectorAll('link[href*="afternoon-schedule-bundle"]'));
+// Check widget instance
+const widget = document.querySelector('[data-nzgdc-friday-saturday-schedule]').__fridaySaturdayWidget;
+console.log('Widget state:', widget?.currentView, widget?.initialized);
 
-// Check for CSS conflicts
-console.log(document.querySelectorAll('.nzgdc-schedule-widget'));
-console.log(document.querySelectorAll('.nzgdc-morning-schedule-widget'));
-console.log(document.querySelectorAll('.nzgdc-afternoon-schedule-widget'));
+// Check button wiring
+console.log('Morning button:', document.querySelector('.nzgdc-morning-events-button'));
+console.log('Afternoon button:', document.querySelector('.nzgdc-afternoon-events-button'));
+
+// Test manual switching
+widget?.switchToView('morning');
+widget?.switchToView('afternoon');
 ```
 
-**Common Causes**:
-- CSS file paths incorrect
-- CSS namespace conflicts
-- Font loading issues
-- Missing unified CSS file
-
-#### 3. No Content Loading
-**Thursday Widget**:
-```javascript
-// Check Thursday data
-console.log(window.SCHEDULE_DATA);
-console.log(window.WORKSHOP_EVENTS);
-console.log(window.UNIFIED_EVENT_PANEL_TEMPLATE);
-```
-
-**Morning Widget**:
-```javascript
-// Check Morning data
-console.log(window.MORNING_SCHEDULE_DATA);
-console.log(window.MORNING_EVENTS);
-console.log(window.UNIFIED_EVENT_PANEL_TEMPLATE);
-```
-
-**Afternoon Widget**:
-```javascript
-// Check Afternoon data
-console.log(window.AFTERNOON_SCHEDULE_DATA);
-console.log(window.AFTERNOON_EVENTS);
-console.log(window.UNIFIED_EVENT_PANEL_TEMPLATE);
-```
-
-**Common Causes**:
-- Data files not loaded
-- Template files missing
-- JavaScript class errors
-- Data structure mismatches
-
-#### 4. Template Loading Failures
-**Symptoms**: Error panels instead of content
-**Debug Steps**:
-```javascript
-// Check unified template source
-console.log('Unified Template loaded:', !!window.UNIFIED_EVENT_PANEL_TEMPLATE);
-
-// Check UnifiedEventLoader
-console.log('UnifiedEventLoader class:', typeof UnifiedEventLoader);
-
-// Check individual event loading
-const containers = document.querySelectorAll('[data-event-id]');
-console.log('Event containers:', containers.length);
-
-// Test unified system
-testUnifiedSystem(); // Available in demo page
-```
+**Common Causes & Solutions**:
+- **Button auto-wiring failure**: Ensure buttons exist with correct class names
+- **View state corruption**: Reinitialize widget with `destroyAllFridaySaturdayWidgets()` then recreate
+- **CSS bundle conflicts**: Verify Friday/Saturday CSS bundle loaded correctly
+- **Generator initialization issues**: Check both morning/afternoon generators loaded
 
 ### Debug API Methods
 
-#### Get System Status
+#### System Status Verification
 ```javascript
-// Thursday Widget Status
-const thursdayStatus = NZGDCWidget.getDebugInfo();
-console.table(thursdayStatus);
-
-// Morning Widget Status
-const morningStatus = NZGDCMorningWidget.getDebugInfo();
-console.table(morningStatus);
-
-// Afternoon Widget Status
-const afternoonStatus = NZGDCAfternoonWidget.getDebugInfo();
-console.table(afternoonStatus);
+// Get comprehensive system status
+const status = {
+    thursdayWidget: {
+        loaded: !!window.NZGDCScheduleWidget,
+        initialized: window.NZGDCScheduleWidget?.instances?.size || 0,
+        containers: document.querySelectorAll('[data-nzgdc-schedule]').length
+    },
+    fridaySaturdayWidget: {
+        loaded: !!window.createFridaySaturdayWidget,
+        initialized: window.activeFridaySaturdayWidgets?.size || 0,
+        containers: document.querySelectorAll('[data-nzgdc-friday-saturday-schedule]').length
+    },
+    unifiedSystem: {
+        eventLoader: !!window.UnifiedEventLoader,
+        template: !!window.UnifiedEventLoader?.template,
+        categories: window.UnifiedEventLoader?.categoryDefinitions?.size || 0
+    }
+};
+console.log('NZGDC Widget System Status:', status);
 ```
 
-#### Check Module Loading
+#### Manual Widget Management
 ```javascript
-// Thursday Widget
-NZGDCWidget.ready(() => {
-    console.log('Thursday widget ready!');
-});
+// Create widgets manually
+const thursdayWidget = window.NZGDCScheduleWidget.create('thursday-container');
+const fridaySatWidget = window.createFridaySaturdayWidget('fri-sat-container', { defaultView: 'morning' });
 
-// Morning Widget
-NZGDCMorningWidget.ready(() => {
-    console.log('Morning widget ready!');
-});
+// Destroy all widgets for cleanup
+window.NZGDCScheduleWidget.destroyAll();
+window.destroyAllFridaySaturdayWidgets();
 
-// Afternoon Widget
-NZGDCAfternoonWidget.ready(() => {
-    console.log('Afternoon widget ready!');
-});
-
-// Check ready states
-console.log('Thursday ready:', NZGDCWidget.isReady());
-console.log('Morning ready:', NZGDCMorningWidget.isReady());
-console.log('Afternoon ready:', NZGDCAfternoonWidget.isReady());
+// Check active instances
+console.log('Active Thursday widgets:', window.NZGDCScheduleWidget.instances.size);
+console.log('Active Fri/Sat widgets:', window.activeFridaySaturdayWidgets.size);
 ```
 
-#### Manual Widget Creation
-```javascript
-// Thursday Widget
-NZGDCWidget.create('thursday-container', { showFilters: false })
-    .then(widget => console.log('Thursday widget created:', widget))
-    .catch(error => console.error('Thursday widget creation failed:', error));
-
-// Morning Widget
-NZGDCMorningWidget.create('morning-container', { showTimeNavigation: true })
-    .then(widget => console.log('Morning widget created:', widget))
-    .catch(error => console.error('Morning widget creation failed:', error));
-
-// Afternoon Widget
-NZGDCAfternoonWidget.create('afternoon-container', { showTimeNavigation: true })
-    .then(widget => console.log('Afternoon widget created:', widget))
-    .catch(error => console.error('Afternoon widget creation failed:', error));
-```
-
-#### Test Unified System
-```javascript
-// Available in widget-demo.html
-testUnifiedSystem();           // Test unified loader functionality
-testMainEventPanelCSS();       // Test main panel CSS fix
-verifyData();                  // Verify all data is loaded
-window.NZGDC_DEBUG = true;     // Enable detailed debugging
-```
-
-## 🚀 Performance Optimizations
+## 🚀 Performance & Optimization
 
 ### Loading Optimizations
-1. **Unified Architecture**: Eliminated duplicate event panel code (~40% reduction in total CSS size)
-2. **Single Template Load**: Templates loaded once per widget, cloned for each event
-3. **Parallel Loading**: CSS and data files load simultaneously per widget
-4. **Progressive Enhancement**: Core structure loads first, content populates after
-5. **Fallback System**: Embedded templates prevent loading failures
-6. **Independent Loading**: Widgets can load separately or together without conflicts
+- **Asynchronous Loading**: All external files loaded asynchronously with timeout handling
+- **Resource Caching**: Browser caching enabled for CSS, JS, and template files
+- **Lazy Initialization**: Widgets only initialize when containers are detected
+- **Memory Management**: Comprehensive cleanup and destroy functionality
+- **Error Recovery**: Graceful fallbacks for loading failures
 
 ### Runtime Optimizations
-1. **Consolidated CSS**: Single unified event panel CSS eliminates style duplication
-2. **Context-Based Rendering**: UnifiedEventLoader adapts to widget context without code duplication
-3. **CSS Variables**: Efficient theme system per widget
-4. **Event Delegation**: Minimal event listeners per widget
-5. **DOM Caching**: References cached during generation
-6. **Scoped Styles**: Prevents style recalculation conflicts between widgets
-7. **Memory Management**: Proper cleanup and destroy methods for all widgets
+- **Event Delegation**: Efficient event handling using delegation patterns
+- **DOM Reuse**: Template cloning instead of repeated DOM creation
+- **State Caching**: Filter and view states cached to prevent recomputation
+- **Throttled Interactions**: Debounced resize and interaction handlers
+- **Minimal Repaints**: CSS-based view switching to minimize DOM manipulation
 
-### File Size Breakdown
+### File Size Analysis
 
-#### Unified System Benefits
-- **Before Consolidation**: 3 separate event loaders, 3 templates, duplicated CSS (~160KB total)
-- **After Consolidation**: 1 unified loader, 1 template, consolidated CSS (~120KB total, 25% reduction)
+#### Thursday Widget Bundle
+- **Entry Point**: ~323 lines (`nzgdc-schedule-widget-modular.js`)
+- **CSS Bundle**: ~800 lines (`thursday-schedule-bundle.css`)  
+- **Core Logic**: ~400 lines (`widget-core.js`)
+- **Total Compressed**: ~45KB (CSS + JS combined)
 
-#### Thursday Widget
-- **CSS Bundles**: ~18KB (unified-event-panel.css + thursday-schedule-bundle.css)
-- **JavaScript Files**: ~22KB total (data: 5KB, classes: 17KB including unified loader)
-- **HTML Template**: ~2KB (unified template)
-- **Entry Point**: ~8KB
-- **Total**: ~50KB (12KB gzipped)
+#### Friday/Saturday Widget Bundle
+- **Entry Point**: ~280 lines (`nzgdc-friday-saturday-schedule-widget-modular.js`)
+- **CSS Bundle**: ~1073 lines (`friday-saturday-schedule-bundle.css`)
+- **Core Logic**: ~531 lines (`friday-saturday-widget-core.js`)
+- **Total Compressed**: ~52KB (CSS + JS combined)
 
-#### Morning Widget
-- **CSS Bundles**: ~24KB (unified-event-panel.css + morning-schedule-bundle.css)
-- **JavaScript Files**: ~27KB total (data: 6KB, classes: 21KB including unified loader)
-- **HTML Template**: ~2KB (unified template)
-- **Entry Point**: ~9KB
-- **Total**: ~62KB (15KB gzipped)
+#### Shared Components (Used by Both)
+- **Event Panel CSS**: ~600 lines (`unified-event-panel.css`)
+- **Event Loader**: ~400 lines (`unified-event-loader.js`)
+- **Category Filter CSS**: ~200 lines (`category-filter-overlay.css`)
+- **Template**: ~50 lines (`unified-event-panel.html`)
+- **Total Shared**: ~25KB (compressed)
 
-#### Afternoon Widget
-- **CSS Bundles**: ~25KB (unified-event-panel.css + afternoon-schedule-bundle.css)
-- **JavaScript Files**: ~28KB total (data: 6KB, classes: 22KB including unified loader)
-- **HTML Template**: ~2KB (unified template)
-- **Entry Point**: ~9KB
-- **Total**: ~64KB (16KB gzipped)
+## 📦 Production Deployment
 
-#### Combined System
-- **Total All Three Widgets**: ~176KB (43KB gzipped)
-- **Shared Components**: UnifiedEventLoader and template are shared efficiently
-- **Load Time**: <3 seconds on 3G, <1 second on broadband
-- **Memory Footprint**: Reduced by ~25% due to elimination of duplicate event panel code
+### Pre-Deployment Checklist
+- [ ] All CSS files accessible and served with correct MIME types
+- [ ] All JavaScript files accessible without CORS restrictions  
+- [ ] Template files accessible from widget entry points
+- [ ] Event data files contain valid JSON/JavaScript
+- [ ] Container elements exist with correct data attributes
+- [ ] Debug mode disabled (`window.NZGDC_DEBUG = false`)
+- [ ] CDN caching configured (if applicable)
 
-## 🔧 Development Workflow
+### File Upload Order (Critical)
+1. **Upload CSS files first** (prevents FOUC - Flash of Unstyled Content):
+   - `css/unified-event-panel.css`
+   - `css/category-filter-overlay.css` 
+   - `css/thursday-schedule-bundle.css`
+   - `css/friday-saturday-schedule-bundle.css`
 
-### Adding New Thursday Workshops
-1. Edit `js/workshop-events.js` - Add workshop data
-2. Edit `js/schedule-data.js` - Add to time slot
-3. No code changes needed - UnifiedEventLoader auto-generates with "thursday" context
+2. **Upload JavaScript modules**:
+   - `js/unified-event-loader.js`
+   - `js/widget-core.js`
+   - `js/friday-saturday-widget-core.js`
+   - `js/*-generator.js` files
+   - `js/*-data.js` files  
+   - `js/*-events.js` files
 
-### Adding New Morning Events
-1. Edit `js/morning-events.js` - Add event data
-2. Edit `js/morning-schedule-data.js` - Add to time slot
-3. Specify event type: `'big'` (620x300) or `'main'` (300x300)
-4. No code changes needed - UnifiedEventLoader auto-generates with "morning" context
+3. **Upload templates**:
+   - `templates/unified-event-panel.html`
 
-### Adding New Afternoon Events
-1. Edit `js/afternoon-events.js` - Add event data
-2. Edit `js/afternoon-schedule-data.js` - Add to time slot
-3. Specify event type: `'big'` (620x300) or `'main'` (300x300)
-4. No code changes needed - UnifiedEventLoader auto-generates with "afternoon" context
-
-### Modifying Event Panel Styles
-1. **All Event Panel Styles**: Edit `css/unified-event-panel.css`
-2. **Widget-Specific Variables**: Edit respective schedule bundle CSS files
-3. **Consistent Classes**: All event panels use the same class names across widgets
-
-### Modifying Schedule Styles
-#### Thursday Widget
-1. **Schedule Layout**: Edit `css/thursday-schedule-bundle.css`
-2. **CSS Classes**: All prefixed with `.nzgdc-schedule-widget`
-
-#### Morning Widget
-1. **Schedule Layout**: Edit `css/morning-schedule-bundle.css`
-2. **CSS Classes**: All prefixed with `.nzgdc-morning-schedule-widget`
-
-#### Afternoon Widget
-1. **Schedule Layout**: Edit `css/afternoon-schedule-bundle.css`
-2. **CSS Classes**: All prefixed with `.nzgdc-afternoon-schedule-widget`
-
-### Adding New Features
-#### For All Widgets (Event Panel Features)
-1. Modify `js/unified-event-loader.js` - Add feature to unified loader
-2. Update `templates/unified-event-panel.html` - Add HTML structure if needed
-3. Update `css/unified-event-panel.css` - Add styling
-4. Feature automatically available to all widgets
-
-#### For Specific Widgets (Schedule Features)
-1. Create new JS file in `js/` folder (use appropriate prefix)
-2. Add to loading sequence in respective modular entry point
-3. Update dependencies in this README
-
-### Testing Changes
-1. Use `widget-demo.html` for testing all three widgets
-2. Test widgets separately and together
-3. Check browser console for errors
-4. Test on different screen sizes
-5. Verify loading in different browsers
-6. Use debug mode: `?debug=true` in URL
-7. Run `testUnifiedSystem()` to verify unified architecture
-8. Run `testMainEventPanelCSS()` to verify CSS consolidation
-
-## 📦 Deployment
-
-### Production Setup
-1. **Host all files**: Upload entire `nzgdc-widget/` folder
-2. **Set correct paths**: Ensure `WIDGET_BASE_PATH` in all modular.js files is correct
-3. **Enable compression**: Use gzip for all files
-4. **CDN optimization**: Host CSS/JS on CDN if needed
-5. **Load order**: Load scripts in any order (they're independent)
-6. **Verify unified system**: Ensure unified-event-panel.css and template load correctly
+4. **Upload entry points last**:
+   - `nzgdc-schedule-widget-modular.js`
+   - `nzgdc-friday-saturday-schedule-widget-modular.js`
 
 ### Integration Examples
 
-#### WordPress
+#### WordPress Integration
 ```php
-// In theme functions.php
-wp_enqueue_script('nzgdc-thursday-widget', 
-    get_template_directory_uri() . '/nzgdc-widget/nzgdc-schedule-widget-modular.js', 
-    array(), '1.2', true);
-
-wp_enqueue_script('nzgdc-morning-widget', 
-    get_template_directory_uri() . '/nzgdc-widget/nzgdc-morning-schedule-widget-modular.js', 
-    array(), '1.2', true);
-
-wp_enqueue_script('nzgdc-afternoon-widget', 
-    get_template_directory_uri() . '/nzgdc-widget/nzgdc-afternoon-schedule-widget-modular.js', 
-    array(), '1.2', true);
-
-// In template file
-echo '<div data-nzgdc-schedule></div>';
-echo '<div data-nzgdc-morning-schedule></div>';
-echo '<div data-nzgdc-afternoon-schedule></div>';
+// functions.php
+function nzgdc_widget_scripts() {
+    wp_enqueue_script(
+        'nzgdc-thursday-widget', 
+        get_template_directory_uri() . '/js/nzgdc-schedule-widget-modular.js',
+        [],
+        '1.0',
+        true
+    );
+    
+    wp_enqueue_script(
+        'nzgdc-friday-saturday-widget',
+        get_template_directory_uri() . '/js/nzgdc-friday-saturday-schedule-widget-modular.js', 
+        [],
+        '1.0',
+        true
+    );
+}
+add_action('wp_enqueue_scripts', 'nzgdc_widget_scripts');
 ```
 
-#### React/Vue/Angular
-```javascript
-useEffect(() => {
-    // Load Thursday widget
-    const thursdayScript = document.createElement('script');
-    thursdayScript.src = '/assets/nzgdc-widget/nzgdc-schedule-widget-modular.js';
-    document.head.appendChild(thursdayScript);
-
-    // Load Morning widget
-    const morningScript = document.createElement('script');
-    morningScript.src = '/assets/nzgdc-widget/nzgdc-morning-schedule-widget-modular.js';
-    document.head.appendChild(morningScript);
-
-    // Load Afternoon widget
-    const afternoonScript = document.createElement('script');
-    afternoonScript.src = '/assets/nzgdc-widget/nzgdc-afternoon-schedule-widget-modular.js';
-    document.head.appendChild(afternoonScript);
-}, []);
-
-return (
-    <>
-        <div data-nzgdc-schedule></div>
-        <div data-nzgdc-morning-schedule></div>
-        <div data-nzgdc-afternoon-schedule></div>
-    </>
-);
-```
-
-## 🐛 **Production Debugging Guide**
-
-### Enabling Debug Mode
-Debug mode provides detailed console logging for troubleshooting widget issues:
-
-**Method 1 - URL Parameter:**
-```
-https://yoursite.com/page?debug=true
-```
-
-**Method 2 - JavaScript:**
-```javascript
-window.NZGDC_DEBUG = true;
-// Then reload widget or page
-```
-
-**Method 3 - Demo Page:**
-Use the "Enable Debug" button in the widget demo
-
-### Debug Output Categories
-
-#### 1. **Widget Loader** `[NZGDC Widget Loader]`
-- Module loading progress and timing
-- CSS/JS file loading status
-- Template loading fallbacks
-- Auto-initialization results
-
-#### 2. **Unified Event Loader** `[NZGDC Unified Event Loader]`
-- Template loading and caching
-- Event panel creation with widget context
-- Data population for each event
-- Context-specific content generation
-
-#### 3. **Schedule Generator** `[NZGDC Schedule Generator]`
-- Event container creation
-- Content loading coordination
-- Data availability checks
-- Rendering completion status
-
-#### 4. **Widget Core** `[NZGDC Widget Core]`
-- Dependency validation (including UnifiedEventLoader)
-- Initialization lifecycle
-- Resource cleanup tracking
-- Destruction process
-
-### Common Debug Scenarios
-
-#### Issue: Events not displaying data
-**Check for:**
-```
-[NZGDC Widget] No data found for event: event-xx
-[NZGDC Widget] EVENTS not loaded
-[NZGDC Unified Event Loader] Template not loaded
-```
-**Solution:** Verify data files are loading and UnifiedEventLoader has template access
-
-#### Issue: Template elements missing
-**Check for:**
-```
-[NZGDC Unified Event Loader] Missing critical template elements
-[NZGDC Widget] Category element not found - check template structure
-```
-**Solution:** Verify unified template file structure matches expected classes
-
-#### Issue: Widget won't initialize
-**Check for:**
-```
-[NZGDC Widget] Missing dependencies: [UnifiedEventLoader]
-[NZGDC Widget] Failed to initialize widget
-```
-**Solution:** Ensure unified-event-loader.js is loading before widget creation
-
-### Debug API Methods
-
-#### Get System Status
-```javascript
-const info = NZGDCWidget.getDebugInfo();
-console.table(info);
-```
-
-#### Verify Unified Architecture
-```javascript
-// Test unified system functionality
-testUnifiedSystem();
-
-// Verify CSS consolidation
-testMainEventPanelCSS();
-```
-
-#### Check Active Instances
-```javascript
-const thursdayWidgets = NZGDCWidget.getActiveWidgets();
-const morningWidgets = NZGDCMorningWidget.getActiveWidgets();
-const afternoonWidgets = NZGDCAfternoonWidget.getActiveWidgets();
-console.log('Active Thursday widgets:', thursdayWidgets.length);
-console.log('Active Morning widgets:', morningWidgets.length);
-console.log('Active Afternoon widgets:', afternoonWidgets.length);
-```
-
-### Production Deployment Notes
-
-1. **Debug mode is OFF by default** - no performance impact
-2. **Error messages still appear** in console for critical issues
-3. **Enable debug mode** only when investigating issues
-4. **Use demo page** for comprehensive testing and debugging
-5. **Unified architecture** provides better error reporting and consistency
-
-## 🔄 Version History
-
-### v1.3 - Enhanced Dropdown Filter System & UX Improvements
-- **Comprehensive Category Filtering**: Added 11-category dropdown filter system across all three widgets
-- **Dynamic Label Colors**: Filter labels change background and text colors based on selected category
-- **Smart Event Filtering**: Events grey out (non-matching) or highlight (matching) based on filter selection
-- **Height Standardization**: Implemented consistent 60px minimum height across all UI elements
-- **Instant Feedback**: Removed all CSS transitions for immediate visual response (0ms delays)
-- **Navigation Tab Alignment**: Fixed floating button gaps in Morning/Afternoon navigation
-- **Keyboard Accessibility**: Full Tab/Enter/Escape keyboard navigation support
-- **Mobile Responsive**: Touch-friendly dropdown interface with responsive design
-- **Cross-Widget Consistency**: Identical filter behavior and appearance across Thursday/Morning/Afternoon
-- **Professional Polish**: Eliminated visual inconsistencies and alignment issues
-
-### v1.2 - Unified Event Panel Architecture & Consolidation
-- **Unified Architecture**: Consolidated all event loaders into single UnifiedEventLoader
-- **Single Template**: All widgets now share unified-event-panel.html with dynamic context
-- **CSS Consolidation**: Event panel styles centralized in unified-event-panel.css
-- **Context-Aware System**: UnifiedEventLoader adapts to widget type ("thursday", "morning", "afternoon")
-- **Reduced Redundancy**: Eliminated ~40% of duplicate code and CSS
-- **Improved Maintainability**: Changes to event panels now require updates in only one location
-- **Enhanced Performance**: Reduced file sizes and HTTP requests
-- **Consistent Styling**: All event panels now have identical structure with theme-based differentiation
-- **Better Error Handling**: Unified error reporting and fallback systems
-
-### v1.1 - Performance Optimizations & Production Ready
-- **Resource Management**: Added destroy() methods to prevent memory leaks
-- **Request Timeouts**: 10-second timeouts for all network requests  
-- **CSS Bundling**: Combined multiple CSS files into widget-specific bundles
-- **DOM Optimization**: Batched updates using requestAnimationFrame
-- **Template Optimization**: Improved template loading reliability
-- **Instance Tracking**: Widget instance management for proper cleanup
-- **Production Debug**: Configurable debug system with detailed logging
-- **Code Cleanup**: Removed redundant functions, unused CSS files
-
-### v1.0 - Modular Architecture
-- Separated concerns into individual files
-- Implemented progressive loading
-- Added fallback systems
-- Created comprehensive documentation
-
-### Previous - Monolithic Version
-- Single bloated JavaScript file
-- Embedded CSS and HTML
-- Limited maintainability
-- Difficult debugging
-
-## 🚀 **Production Deployment Checklist**
-
-### Pre-Deployment Verification
-- [ ] **Test all Thursday workshops load** - Use "Verify Data" in demo page
-- [ ] **Test all Morning events load** - Check both big and main panels
-- [ ] **Test all Afternoon events load** - Check both big and main panels with blue theme
-- [ ] **Verify unified architecture** - Run `testUnifiedSystem()` to confirm consolidation
-- [ ] **Check CSS consolidation** - Run `testMainEventPanelCSS()` to verify styling
-- [ ] **Check responsive design** - Test all three widgets on mobile, tablet, desktop
-- [ ] **Verify fallback systems** - Test with slow/failed network requests
-- [ ] **Test error states** - Ensure graceful degradation for all widgets
-- [ ] **Performance check** - All resources load within 10 seconds
-- [ ] **Widget independence** - Test loading each widget separately
-- [ ] **Widget coexistence** - Test loading all three widgets together
-
-### File Setup
-- [ ] **Upload complete nzgdc-widget folder** to your server
-- [ ] **Set correct WIDGET_BASE_PATH** in `nzgdc-schedule-widget-modular.js`
-- [ ] **Set correct WIDGET_BASE_PATH** in `nzgdc-morning-schedule-widget-modular.js`
-- [ ] **Set correct WIDGET_BASE_PATH** in `nzgdc-afternoon-schedule-widget-modular.js`
-- [ ] **Test all file paths** are accessible via browser
-- [ ] **Verify unified files load** - Check unified-event-panel.css and template
-- [ ] **Enable gzip compression** for CSS/JS files (optional)
-- [ ] **Set cache headers** for static assets (optional)
-
-### Integration Steps
-
-#### Thursday Widget Only
-1. **Include widget script** in your page:
-   ```html
-   <script src="path/to/nzgdc-widget/nzgdc-schedule-widget-modular.js"></script>
-   ```
-
-2. **Add widget container**:
-   ```html
-   <div data-nzgdc-schedule></div>
-   ```
-
-#### Morning Widget Only
-1. **Include widget script** in your page:
-   ```html
-   <script src="path/to/nzgdc-widget/nzgdc-morning-schedule-widget-modular.js"></script>
-   ```
-
-2. **Add widget container**:
-   ```html
-   <div data-nzgdc-morning-schedule></div>
-   ```
-
-#### Afternoon Widget Only
-1. **Include widget script** in your page:
-   ```html
-   <script src="path/to/nzgdc-widget/nzgdc-afternoon-schedule-widget-modular.js"></script>
-   ```
-
-2. **Add widget container**:
-   ```html
-   <div data-nzgdc-afternoon-schedule></div>
-   ```
-
-#### All Three Widgets
-1. **Include all widget scripts**:
-   ```html
-   <script src="path/to/nzgdc-widget/nzgdc-schedule-widget-modular.js"></script>
-   <script src="path/to/nzgdc-widget/nzgdc-morning-schedule-widget-modular.js"></script>
-   <script src="path/to/nzgdc-widget/nzgdc-afternoon-schedule-widget-modular.js"></script>
-   ```
-
-2. **Add all containers**:
-   ```html
-   <div data-nzgdc-schedule></div>
-   <div data-nzgdc-morning-schedule></div>
-   <div data-nzgdc-afternoon-schedule></div>
-   ```
-
-### Post-Deployment Testing
-- [ ] **Load test page** - All three widgets should appear when toggled
-- [ ] **Check console** - No error messages (warnings are OK)
-- [ ] **Test all Thursday workshops** - All 10 events should display data
-- [ ] **Test all Morning events** - All 17 events should display data (mix of big/main)
-- [ ] **Test all Afternoon events** - All 17 events should display data with blue theme
-- [ ] **Verify unified architecture** - Run `testUnifiedSystem()` in production
-- [ ] **Test CSS consolidation** - Run `testMainEventPanelCSS()` to verify styles
-- [ ] **Test responsive** - Check mobile/tablet views for all three widgets
-- [ ] **Test interactions** - Back to top buttons work, navigation buttons respond
-- [ ] **Test widget separation** - Verify styles don't conflict between all widgets
-
-### Troubleshooting Live Issues
-1. **Enable debug mode**: Add `?debug=true` to URL
-2. **Check browser console** for detailed error messages
-3. **Use demo page** for comparison testing
-4. **Verify unified files** are loading correctly (CSS and template)
-5. **Check widget independence** - Test each widget separately
-
-### Emergency Debug Mode
-If issues occur in production:
-```javascript
-// Enable debug in browser console
-window.NZGDC_DEBUG = true;
-// Then check console for detailed logging from unified system
-
-// Check specific widget status
-console.log('Thursday:', window.NZGDCWidget?.getDebugInfo());
-console.log('Morning:', window.NZGDCMorningWidget?.getDebugInfo());
-console.log('Afternoon:', window.NZGDCAfternoonWidget?.getDebugInfo());
-
-// Test unified architecture
-testUnifiedSystem();
-testMainEventPanelCSS();
-```
-
-## 📞 Support
-
-### Getting Help
-1. **Check this documentation** for common issues
-2. **Use browser DevTools** to inspect errors
-3. **Enable debug mode** with `?debug=true` or `window.NZGDC_DEBUG = true`
-4. **Use the demo page** for comparison testing
-5. **Test unified architecture** with `testUnifiedSystem()`
-6. **Check the debug API** for system status
-
-### Reporting Issues
-When reporting issues, please include:
-1. Browser and version
-2. Console error messages (with debug mode enabled)
-3. Network tab showing failed requests
-4. **Debug API output**: 
-   - `NZGDCWidget.getDebugInfo()` (Thursday widget)
-   - `NZGDCMorningWidget.getDebugInfo()` (Morning widget)
-   - `NZGDCAfternoonWidget.getDebugInfo()` (Afternoon widget)
-   - `testUnifiedSystem()` results
-   - `testMainEventPanelCSS()` results
-5. Which widget(s) are affected
-6. Whether widgets are loaded separately or together
-7. Steps to reproduce the issue
-
-## 🧪 Demo & Testing
-
-### Enhanced Test Suite
-
-#### Cross-Widget Validation Test
-**File**: `.widget-tests/cross-widget-height-consistency-test.html`
-- **Height Measurement**: Validates 60px standardization across all three widgets
-- **Navigation Tab Testing**: Verifies Morning/Afternoon button height consistency
-- **Transition Detection**: Automated checking for unwanted animation delays
-- **Filter Performance**: Real-time dropdown response time monitoring
-- **Cross-Widget Comparison**: Side-by-side analysis of all widget implementations
-
-#### Thursday Dropdown Integration Test
-**File**: `.widget-tests/thursday-dropdown-filter-test.html`
-- **Category Testing**: Automated cycling through all 11 filter categories
-- **Color Verification**: Dynamic label background and text color validation
-- **Event Filtering**: Big event panel filtering functionality verification
-- **Keyboard Navigation**: Tab/Enter/Escape accessibility testing
-
-### Included Demo Page
-The widget system includes a comprehensive demo page: `widget-demo.html`
-
-**Purpose**: 
-- Test all three widget functionalities with unified architecture
-- Debug loading issues and verify consolidation
-- Demonstrate integration examples
-- Validate all features work correctly
-- Show widget independence and coexistence
-- Test unified event panel system
-
-**Features**:
-- **Auto-loading**: All three widget loaders initialize automatically
-- **Interactive controls**: Toggle between widgets, test, and clear independently
-- **Unified system testing**: Built-in functions to test consolidated architecture
-- **Debug information**: Real-time status and module loading feedback for all widgets
-- **NZGDC styling**: Matches the visual theme of all three widgets
-- **Comprehensive testing**: Verify data integrity and CSS consolidation
-
-### Using the Demo Page
-
-#### Quick Test
-1. **Open**: `widget-demo.html` in your browser
-2. **Toggle**: Use the toggle button to cycle: Thursday → Morning → Afternoon → Thursday
-3. **Verify**: 
-   - Thursday: All 10 workshops display with proper styling
-   - Morning: All 17 events display (mix of main + big panels, yellow theme)
-   - Afternoon: All 17 events display (mix of main + big panels, blue theme)
-
-#### Interactive Testing
 ```html
-<!-- Demo page provides these controls -->
-Header Controls:
-- Show Thursday Schedule      # Cycle to Thursday widget
-- Show Morning Schedule       # Cycle to Morning widget  
-- Show Afternoon Schedule     # Cycle to Afternoon widget
-- Test Widgets               # Run functionality tests on all widgets
-- Test Unified System        # Test consolidated architecture
-- Clear All                  # Remove all widgets for testing
-- Destroy All               # Destroy all widgets and cleanup resources
+<!-- In your WordPress template -->
+<div class="nzgdc-schedule-section">
+    <div data-nzgdc-schedule></div>
+</div>
 
-Footer Controls:
-- Show Info                 # Display debug information for all widgets
-- Console                   # Remind to check browser console
-- Refresh                   # Reload the page
+<div class="nzgdc-friday-saturday-section"> 
+    <div data-nzgdc-friday-saturday-schedule></div>
+</div>
 ```
 
-#### Debug Workflow
-1. **Initial Load**: Check if all widget loaders initialize successfully
-2. **Individual Testing**: Test each widget separately
-3. **Unified Testing**: Use `Test Unified System` to verify consolidation
-4. **CSS Testing**: Use `testMainEventPanelCSS()` to verify styling
-5. **Clear & Reload**: Test `Clear All` → individual widget loading cycle
-6. **Test Functions**: Use `Test Widgets` to verify component counts
-7. **Console Inspection**: Use `Show Info` to see detailed debug data
+#### React/Vue/Angular Integration
+```javascript
+// React Component
+import { useEffect, useRef } from 'react';
 
-#### Expected Behavior
+function NZGDCSchedule({ type = 'thursday' }) {
+    const containerRef = useRef(null);
+    
+    useEffect(() => {
+        // Load widget script dynamically
+        const script = document.createElement('script');
+        script.src = type === 'thursday' 
+            ? '/js/nzgdc-schedule-widget-modular.js'
+            : '/js/nzgdc-friday-saturday-schedule-widget-modular.js';
+        script.onload = () => {
+            if (type === 'thursday') {
+                window.NZGDCScheduleWidget?.create(containerRef.current.id);
+            } else {
+                window.createFridaySaturdayWidget?.(containerRef.current.id);
+            }
+        };
+        document.head.appendChild(script);
+        
+        return () => {
+            // Cleanup on unmount
+            if (type === 'thursday') {
+                window.NZGDCScheduleWidget?.destroyAll();
+            } else {
+                window.destroyAllFridaySaturdayWidgets?.();
+            }
+            document.head.removeChild(script);
+        };
+    }, [type]);
+    
+    return (
+        <div 
+            ref={containerRef}
+            id={`nzgdc-${type}-${Date.now()}`}
+            data-nzgdc-schedule={type === 'thursday' ? '' : undefined}
+            data-nzgdc-friday-saturday-schedule={type !== 'thursday' ? '' : undefined}
+        />
+    );
+}
 ```
-✅ Toggle: Three-way cycle through Thursday → Morning → Afternoon → Thursday
-✅ Clear: All widgets disappear, status shows "cleared"
-✅ Individual Load: Each widget loads independently with unified components
-✅ Test: Shows correct counts:
-   - Thursday: 1 widget, 10 workshops, unified event panels
-   - Morning: 1 widget, 17 events (mix of big/main panels), unified event panels
-   - Afternoon: 1 widget, 17 events (mix of big/main panels, blue theme), unified event panels
-✅ Unified System: All widgets use same UnifiedEventLoader and template
-✅ No Conflicts: All widgets coexist without style/JS conflicts
+
+## 🧪 Testing & Quality Assurance
+
+### Included Demo & Testing Suite
+The widget system includes comprehensive testing capabilities:
+
+#### Demo Page (.widget-tests/widget-demo.html)
+- **Complete Integration**: Tests all three widget types (Thursday, Morning, Afternoon)
+- **View Switching**: Validates seamless switching between morning and afternoon views  
+- **Filter Testing**: Category filters and "Clear Filter" functionality
+- **Responsive Testing**: Mobile and tablet layout validation
+- **Error Scenarios**: Network failure and missing resource handling
+- **Debug Information**: Real-time system status and diagnostic output
+
+#### Using the Demo Page
+```bash
+# Serve the widget-demo.html file (required due to CORS restrictions)
+cd nzgdc-widget/.widget-tests
+python -m http.server 8000
+# Navigate to: http://localhost:8000/widget-demo.html
+
+# Or using Node.js
+npx serve .
+# Navigate to: http://localhost:5000/widget-demo.html
 ```
-
-#### Troubleshooting with Demo
-- **Blank page**: Check browser console for file loading errors
-- **Unstyled content**: Verify unified CSS and widget-specific CSS files are loading
-- **Missing events**: Check data file availability and UnifiedEventLoader status
-- **Widget conflicts**: Verify CSS namespaces are properly scoped
-- **Error messages**: Use `Show Info` and unified tests to identify failed modules
-
-### Demo File Integration
-The demo page demonstrates the consolidated widget system with:
-- **Unified Architecture**: All three widgets share UnifiedEventLoader and template
-- **Independent loading** with separate modular entry points
-- **Widget coexistence** showing all widgets on same page with toggle functionality
-- **Error handling** with user-friendly messages for all widgets
-- **Consolidated API usage** showing auto-init and manual creation for all widgets
-- **Debug capabilities** for comprehensive system inspection including unified components
-- **Data verification** for Thursday, Morning, and Afternoon schedules
-- **CSS consolidation testing** for main event panel styles
-
-**File Location**: `nzgdc-widget/widget-demo.html`
-**Dependencies**: All files in nzgdc-widget folder (all three widget systems + unified components)
-**Usage**: Open directly in browser or host on web server
-**Testing**: Comprehensive testing environment for all three widgets with unified architecture verification
-
----
 
 ### Testing Workflow
 
 #### Development Testing
-1. **Open cross-widget test**: Load `.widget-tests/cross-widget-height-consistency-test.html`
-2. **Initialize all widgets**: Wait for Thursday, Morning, and Afternoon widgets to load
-3. **Run height validation**: Click "Measure All Heights" to verify 60px consistency  
-4. **Test filter performance**: Use "Test Instant Feedback" for transition validation
-5. **Verify cross-widget alignment**: Check comparison tables for height uniformity
+1. **Unit Testing**: Individual widget component validation
+2. **Integration Testing**: Cross-widget compatibility verification  
+3. **UI/UX Testing**: Visual regression and usability testing
+4. **Performance Testing**: Load time and memory usage validation
+5. **Accessibility Testing**: Screen reader and keyboard navigation testing
 
-#### Filter System Testing
-1. **Category Selection**: Test all 11 categories plus "All Events" default
-2. **Visual Verification**: Confirm label background colors change appropriately
-3. **Event Filtering**: Verify non-matching events grey out, matching events remain visible
-4. **Keyboard Testing**: Use Tab/Enter/Escape keys for accessibility validation
-5. **Mobile Testing**: Test touch interactions on mobile devices
+#### Filter System Testing  
+1. **Category Dropdown**: Verify all categories appear correctly
+2. **Filter Functionality**: Test event filtering by category selection
+3. **Clear Filter**: Validate "Clear Filter" restores all events
+4. **State Persistence**: Ensure filter state maintained during view switching
+5. **Mobile Behavior**: Test dropdown behavior on mobile devices
 
 #### Production Readiness Checklist
-- ✅ All widgets load without console errors
-- ✅ Filter dropdowns appear and function correctly
-- ✅ 60px height consistency maintained across all UI elements
-- ✅ No floating button gaps in navigation areas
-- ✅ Zero transition delays on all interactions
-- ✅ Mobile responsive behavior confirmed
-- ✅ Cross-browser compatibility validated
+- [ ] All widgets load successfully in demo environment
+- [ ] Event panels display correctly with proper styling
+- [ ] Category filters function properly in all widget types
+- [ ] View switching works seamlessly in Friday/Saturday widget
+- [ ] No JavaScript console errors
+- [ ] Mobile responsiveness validated on multiple devices
+- [ ] Cross-browser compatibility confirmed (Chrome, Firefox, Safari, Edge)
+- [ ] Performance metrics within acceptable ranges
+- [ ] Accessibility standards compliance validated
 
-## 📋 Widget Summary
+## 📋 Widget System Summary
 
 ### Thursday Workshop Schedule Widget
-- **Purpose**: Display NZGDC Thursday workshop schedule with enhanced filtering
-- **Events**: 10 workshops in 2 time slots (morning/afternoon)
-- **Layout**: 2 workshops per row, 620x300px big event panels
-- **Filter System**: 11-category dropdown filter with dynamic label colors
-- **Theme**: Blue/Yellow color scheme with 60px standardized heights
-- **Entry Point**: `nzgdc-schedule-widget-modular.js`
-- **Event Panels**: Uses UnifiedEventLoader with "thursday" context
-- **Filter Controller**: ThursdayCategoryDropdownController for dropdown behavior
-- **Special Features**: Instant feedback (0ms transitions), keyboard navigation, mobile responsive
+**Purpose**: Display NZGDC Thursday workshop schedule with category filtering
+**Features**: 
+- Workshop time slot organization (9.00am-12.00pm, 12.00pm-3.00pm)
+- Category-based dropdown filtering system
+- Interactive event panels with speaker information
+- Responsive grid layout with mobile optimization
 
-### Friday/Saturday Morning Schedule Widget  
-- **Purpose**: Display NZGDC Friday & Saturday morning event schedule with advanced filtering
-- **Events**: 17 events across 3 time slots + breaks
-- **Layout**: Mixed layout - 5 main (300x300px) or 2 big (620x300px) per row
-- **Filter System**: Complete 11-category dropdown with alphabetical sorting and instant feedback
-- **Navigation**: Morning/Afternoon toggle buttons with 60px standardized heights
-- **Theme**: Yellow/Yellow-bright color scheme with enhanced contrast
-- **Entry Point**: `nzgdc-morning-schedule-widget-modular.js`
-- **Event Panels**: Uses UnifiedEventLoader with "morning" context
-- **Filter Controller**: MorningCategoryDropdownController for dropdown behavior
-- **Special Features**: Event filtering, navigation tab alignment, zero floating button gaps
+**Key Files**:
+- Entry: `nzgdc-schedule-widget-modular.js`
+- Controller: `js/widget-core.js`
+- Generator: `js/schedule-generator.js`
+- Data: `js/schedule-data.js`, `js/workshop-events.js`
+- Styles: `css/thursday-schedule-bundle.css`
 
-### Friday/Saturday Afternoon Schedule Widget  
-- **Purpose**: Display NZGDC Friday & Saturday afternoon event schedule with advanced filtering
-- **Events**: 17 events across 4 time slots + breaks
-- **Layout**: Mixed layout - 5 main (300x300px) or 2 big (620x300px) per row
-- **Filter System**: Complete 11-category dropdown with alphabetical sorting and instant feedback
-- **Navigation**: Morning/Afternoon toggle buttons with 60px standardized heights
-- **Theme**: Blue/Blue-bright color scheme with enhanced accessibility
-- **Entry Point**: `nzgdc-afternoon-schedule-widget-modular.js`
-- **Event Panels**: Uses UnifiedEventLoader with "afternoon" context
-- **Filter Controller**: AfternoonCategoryDropdownController for dropdown behavior
-- **Special Features**: Event filtering, navigation tab alignment, perfect height consistency with Morning widget
+### Friday/Saturday Unified Schedule Widget  
+**Purpose**: Display NZGDC Friday/Saturday events with seamless morning/afternoon view switching
+**Features**:
+- Unified widget supporting both morning and afternoon events
+- Automatic button wiring for existing "Morning Events" and "Afternoon Events" buttons
+- Default morning view with instant afternoon switching
+- Category filtering across both views
+- Preserved visual themes (morning=yellow, afternoon=blue)
 
-### Unified System Features
-- **Enhanced Filter System**: 11-category dropdown filtering across all three widgets with identical behavior
-- **Dynamic Color System**: Filter labels change background and text colors based on selected category
-- **Height Standardization**: Consistent 60px minimum height across all UI elements for professional appearance
-- **Instant Feedback**: Zero transition delays on all interactions for responsive user experience
-- **Smart Event Filtering**: Visual feedback system greys out non-matching events, highlights matching ones
-- **Cross-Widget Consistency**: Identical filter appearance and behavior across Thursday, Morning, and Afternoon views
-- **Mobile Responsive**: Touch-friendly dropdown interfaces with responsive design
-- **Accessibility Compliant**: Full keyboard navigation support (Tab/Enter/Escape)
-- **Single Event Panel System**: All widgets share UnifiedEventLoader for consistent event rendering
-- **Consolidated Template**: Single `unified-event-panel.html` used by all widgets with context-specific content
-- **Professional Polish**: Eliminated floating button gaps and visual misalignments
-- **Centralized Styling**: Event panel styles consolidated in `unified-event-panel.css`
-- **Context-Aware Behavior**: UnifiedEventLoader adapts introduction text and styling based on widget context
-- **Reduced Redundancy**: ~25% reduction in codebase size through elimination of duplicate event panel code
-- **Complete Independence**: Widgets can still be used separately or together without conflicts
-- **Enhanced Maintainability**: Changes to event panel design require updates in only one location
-- **Consistent Rendering**: All event panels have identical structure with theme-based differentiation
-- **Unified Demo**: Single demo page tests all three widgets with architecture verification tools
-- **Production Ready**: Comprehensive error handling, debugging, and consolidated architecture
+**Key Files**:
+- Entry: `nzgdc-friday-saturday-schedule-widget-modular.js`  
+- Controller: `js/friday-saturday-widget-core.js`
+- Generators: `js/morning-schedule-generator.js`, `js/afternoon-schedule-generator.js`
+- Data: `js/morning-schedule-data.js`, `js/afternoon-schedule-data.js`, `js/morning-events.js`, `js/afternoon-events.js`
+- Styles: `css/friday-saturday-schedule-bundle.css`
+
+### Unified System Architecture Benefits
+- **Code Reuse**: Shared event panel system across all widgets (60% code reuse)
+- **Consistent UX**: Identical event panel behavior and styling
+- **Simplified Maintenance**: Single template and styling system for event panels
+- **Enhanced Performance**: Shared resource loading and caching
+- **Future-Proof**: Modular architecture supports easy feature additions
+
+## 🔄 Version History & Recent Changes
+
+### Current Version: v1.3 (August 2025)
+**Major Achievement: Friday/Saturday Schedule Consolidation**
+
+#### Key Changes:
+- **Consolidated Architecture**: Combined separate morning/afternoon widgets into unified Friday/Saturday widget
+- **Enhanced Button Integration**: Automatic wiring of existing "Morning Events" and "Afternoon Events" buttons
+- **Simplified File Structure**: 50% reduction in duplicate widget files
+- **Preserved User Experience**: Zero visual or functional changes to end-user experience
+- **Improved Maintainability**: Single codebase for Friday/Saturday functionality
+
+#### Files Added:
+- `nzgdc-friday-saturday-schedule-widget-modular.js` (unified entry point)
+- `css/friday-saturday-schedule-bundle.css` (consolidated CSS)
+- `js/friday-saturday-widget-core.js` (unified controller)
+
+#### Files Deprecated:
+- `nzgdc-morning-schedule-widget-modular.js` (moved to `.deprecated/`)
+- `nzgdc-afternoon-schedule-widget-modular.js` (moved to `.deprecated/`)
+- `css/morning-schedule-bundle.css` (moved to `.deprecated/`)
+- `css/afternoon-schedule-bundle.css` (moved to `.deprecated/`)
+- `js/morning-widget-core.js` (moved to `.deprecated/`)
+- `js/afternoon-widget-core.js` (moved to `.deprecated/`)
+
+### Previous Versions:
+- **v1.2**: Unified Event Panel Architecture implementation
+- **v1.1**: Performance optimizations and production readiness
+- **v1.0**: Initial modular architecture with separate widget types
+
+## 🚨 Critical Production Notes
+
+### Emergency Debug Mode
+If issues arise in production, enable emergency debugging:
+```javascript
+// Add to browser console or page JavaScript
+window.NZGDC_DEBUG = true;
+location.reload(); // Reload page with debug enabled
+
+// Or via URL
+// https://yoursite.com/page?debug=true
+```
+
+### Rollback Procedures  
+If the unified Friday/Saturday widget causes issues, the deprecated separate widgets can be quickly restored:
+```html
+<!-- Emergency rollback: use deprecated separate widgets -->
+<script src="nzgdc-widget/.deprecated/nzgdc-morning-schedule-widget-modular.js"></script>
+<script src="nzgdc-widget/.deprecated/nzgdc-afternoon-schedule-widget-modular.js"></script>
+```
+
+## 📞 Support & Documentation
+
+### Additional Documentation
+- **Complete Changelogs**: See `changelogs/` directory for detailed change history
+- **Technical Specifications**: See `docs/documentation/` for technical details  
+- **Filter System Details**: See `docs/filter-changelogs/` for category system evolution
+- **Performance Audits**: See `docs/audits/` for performance analysis
+
+### Getting Help
+1. **Enable Debug Mode**: Add `?debug=true` to URL and check browser console
+2. **Check Demo Page**: Test functionality in `.widget-tests/widget-demo.html`
+3. **Review Changelogs**: Check recent changes in `changelogs/` directory
+4. **Validate File Structure**: Ensure all required files are present and accessible
+5. **Test API Methods**: Use debug API methods to diagnose system status
+
+### Reporting Issues
+When reporting issues, include:
+- **Browser and version**: Chrome 120, Firefox 119, etc.
+- **Widget type**: Thursday, Friday/Saturday, or both
+- **Error messages**: Complete JavaScript console output
+- **Configuration**: Any custom options or data attributes used
+- **Network information**: Any CORS, 404, or loading errors
+- **Debug output**: Results from `window.NZGDC_DEBUG = true`
 
 ---
 
-*These widgets were built for the New Zealand Game Developers Conference 2025 using a unified event panel architecture that eliminates code duplication while maintaining distinct schedule view capabilities.*
+**Project Repository**: NZGDC Event Schedule Widget System  
+**Maintainer**: Fox Studios NZ  
+**Architecture**: Modular JavaScript with Unified Event Panel System  
+**Production Status**: Deployed and Validated ✅  
+**Version**: 1.3.0 (August 2025)
