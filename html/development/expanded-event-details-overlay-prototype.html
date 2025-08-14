@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NZGDC Expanded Event Details Overlay - Prototype</title>
+    <style>
+
+    /* Reset and Base Styles */
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f0f0f0;
+        padding: 20px;
+    }
+
+    /* CSS Variables - Reusing from unified-event-panel.css */
+    .nzgdc-expanded-event-overlay {
+        --font-family-demi: "Futura PT Demi", "Futura", Arial, sans-serif;
+        --font-family-bold: "Futura PT Bold", "Futura", Arial, sans-serif;
+        --font-family-heavy: "Futura PT Heavy", "Futura", Arial, sans-serif;
+        --font-family-medium: "Futura PT Medium", "Futura", Arial, sans-serif;
+        --color-primary: #f53e3e;
+        --color-bg: rgba(255, 255, 255, 1);
+        --color-overlay: rgba(0, 0, 0, 0.75);
+        --color-title: rgba(0, 0, 0, 1);
+        --color-category-text: rgba(255, 255, 255, 1);
+        --color-intro: rgba(245, 45, 49, 1);
+        --color-speaker: rgba(255, 255, 255, 1);
+        --color-speaker-secondary: rgba(204, 204, 204, 1);
+    }
+
+    /* Modal System Styling */
+    .nzgdc-expanded-event-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 2000;
+        display: none; /* Hidden by default */
+        opacity: 0;
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .nzgdc-expanded-event-overlay.visible {
+        display: block;
+        opacity: 1;
+    }
+
+    .nzgdc-expanded-event-backdrop {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--color-overlay);
+        cursor: pointer;
+    }
+
+    .nzgdc-expanded-event-modal {
+        position: relative;
+        max-width: 1000px;
+        max-height: 90vh;
+        margin: 5vh auto;
+        background-color: var(--color-bg);
+        overflow-y: auto;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+
+        transform: translateY(20px);
+        transition: transform 0.3s ease-in-out;
+    }
+
+    .nzgdc-expanded-event-overlay.visible .nzgdc-expanded-event-modal {
+        transform: translateY(0);
+    }
+
+    /* Close Button */
+    .nzgdc-modal-close {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        width: 30px;
+        height: 30px;
+        background-color: var(--color-overlay);
+        color: var(--color-category-text);
+        border: none;
+
+        cursor: pointer;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        font-family: var(--font-family-heavy);
+    }
+
+    .nzgdc-modal-close:hover {
+        background-color: var(--color-primary);
+    }
+
+    /* Event Header Styling */
+    .nzgdc-event-header {
+        background-color: var(--color-primary);
+        padding: 30px 20px 20px;
+        text-align: center;
+        position: relative;
+    }
+
+    .nzgdc-event-title-expanded {
+        margin-bottom: 15px;
+    }
+
+    .nzgdc-title-text-expanded {
+        color: var(--color-category-text);
+        font-family: var(--font-family-heavy);
+        font-size: 36px;
+        font-weight: 600;
+        line-height: 1.2;
+        margin: 0;
+        max-width: 100%;
+    }
+
+    .nzgdc-event-speakers-list {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 15px;
+    }
+
+    .nzgdc-speaker-name-item {
+        color: var(--color-category-text);
+        font-family: var(--font-family-medium);
+        font-size: 18px;
+        font-weight: 400;
+    }
+
+    /* Event Description Styling */
+    .nzgdc-event-description {
+        padding: 30px;
+        background-color: #f8f8f8;
+    }
+
+    .nzgdc-event-synopsis {
+        margin-bottom: 20px;
+    }
+
+    .nzgdc-synopsis-text {
+        color: var(--color-title);
+        font-family: var(--font-family-medium);
+        font-size: 18px;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .nzgdc-content-separator {
+        border: none;
+        border-top: 2px solid #ddd;
+        margin: 20px 0;
+        width: 100%;
+    }
+
+    .nzgdc-audience-section {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .nzgdc-audience-label {
+        color: var(--color-title);
+        font-family: var(--font-family-demi);
+        font-size: 18px;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+
+    .nzgdc-audience-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .nzgdc-audience-tag {
+        padding: 10px 20px;
+        font-family: var(--font-family-heavy);
+        font-size: 14px;
+        font-weight: 600;
+        color: white;
+
+        text-transform: uppercase;
+    }
+
+    .nzgdc-audience-tag.writers {
+        background-color: var(--color-primary);
+    }
+
+    .nzgdc-audience-tag.everyone {
+        background-color: #333;
+    }
+
+    /* Speaker Bio Styling */
+    .nzgdc-speaker-bios {
+        background-color: var(--color-bg);
+    }
+
+    .nzgdc-speaker-bio-card {
+        display: flex;
+        background-color: var(--color-bg);
+        align-items: flex-start;
+        height: auto;
+    }
+
+    .nzgdc-speaker-bio-card:last-child {
+        margin-bottom: 0;
+    }
+
+    .nzgdc-speaker-headshot {
+        align-self: flex-start;
+        flex: 0 1 auto;
+    }
+
+    .nzgdc-speaker-headshot img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        background-color: #e0e0e0;
+    }
+
+    .nzgdc-speaker-headshot-placeholder {
+        width: 250px;
+        height: 250px;
+        background-color: #e0e0e0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        font-family: var(--font-family-medium);
+        font-size: 12px;
+        text-align: center;
+        padding: 10px;
+    }
+
+    .nzgdc-speaker-bio-content {
+        flex: 1;
+        height: fit-content;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .nzgdc-speaker-bio-header {
+        background-color: var(--color-primary);
+        padding: 8px 15px;
+        margin-bottom: 15px;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .nzgdc-bio-header-text {
+        color: var(--color-category-text);
+        font-family: var(--font-family-heavy);
+        font-size: 22px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .nzgdc-speaker-bio-details {
+        padding: 0 15px;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        gap: 0.5rem;
+        justify-content: space-between;
+    }
+
+    .nzgdc-speaker-info-top {
+    }
+
+    .nzgdc-speaker-description-container {
+        /*! flex: 1; */
+        /*! display: flex; */
+    }
+
+    .nzgdc-speaker-name {
+        color: var(--color-title);
+        font-family: var(--font-family-demi);
+        font-size: 22px;
+        font-weight: 600;
+        margin: 0 0 5px 0;
+    }
+
+    .nzgdc-speaker-position {
+        color: var(--color-intro);
+        font-family: var(--font-family-medium);
+        font-size: 16px;
+        font-style: italic;
+        margin: 0 0 10px 0;
+    }
+
+    .nzgdc-speaker-description {
+        color: var(--color-title);
+        font-family: var(--font-family-medium);
+        font-size: 16px;
+        line-height: 1.4;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    .nzgdc-speaker-contact {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px 20px;
+        font-family: var(--font-family-medium);
+        font-size: 14px;
+        color: var(--color-title);
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .nzgdc-contact-email,
+    .nzgdc-contact-website {
+        font-weight: 500;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .nzgdc-expanded-event-modal {
+            max-width: 95%;
+            margin: 3vh auto;
+            max-height: 94vh;
+        }
+
+        .nzgdc-event-header {
+            padding: 25px 15px 15px;
+        }
+
+        .nzgdc-title-text-expanded {
+            font-size: 30px;
+        }
+
+        .nzgdc-event-description {
+            padding: 20px;
+        }
+
+        .nzgdc-speaker-bios {
+            display: block;
+        }
+
+        /* Mobile Grid Layout - Complete speaker card layout */
+        .nzgdc-speaker-bio-card {
+            display: block;
+            margin-bottom: 0;
+            margin-right: 0;
+            background-color: var(--color-bg);
+            min-height: auto;
+        }
+
+        .nzgdc-mobile-speaker-card {
+            display: block;
+            background-color: var(--color-bg);
+        }
+
+        .nzgdc-mobile-speaker-headshot {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #87CEEB 0%, #E6E6FA 25%, #FFB6C1 50%, #DDA0DD 75%, #6495ED 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-family: var(--font-family-medium);
+            font-size: 12px;
+        }
+
+        .nzgdc-mobile-speaker-headshot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .nzgdc-mobile-speaker-details {
+            padding: 15px 20px 10px;
+        }
+
+        .nzgdc-mobile-speaker-details .nzgdc-speaker-name {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .nzgdc-mobile-speaker-details .nzgdc-speaker-position {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .nzgdc-mobile-speaker-details .nzgdc-speaker-description {
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .nzgdc-mobile-speaker-details .nzgdc-speaker-contact {
+            font-size: 12px;
+        }
+
+        .nzgdc-audience-section {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .nzgdc-expanded-event-modal {
+            max-width: 95%;
+            margin: 2vh auto;
+            max-height: 96vh;
+        }
+
+        .nzgdc-event-header {
+            padding: 20px 10px 10px;
+        }
+
+        .nzgdc-title-text-expanded {
+            font-size: 26px;
+        }
+
+        .nzgdc-event-speakers-list {
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nzgdc-speaker-name-item {
+            font-size: 16px;
+        }
+
+        .nzgdc-event-description {
+            padding: 15px;
+        }
+
+        .nzgdc-speaker-bios {
+            padding: 0 0 15px 0;
+            display: block;
+        }
+
+        /* Mobile individual speaker cards */
+        .nzgdc-mobile-speaker-card {
+            display: block;
+            background-color: var(--color-bg);
+        }
+
+        .nzgdc-mobile-speaker-headshot {
+            width: 100%;
+            height: 160px;
+            background: linear-gradient(45deg, #87CEEB 0%, #E6E6FA 25%, #FFB6C1 50%, #DDA0DD 75%, #6495ED 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-family: var(--font-family-medium);
+            font-size: 10px;
+        }
+
+        .nzgdc-mobile-speaker-headshot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .nzgdc-mobile-speaker-details {
+            padding: 12px 15px 15px;
+        }
+
+        .nzgdc-mobile-speaker-details .nzgdc-speaker-name {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .nzgdc-mobile-speaker-details .nzgdc-speaker-position {
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .nzgdc-mobile-speaker-details .nzgdc-speaker-description {
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .nzgdc-mobile-speaker-details .nzgdc-speaker-contact {
+            font-size: 11px;
+        }
+
+        .nzgdc-speaker-bio-card {
+            display: none; /* Hide original cards on mobile */
+        }
+
+        .nzgdc-speaker-contact {
+            flex-direction: column;
+        }
+    }
+
+    /* Accessibility and Motion Preferences */
+    @media (prefers-reduced-motion: reduce) {
+        .nzgdc-expanded-event-overlay,
+        .nzgdc-expanded-event-modal {
+            transition: none;
+        }
+    }
+
+    /* Demo Controls */
+    .demo-controls {
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .demo-button {
+        background-color: var(--color-primary, #f53e3e);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        cursor: pointer;
+        font-family: "Futura PT Demi", "Futura", Arial, sans-serif;
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 10px;
+        transition: background-color 0.2s ease;
+    }
+
+    .demo-button:hover {
+        background-color: #e03333;
+    }
+
+    .demo-info {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .demo-info h1 {
+        color: #f53e3e;
+        margin-bottom: 15px;
+        font-family: "Futura PT Heavy", "Futura", Arial, sans-serif;
+    }
+
+    .demo-info p {
+        margin-bottom: 10px;
+        line-height: 1.6;
+    }
+    </style>
+</head>
+<body>
+    <!-- Demo Information -->
+    <div class="demo-info">
+        <h1>NZGDC Expanded Event Details Overlay - Prototype</h1>
+        <p><strong>Purpose:</strong> This prototype demonstrates the Expanded Event Details overlay that will integrate with existing Event Panel overlays in the NZGDC Widget system.</p>
+        <p><strong>Integration:</strong> This overlay is designed to be triggered when users click on existing event panel overlays (the overlays are already clickable buttons).</p>
+        <p><strong>Features:</strong> Responsive design, backdrop click-to-close, ESC key support, dynamic content population, and visual consistency with existing widget design.</p>
+    </div>
+
+    <!-- Demo Controls -->
+    <div class="demo-controls">
+        <button class="demo-button" onclick="showSingleSpeakerDemo()">Single Speaker Event</button>
+        <button class="demo-button" onclick="showMultipleSpeakerDemo()">Multiple Speaker Event</button>
+        <button class="demo-button" onclick="showLongContentDemo()">Long Content Test</button>
+    </div>
+
+    <!-- Expanded Event Details Overlay -->
+    <div class="nzgdc-expanded-event-overlay" id="expandedEventOverlay">
+        <div class="nzgdc-expanded-event-backdrop" onclick="hideExpandedEventDetails()"></div>
+        <div class="nzgdc-expanded-event-modal">
+            <button class="nzgdc-modal-close" onclick="hideExpandedEventDetails()" aria-label="Close event details">&times;</button>
+
+            <!-- Event Header -->
+            <div class="nzgdc-event-header">
+                <div class="nzgdc-event-title-expanded">
+                    <h1 class="nzgdc-title-text-expanded" id="eventTitle">Event Title Loading...</h1>
+                </div>
+                <div class="nzgdc-event-speakers-list" id="speakersList">
+                    <!-- Speaker names will be populated here -->
+                </div>
+            </div>
+
+            <!-- Event Description -->
+            <div class="nzgdc-event-description">
+                <div class="nzgdc-event-synopsis">
+                    <p class="nzgdc-synopsis-text" id="eventSynopsis">Event description loading...</p>
+                </div>
+                <hr class="nzgdc-content-separator">
+                <div class="nzgdc-audience-section">
+                    <span class="nzgdc-audience-label">Who should attend?</span>
+                    <div class="nzgdc-audience-tags" id="audienceTags">
+                        <!-- Audience tags will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Speaker Bios -->
+            <div class="nzgdc-speaker-bios" id="speakerBios">
+                <!-- Speaker bio cards will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample Event Data
+        const sampleEventData = {
+            singleSpeaker: {
+                title: "Advanced Storytelling Techniques for Interactive Media",
+                speakers: [
+                    {
+                        name: "Sarah Mitchell",
+                        position: "Lead Writer @ Narrative Studios",
+                        bio: "Sarah has over 12 years of experience in game narrative design, having worked on award-winning titles including 'Chronicle of Dreams' and 'Interactive Legends'. She specializes in branching storylines and character development systems.",
+                        email: "sarah.mitchell@narrativestudios.com",
+                        website: "narrativestudios.com",
+                        headshot: null // Will show placeholder
+                    }
+                ],
+                description: "Dive deep into the art of crafting compelling narratives for interactive entertainment. This workshop covers advanced techniques for creating branching storylines, developing memorable characters, and implementing player choice systems that meaningfully impact story progression.",
+                audienceTags: ["WRITERS", "EVERYONE", "EVERYONE"]
+            },
+            multipleSpeaker: {
+                title: "This is a Placeholder Title occupying two lines of space",
+                speakers: [
+                    {
+                        name: "First Name + Last Name",
+                        position: "Position/Title @ Company Name",
+                        bio: "Description details about the speaker's background, professional history, and possible contact information (unless we can stylise this into some kind of pop-up business card that contains that information laid out as such).",
+                        email: "emailaddress@domain",
+                        website: "foxstudios.nz",
+                        headshot: null
+                    },
+                    {
+                        name: "Alex Thompson",
+                        position: "Senior Game Designer @ Creative Interactive",
+                        bio: "Alex brings 8 years of experience in multiplayer game design and community management. Known for innovative approaches to player engagement and social gaming mechanics.",
+                        email: "alex.thompson@creativeinteractive.com",
+                        website: "creativeinteractive.com",
+                        headshot: null
+                    }
+                ],
+                description: "Reprehenderit voluptate minim nostrud est et labore enim. Minim ipsum est et labore reprehenderit labore non amet sit officia qute adipisicing voluptate officia consequat. Aliquip anim mollit elit culpa adipisicing aliquip dolore nulla qui irure. Mollit aliquip ad dolore eu proident ad irure commodo labore pariatur dolore culpa eiusmod. Veniam elit magna anim tempor cupidatat reprehenderit excepteur laboris eiusmod duis nisl.",
+                audienceTags: ["WRITERS", "EVERYONE", "EVERYONE", "EVERYONE"]
+            },
+            longContent: {
+                title: "Comprehensive Game Development Workshop: From Concept to Launch with Extended Technical Deep-Dive Sessions",
+                speakers: [
+                    {
+                        name: "Dr. Emily Rodriguez-Chen",
+                        position: "Principal Technical Director @ MegaGame Studios International",
+                        bio: "Dr. Rodriguez-Chen has over 15 years of experience leading large-scale game development projects. She has shipped more than 20 AAA titles and holds a PhD in Computer Science with specialization in real-time rendering and game engine architecture. She's also the author of 'Advanced Game Programming Patterns' and a frequent speaker at international game development conferences.",
+                        email: "emily.rodriguez-chen@megagamestudios.com",
+                        website: "megagamestudios.com/team/emily",
+                        headshot: null
+                    },
+                    {
+                        name: "Marcus Williams III",
+                        position: "Creative Director & Co-Founder @ Indie Revolution Games",
+                        bio: "Marcus is a veteran of the indie game scene with over 12 years of experience. He's successfully launched 8 indie titles, with his latest game 'Pixel Dreams' winning multiple awards including the Independent Games Festival Excellence in Visual Art award. Marcus is passionate about helping new developers break into the industry.",
+                        email: "marcus@indierevolution.games",
+                        website: "indierevolution.games",
+                        headshot: null
+                    },
+                    {
+                        name: "Dr. Priya Patel-Kumar",
+                        position: "Lead UX Researcher @ Player Experience Labs",
+                        bio: "Dr. Patel-Kumar specializes in player psychology and user experience design for games. With a background in cognitive psychology and human-computer interaction, she has conducted extensive research on player engagement, accessibility in games, and inclusive design practices. Her work has influenced design decisions in over 50 published games.",
+                        email: "priya@playerexperiencelabs.com",
+                        website: "playerexperiencelabs.com/research",
+                        headshot: null
+                    }
+                ],
+                description: "This comprehensive workshop spans multiple days and covers the entire game development pipeline from initial concept through post-launch support. Participants will engage in hands-on exercises covering game design theory, technical implementation, art direction, sound design, marketing strategies, community building, and sustainable business practices. The workshop includes breakout sessions for different skill levels, one-on-one mentoring opportunities, and a final project presentation where participants will pitch their own game concepts to a panel of industry experts. Additional topics include modern development tools, version control best practices, team management, crunch prevention, and building inclusive development environments. This intensive workshop is designed for serious developers looking to take their skills to the next level.",
+                audienceTags: ["WRITERS", "EVERYONE", "PROGRAMMING", "ART", "BUSINESS"]
+            }
+        };
+
+        // Core functionality
+        let currentOverlay = null;
+
+        function showExpandedEventDetails(eventData) {
+            const overlay = document.getElementById('expandedEventOverlay');
+
+            // Store event data for resize handling
+            window.currentEventData = eventData;
+
+            // Populate content
+            populateEventContent(eventData);
+
+            // Show overlay with animation
+            overlay.style.display = 'block';
+            setTimeout(() => {
+                overlay.classList.add('visible');
+            }, 10);
+
+            // Store reference for cleanup
+            currentOverlay = overlay;
+
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
+
+            // Add keyboard event listener
+            document.addEventListener('keydown', handleKeyDown);
+        }
+
+        function hideExpandedEventDetails() {
+            const overlay = document.getElementById('expandedEventOverlay');
+
+            overlay.classList.remove('visible');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+                // Restore body scroll
+                document.body.style.overflow = '';
+                // Remove keyboard event listener
+                document.removeEventListener('keydown', handleKeyDown);
+                currentOverlay = null;
+            }, 300);
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'Escape') {
+                hideExpandedEventDetails();
+            }
+        }
+
+        function populateEventContent(eventData) {
+            // Populate title
+            document.getElementById('eventTitle').textContent = eventData.title;
+
+            // Populate speakers list
+            const speakersListContainer = document.getElementById('speakersList');
+            speakersListContainer.innerHTML = '';
+            eventData.speakers.forEach(speaker => {
+                const speakerNameDiv = document.createElement('div');
+                speakerNameDiv.className = 'nzgdc-speaker-name-item';
+                speakerNameDiv.textContent = speaker.name;
+                speakersListContainer.appendChild(speakerNameDiv);
+            });
+
+            // Populate description
+            document.getElementById('eventSynopsis').textContent = eventData.description;
+
+            // Populate audience tags
+            const audienceTagsContainer = document.getElementById('audienceTags');
+            audienceTagsContainer.innerHTML = '';
+            eventData.audienceTags.forEach(tag => {
+                const tagSpan = document.createElement('span');
+                tagSpan.className = `nzgdc-audience-tag ${tag.toLowerCase()}`;
+                tagSpan.textContent = tag;
+                audienceTagsContainer.appendChild(tagSpan);
+            });
+
+            // Populate speaker bios
+            const speakerBiosContainer = document.getElementById('speakerBios');
+            speakerBiosContainer.innerHTML = '';
+
+            // Check if mobile/tablet view
+            const isMobileOrTablet = window.innerWidth <= 768;
+            if (isMobileOrTablet) {
+                eventData.speakers.forEach(speaker => {
+                    const mobileCard = createMobileSpeakerCard(speaker);
+                    speakerBiosContainer.appendChild(mobileCard);
+                });
+            } else {
+                eventData.speakers.forEach(speaker => {
+                    const bioCard = createSpeakerBioCard(speaker);
+                    speakerBiosContainer.appendChild(bioCard);
+                });
+            }
+        }
+
+        function createSpeakerBioCard(speaker) {
+            const card = document.createElement('div');
+            card.className = 'nzgdc-speaker-bio-card';
+
+            card.innerHTML = `
+                <div class="nzgdc-speaker-headshot">
+                    ${speaker.headshot ?
+                        `<img src="${speaker.headshot}" alt="${speaker.name}">` :
+                        `<div class="nzgdc-speaker-headshot-placeholder">Speaker Photo</div>`
+                    }
+                </div>
+                <div class="nzgdc-speaker-bio-content">
+                    <div class="nzgdc-speaker-bio-header">
+                        <h3 class="nzgdc-bio-header-text">Speaker Bio</h3>
+                    </div>
+                    <div class="nzgdc-speaker-bio-details">
+                        <div class="nzgdc-speaker-info-top">
+                            <h4 class="nzgdc-speaker-name">${speaker.name}</h4>
+                            <p class="nzgdc-speaker-position">${speaker.position}</p>
+                        </div>
+                        <div class="nzgdc-speaker-description-container">
+                            <p class="nzgdc-speaker-description">${speaker.bio}</p>
+                        </div>
+                        <div class="nzgdc-speaker-contact">
+                            <span class="nzgdc-contact-email">Email: ${speaker.email}</span>
+                            <span class="nzgdc-contact-website">Website: ${speaker.website}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Add dynamic font scaling after DOM insertion
+            setTimeout(() => adjustSpeakerBioSize(card), 10);
+
+            return card;
+        }
+
+        function createMobileSpeakerCard(speaker) {
+            const card = document.createElement('div');
+            card.className = 'nzgdc-mobile-speaker-card';
+
+            card.innerHTML = `
+                <div class="nzgdc-mobile-speaker-headshot">
+                    ${speaker.headshot ?
+                        `<img src="${speaker.headshot}" alt="${speaker.name}">` :
+                        'Speaker Photo'
+                    }
+                </div>
+                <div class="nzgdc-mobile-speaker-details">
+                    <h4 class="nzgdc-speaker-name">${speaker.name}</h4>
+                    <p class="nzgdc-speaker-position">${speaker.position}</p>
+                    <p class="nzgdc-speaker-description">${speaker.bio}</p>
+                    <div class="nzgdc-speaker-contact">
+                        <span class="nzgdc-contact-email">Email: ${speaker.email}</span>
+                        <span class="nzgdc-contact-website">Website: ${speaker.website}</span>
+                    </div>
+                </div>
+            `;
+
+            return card;
+        }
+
+        // Demo functions
+        function showSingleSpeakerDemo() {
+            showExpandedEventDetails(sampleEventData.singleSpeaker);
+        }
+
+        function showMultipleSpeakerDemo() {
+            showExpandedEventDetails(sampleEventData.multipleSpeaker);
+        }
+
+        function showLongContentDemo() {
+            showExpandedEventDetails(sampleEventData.longContent);
+        }
+
+        // Integration functions (to be called by existing overlay click handlers)
+        function openExpandedEventDetails(eventId) {
+            // In actual implementation, this would fetch real event data
+            // For now, use sample data
+            const eventData = getEventDataById(eventId) || sampleEventData.multipleSpeaker;
+            showExpandedEventDetails(eventData);
+        }
+
+        function closeExpandedEventDetails() {
+            hideExpandedEventDetails();
+        }
+
+        function getEventDataById(eventId) {
+            // This would fetch actual event data from the existing system
+            // For prototype purposes, return sample data
+            return sampleEventData.multipleSpeaker;
+        }
+
+        // Handle window resize for layout switching
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                if (currentOverlay && currentOverlay.classList.contains('visible')) {
+                    // Re-populate content with current layout detection
+                    const currentEventData = window.currentEventData;
+                    if (currentEventData) {
+                        populateEventContent(currentEventData);
+                    }
+                }
+            }, 150);
+        });
+
+        // Dynamic font scaling function - updated for space-around layout
+        function adjustSpeakerBioSize(card) {
+            const bioDetails = card.querySelector('.nzgdc-speaker-bio-details');
+            const description = card.querySelector('.nzgdc-speaker-description');
+
+            if (!bioDetails || !description) return;
+
+            // Reset font size to default first
+            description.style.fontSize = '16px';
+
+            // With space-around layout, only scale down if content is actually overflowing
+            const bioDetailsHeight = bioDetails.offsetHeight;
+            const totalContentHeight = bioDetails.scrollHeight;
+
+            // Only reduce font size if there's actual overflow
+            if (totalContentHeight > bioDetailsHeight) {
+                let fontSize = 16;
+                while (bioDetails.scrollHeight > bioDetailsHeight && fontSize > 12) {
+                    fontSize -= 0.5;
+                    description.style.fontSize = fontSize + 'px';
+                }
+            }
+        }
+
+        // Make functions available globally for integration
+        window.NZGDC_ExpandedEventDetails = {
+            show: showExpandedEventDetails,
+            hide: hideExpandedEventDetails,
+            open: openExpandedEventDetails,
+            close: closeExpandedEventDetails
+        };
+
+        console.log('NZGDC Expanded Event Details Overlay loaded successfully');
+        console.log('Available functions:', window.NZGDC_ExpandedEventDetails);
+    </script>
+</body>
+</html>
