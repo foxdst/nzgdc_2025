@@ -367,6 +367,11 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       </div>
     `;
 
+      // NEW: Add speaker details hover functionality after panel creation
+      setTimeout(() => {
+        this.setupSpeakerDetailsHover(mainPanel, eventData);
+      }, 0); // Allow DOM to update first
+
       return mainPanel;
     }
 
@@ -530,6 +535,111 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
         speakerContainers[i].style.display = "none";
         this.debug(`Hiding unused unified speaker container ${i + 1}`);
       }
+
+      // NEW: Add speaker details hover functionality
+      this.setupSpeakerDetailsHover(clone, eventData);
+    }
+
+    // NEW: Setup hover functionality for both panel types
+    setupSpeakerDetailsHover(eventPanel, eventData) {
+      try {
+        // Detect panel type by checking for Big or Main panel elements
+        const isBigPanel = eventPanel.querySelector(
+          ".nzgdc-event-panel-big-thumbnail",
+        );
+        const isMainPanel = eventPanel.querySelector(
+          ".nzgdc-event-panel-thumbnail-main",
+        );
+
+        if (isBigPanel) {
+          this.setupBigPanelHover(eventPanel, eventData);
+        } else if (isMainPanel) {
+          this.setupMainPanelHover(eventPanel, eventData);
+        } else {
+          this.debug("Unknown panel type, skipping hover setup");
+        }
+      } catch (error) {
+        this.debug("Error setting up overlay hover:", error);
+        console.warn("Overlay hover setup failed:", error);
+      }
+    }
+
+    // Setup hover for Big Event Panel (620x300) - show/hide entire overlay
+    setupBigPanelHover(eventPanel, eventData) {
+      const thumbnail = eventPanel.querySelector(
+        ".nzgdc-event-panel-big-thumbnail",
+      );
+      const overlay = eventPanel.querySelector(
+        ".nzgdc-event-detail-overlay-big",
+      );
+
+      if (!thumbnail || !overlay) {
+        this.debug("Required Big panel hover elements not found");
+        return;
+      }
+
+      // Setup hover events - show/hide entire overlay
+      // Initial state and transition handled by CSS
+      thumbnail.addEventListener("mouseenter", () => {
+        overlay.style.opacity = "1";
+        this.debug("Showing Big panel overlay for:", eventData.title);
+      });
+
+      thumbnail.addEventListener("mouseleave", () => {
+        overlay.style.opacity = "0";
+        this.debug("Hiding Big panel overlay for:", eventData.title);
+      });
+
+      // Make entire overlay clickable for accessibility
+      overlay.style.cursor = "pointer";
+      overlay.addEventListener("click", (e) => {
+        // Find existing CTA element and trigger its click behavior
+        const ctaElement = overlay.querySelector(".nzgdc-call-to-action-big");
+        if (ctaElement) {
+          // Trigger any existing click handlers on the CTA element
+          ctaElement.click();
+          this.debug("Big panel overlay clicked for:", eventData.title);
+        }
+      });
+    }
+
+    // Setup hover for Main Event Panel (300x300) - show/hide entire overlay
+    setupMainPanelHover(eventPanel, eventData) {
+      const thumbnail = eventPanel.querySelector(
+        ".nzgdc-event-panel-thumbnail-main",
+      );
+      const overlay = eventPanel.querySelector(
+        ".nzgdc-event-panel-overlay-main",
+      );
+
+      if (!thumbnail || !overlay) {
+        this.debug("Required Main panel hover elements not found");
+        return;
+      }
+
+      // Setup hover events - show/hide entire overlay
+      // Initial state and transition handled by CSS
+      thumbnail.addEventListener("mouseenter", () => {
+        overlay.style.opacity = "1";
+        this.debug("Showing Main panel overlay for:", eventData.title);
+      });
+
+      thumbnail.addEventListener("mouseleave", () => {
+        overlay.style.opacity = "0";
+        this.debug("Hiding Main panel overlay for:", eventData.title);
+      });
+
+      // Make entire overlay clickable for accessibility
+      overlay.style.cursor = "pointer";
+      overlay.addEventListener("click", (e) => {
+        // Find existing CTA element and trigger its click behavior
+        const ctaElement = overlay.querySelector(".nzgdc-call-to-action-main");
+        if (ctaElement) {
+          // Trigger any existing click handlers on the CTA element
+          ctaElement.click();
+          this.debug("Main panel overlay clicked for:", eventData.title);
+        }
+      });
     }
 
     createErrorPanel(errorMessage) {

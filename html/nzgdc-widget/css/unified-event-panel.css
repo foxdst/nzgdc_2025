@@ -66,6 +66,9 @@
     top: 0;
     left: 0;
     box-sizing: border-box;
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out;
+    cursor: pointer;
 }
 
 .nzgdc-call-to-action-big {
@@ -326,6 +329,7 @@
     overflow-wrap: break-word;
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     margin: 0;
@@ -366,6 +370,9 @@
     top: 0;
     left: 0;
     box-sizing: border-box;
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out;
+    cursor: pointer;
 }
 
 /* Speaker Details */
