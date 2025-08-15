@@ -49,12 +49,14 @@
         await Promise.all([
           this.loadCSS("css/unified-event-panel.css"),
           this.loadCSS("css/category-filter-overlay.css"),
+          this.loadCSS("css/expanded-event-details-overlay.css"),
           this.loadCSS("css/friday-saturday-schedule-bundle.css"),
         ]);
         this.cssLoaded = true;
 
         // Load JavaScript modules
         await Promise.all([
+          this.loadJS("js/expanded-event-details-manager.js"),
           this.loadJS("js/unified-event-loader.js"),
           this.loadJS("js/friday-saturday-widget-core.js"),
           this.loadJS("js/morning-schedule-generator.js"),

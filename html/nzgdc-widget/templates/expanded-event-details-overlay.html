@@ -1,0 +1,84 @@
+<!-- NZGDC Expanded Event Details Overlay Template -->
+<!-- Phase 0 Implementation - Conflict-free class names -->
+<!-- Used by all widget types: Thursday, Morning, and Afternoon -->
+
+<div class="nzgdc-expanded-event-overlay" id="nzgdc-expanded-event-overlay">
+    <!-- Backdrop for clicking to close -->
+    <div class="nzgdc-expanded-event-backdrop"></div>
+
+    <!-- Main modal container -->
+    <div class="nzgdc-expanded-event-modal">
+        <!-- Close button -->
+        <button class="nzgdc-modal-close" aria-label="Close event details">×</button>
+
+        <!-- Event header with title and speakers -->
+        <div class="nzgdc-event-header">
+            <div class="nzgdc-event-title-expanded">
+                <h1 class="nzgdc-title-text-expanded" id="expanded-event-title">Event Title</h1>
+            </div>
+
+            <!-- Speaker names list -->
+            <div class="nzgdc-event-speakers-list" id="expanded-speakers-list">
+                <!-- Dynamically populated with speaker names -->
+            </div>
+        </div>
+
+        <!-- Event description section -->
+        <div class="nzgdc-expanded-event-description">
+            <!-- Event synopsis -->
+            <div class="nzgdc-event-synopsis">
+                <div class="nzgdc-synopsis-text" id="expanded-event-synopsis">
+                    Event description will be populated here.
+                </div>
+            </div>
+
+            <hr class="nzgdc-content-separator">
+
+            <!-- Audience targeting section -->
+            <div class="nzgdc-audience-section">
+                <div class="nzgdc-audience-label">Intended Audience:</div>
+                <div class="nzgdc-audience-tags" id="expanded-audience-tags">
+                    <!-- Dynamically populated with audience tags -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Speaker bios section -->
+        <div class="nzgdc-speaker-bios" id="expanded-speaker-bios">
+            <!-- Mobile header will be created dynamically by JavaScript -->
+
+            <!-- Speaker bio cards will be dynamically inserted here -->
+            <!-- Template structure for each speaker:
+
+            <div class="nzgdc-speaker-bio-card">
+                <div class="nzgdc-speaker-headshot">
+                    <img src="speaker-photo.jpg" alt="Speaker Name">
+                    OR
+                    <div class="nzgdc-speaker-headshot-placeholder">No Photo Available</div>
+                </div>
+
+                <div class="nzgdc-speaker-bio-content">
+                    <div class="nzgdc-speaker-bio-header">
+                        <div class="nzgdc-bio-header-text">Speaker Bio</div>
+                    </div>
+
+                    <div class="nzgdc-speaker-bio-details">
+                        <div class="nzgdc-speaker-info-top">
+                            <div class="nzgdc-speaker-description-container">
+                                <div class="nzgdc-expanded-speaker-name">Speaker Name</div>
+                                <div class="nzgdc-expanded-speaker-position">Position @ Company</div>
+                                <div class="nzgdc-expanded-speaker-description">Speaker bio description...</div>
+                                <div class="nzgdc-expanded-speaker-contact">
+                                    <a href="mailto:email@domain.com" class="nzgdc-contact-email">email@domain.com</a>
+                                    <a href="https://website.com" class="nzgdc-contact-website">website.com</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            -->
+        </div>
+    </div>
+</div>

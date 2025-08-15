@@ -1,0 +1,569 @@
+/* NZGDC Expanded Event Details Overlay Styles */
+/* Conflict-free CSS with properly scoped variables and renamed classes */
+/* Phase 0 Implementation - All conflicts resolved */
+
+/* ===== CSS VARIABLE SCOPING (NO CONFLICTS) ===== */
+.nzgdc-expanded-event-overlay {
+    --expanded-font-family-demi: "Futura PT Demi", "Futura", Arial, sans-serif;
+    --expanded-font-family-bold: "Futura PT Bold", "Futura", Arial, sans-serif;
+    --expanded-font-family-heavy:
+        "Futura PT Heavy", "Futura", Arial, sans-serif;
+    --expanded-font-family-medium:
+        "Futura PT Medium", "Futura", Arial, sans-serif;
+    --expanded-color-primary: #f53e3e;
+    --expanded-color-bg: rgba(255, 255, 255, 1);
+    --expanded-color-overlay: rgba(0, 0, 0, 0.75);
+    --expanded-color-title: rgba(0, 0, 0, 1);
+    --expanded-color-category-text: rgba(255, 255, 255, 1);
+    --expanded-color-intro: rgba(245, 45, 49, 1);
+    --expanded-color-speaker: rgba(255, 255, 255, 1);
+    --expanded-color-speaker-secondary: rgba(204, 204, 204, 1);
+}
+
+/* ===== OVERLAY CONTAINER ===== */
+.nzgdc-expanded-event-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2000;
+    display: none; /* Hidden by default */
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.nzgdc-expanded-event-overlay.visible {
+    opacity: 1;
+}
+
+.nzgdc-expanded-event-backdrop {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--expanded-color-overlay);
+    cursor: pointer;
+}
+
+.nzgdc-expanded-event-modal {
+    position: relative;
+    max-width: 1000px;
+    max-height: 90vh;
+    margin: 5vh auto;
+    background-color: var(--expanded-color-bg);
+    overflow-y: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    transform: translateY(20px);
+    transition: transform 0.3s ease-in-out;
+}
+
+.nzgdc-expanded-event-overlay.visible .nzgdc-expanded-event-modal {
+    transform: translateY(0);
+}
+
+/* ===== MODAL CONTROLS ===== */
+.nzgdc-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 30px;
+    height: 30px;
+    background-color: var(--expanded-color-overlay);
+    color: var(--expanded-color-category-text);
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    font-family: var(--expanded-font-family-heavy);
+}
+
+.nzgdc-modal-close:hover {
+    background-color: var(--expanded-color-primary);
+}
+
+/* ===== EVENT HEADER ===== */
+.nzgdc-event-header {
+    background-color: var(--expanded-color-primary);
+    padding: 30px 20px 20px;
+    text-align: center;
+    position: relative;
+}
+
+.nzgdc-event-title-expanded {
+    margin-bottom: 20px;
+}
+
+.nzgdc-title-text-expanded {
+    color: var(--expanded-color-category-text);
+    font-family: var(--expanded-font-family-heavy);
+    font-weight: 600;
+    margin: 0;
+    max-width: 100%;
+    font-size: 30px;
+}
+
+.nzgdc-event-speakers-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.nzgdc-speaker-name-item {
+    color: var(--expanded-color-category-text);
+    font-family: var(--expanded-font-family-medium);
+    font-size: 18px;
+    font-weight: 400;
+}
+
+/* ===== EVENT DESCRIPTION SECTION ===== */
+.nzgdc-expanded-event-description {
+    padding: 30px;
+    background-color: #f8f8f8;
+}
+
+.nzgdc-event-synopsis {
+    margin-bottom: 30px;
+}
+
+.nzgdc-synopsis-text {
+    color: var(--expanded-color-title);
+    font-family: var(--expanded-font-family-medium);
+    font-size: 18px;
+    line-height: 1.6;
+    margin: 1rem 1rem 2rem 1rem;
+}
+
+.nzgdc-content-separator {
+    height: 1px;
+    background-color: #ddd;
+    margin: 20px 0;
+    border: none;
+}
+
+/* ===== AUDIENCE SECTION ===== */
+.nzgdc-audience-section {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.nzgdc-audience-label {
+    color: var(--expanded-color-title);
+    font-family: var(--expanded-font-family-demi);
+    font-size: 18px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.nzgdc-audience-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.nzgdc-audience-tag {
+    padding: 10px 20px;
+    font-family: var(--expanded-font-family-heavy);
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    text-transform: uppercase;
+}
+
+.nzgdc-audience-tag.writers {
+    background-color: var(--expanded-color-primary);
+}
+
+.nzgdc-audience-tag.everyone {
+    background-color: #333;
+}
+
+/* ===== SPEAKER BIOS SECTION ===== */
+.nzgdc-speaker-bios {
+    background-color: var(--expanded-color-bg);
+}
+
+.nzgdc-speaker-bio-card {
+    display: grid;
+    background-color: var(--expanded-color-bg);
+    grid-template-columns: 0.5fr 1fr;
+    border: aliceblue;
+}
+
+.nzgdc-speaker-bio-card:last-child {
+    border-bottom: none;
+}
+
+.nzgdc-speaker-headshot {
+    display: flex;
+    height: auto;
+    aspect-ratio: 1 / 1;
+}
+
+.nzgdc-speaker-headshot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    background-color: #e0e0e0;
+}
+
+.nzgdc-speaker-headshot-placeholder {
+    width: 100%;
+    height: auto;
+    background-color: #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-family: var(--expanded-font-family-medium);
+    font-size: 12px;
+    text-align: center;
+    min-height: 180px;
+}
+
+.nzgdc-speaker-bio-content {
+    height: fit-content;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.nzgdc-speaker-bio-header {
+    background-color: var(--expanded-color-primary);
+    padding: 8px 15px;
+    margin-bottom: 15px;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+.nzgdc-bio-header-text {
+    color: var(--expanded-color-category-text);
+    font-family: var(--expanded-font-family-heavy);
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.nzgdc-speaker-bio-details {
+    padding: 0 15px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 0.5rem;
+    justify-content: space-between;
+}
+
+.nzgdc-speaker-info-top {
+    margin-bottom: 10px;
+}
+
+.nzgdc-speaker-description-container {
+    display: flex;
+    flex-direction: column;
+}
+
+/* CONFLICT RESOLVED: Renamed from .nzgdc-speaker-name */
+.nzgdc-expanded-speaker-name {
+    color: var(--expanded-color-title);
+    font-family: var(--expanded-font-family-demi);
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 5px 0;
+}
+
+/* CONFLICT RESOLVED: Renamed from .nzgdc-speaker-position */
+.nzgdc-expanded-speaker-position {
+    color: var(--expanded-color-intro);
+    font-family: var(--expanded-font-family-medium);
+    font-size: 16px;
+    font-style: italic;
+    margin: 0 0 10px 0;
+}
+
+/* CONFLICT RESOLVED: Renamed from .nzgdc-speaker-description */
+.nzgdc-expanded-speaker-description {
+    color: var(--expanded-color-title);
+    font-family: var(--expanded-font-family-medium);
+    font-size: 16px;
+    line-height: 1.4;
+    margin: 0;
+    overflow: hidden;
+}
+
+/* CONFLICT RESOLVED: Renamed from .nzgdc-speaker-contact */
+.nzgdc-expanded-speaker-contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px 20px;
+    font-family: var(--expanded-font-family-medium);
+    font-size: 14px;
+    color: var(--expanded-color-title);
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.nzgdc-contact-email,
+.nzgdc-contact-website {
+    text-decoration: none;
+    color: var(--expanded-color-intro);
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .nzgdc-expanded-event-modal {
+        max-width: 95%;
+        margin: 3vh auto;
+        max-height: 94vh;
+    }
+
+    .nzgdc-event-header {
+        padding: 25px 15px 15px;
+    }
+
+    .nzgdc-title-text-expanded {
+        line-height: inherit;
+    }
+
+    .nzgdc-expanded-event-description {
+        padding: 20px;
+    }
+
+    .nzgdc-speaker-bios {
+        display: block;
+    }
+
+    .nzgdc-mobile-speaker-bio-header {
+        background-color: var(--expanded-color-primary);
+        padding: 8px 15px;
+    }
+
+    .nzgdc-mobile-speaker-bio-header h3 {
+        color: var(--expanded-color-category-text);
+        font-family: var(--expanded-font-family-heavy);
+        font-size: 22px;
+        font-weight: 600;
+        margin: 0;
+        text-align: left;
+    }
+
+    .nzgdc-speaker-bio-card {
+        display: block;
+        margin-bottom: 0;
+        margin-right: 0;
+        background-color: var(--expanded-color-bg);
+        min-height: auto;
+    }
+
+    .nzgdc-mobile-speaker-card {
+        display: block;
+        background-color: var(--expanded-color-bg);
+    }
+
+    .nzgdc-mobile-speaker-headshot {
+        width: 100%;
+        height: 300px;
+        background: linear-gradient(
+            45deg,
+            #87ceeb 0%,
+            #e6e6fa 25%,
+            #ffb6c1 50%,
+            #dda0dd 75%,
+            #6495ed 100%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        font-family: var(--expanded-font-family-medium);
+        font-size: 12px;
+    }
+
+    .nzgdc-mobile-speaker-headshot img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .nzgdc-mobile-speaker-details {
+        padding: 15px 20px 10px;
+    }
+
+    .nzgdc-mobile-speaker-details .nzgdc-expanded-speaker-name {
+        font-size: 18px;
+        margin-bottom: 5px;
+    }
+
+    .nzgdc-mobile-speaker-details .nzgdc-expanded-speaker-position {
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+
+    .nzgdc-mobile-speaker-details .nzgdc-expanded-speaker-description {
+        font-size: 14px;
+        line-height: 1.4;
+    }
+
+    .nzgdc-mobile-speaker-details .nzgdc-expanded-speaker-contact {
+        font-size: 12px;
+        margin-bottom: 1vw;
+    }
+
+    .nzgdc-audience-section {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .nzgdc-expanded-event-modal {
+        max-width: 95%;
+        margin: 2vh auto;
+        max-height: 96vh;
+    }
+
+    .nzgdc-title-text-expanded {
+        font-size: 26px;
+    }
+
+    .nzgdc-event-speakers-list {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .nzgdc-speaker-name-item {
+        font-size: 16px;
+    }
+
+    .nzgdc-expanded-event-description {
+        padding: 15px;
+    }
+
+    .nzgdc-speaker-bios {
+        display: block;
+    }
+
+    .nzgdc-mobile-speaker-bio-header {
+        background-color: var(--expanded-color-primary);
+        padding: 8px 15px;
+    }
+
+    .nzgdc-mobile-speaker-bio-header h3 {
+        color: var(--expanded-color-category-text);
+        font-family: var(--expanded-font-family-heavy);
+        font-size: 20px;
+        font-weight: 600;
+        margin: 0;
+        text-align: left;
+    }
+
+    .nzgdc-mobile-speaker-card {
+        display: block;
+        background-color: var(--expanded-color-bg);
+    }
+
+    .nzgdc-mobile-speaker-headshot {
+        width: 100%;
+        height: 300px;
+        background: linear-gradient(
+            45deg,
+            #87ceeb 0%,
+            #e6e6fa 25%,
+            #ffb6c1 50%,
+            #dda0dd 75%,
+            #6495ed 100%
+        );
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        font-family: var(--expanded-font-family-medium);
+        font-size: 10px;
+    }
+
+    .nzgdc-mobile-speaker-headshot img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .nzgdc-mobile-speaker-details {
+        padding: 15px 20px 10px;
+    }
+
+    .nzgdc-mobile-speaker-details .nzgdc-expanded-speaker-name {
+        font-size: 16px;
+        margin-bottom: 3px;
+    }
+
+    .nzgdc-mobile-speaker-details .nzgdc-expanded-speaker-position {
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+
+    .nzgdc-mobile-speaker-details .nzgdc-expanded-speaker-description {
+        font-size: 13px;
+        line-height: 1.3;
+    }
+
+    .nzgdc-expanded-speaker-contact {
+        font-size: 11px;
+        margin-bottom: 1vw;
+    }
+}
+
+/* ===== ACCESSIBILITY AND MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+    .nzgdc-expanded-event-overlay,
+    .nzgdc-expanded-event-modal {
+        transition: none;
+    }
+}
+
+/* ===== DEMO STYLES (for testing only) ===== */
+.demo-controls {
+    margin: 20px 0;
+}
+
+.demo-button {
+    background: #174beb;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 10px 10px 0;
+    text-transform: uppercase;
+}
+
+.demo-button:hover {
+    background: #0f3bb8;
+}
+
+.demo-info {
+    background: #f0f0f0;
+    padding: 20px;
+    margin: 20px 0;
+    border-left: 4px solid #174beb;
+}
+
+.demo-info h1 {
+    color: #174beb;
+    font-size: 24px;
+    margin: 0 0 10px 0;
+}
+
+.demo-info p {
+    color: #333;
+    margin: 5px 0;
+}

@@ -593,12 +593,40 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       // Make entire overlay clickable for accessibility
       overlay.style.cursor = "pointer";
       overlay.addEventListener("click", (e) => {
-        // Find existing CTA element and trigger its click behavior
+        // NEW: Trigger expanded event details if manager available
+        if (window.ExpandedEventDetailsManager) {
+          try {
+            // Initialize manager if not already done
+            if (!window.expandedEventDetailsManager) {
+              window.expandedEventDetailsManager =
+                new window.ExpandedEventDetailsManager();
+            }
+
+            // Show expanded event details
+            window.expandedEventDetailsManager.showEventDetails(
+              eventData,
+              "big-panel",
+            );
+            this.debug(
+              "Big panel overlay clicked - expanded details shown for:",
+              eventData.title,
+            );
+            return;
+          } catch (error) {
+            console.error(
+              "[UnifiedEventLoader] Failed to show expanded event details:",
+              error,
+            );
+            // Fall through to original behavior
+          }
+        }
+
+        // Fallback to existing behavior
         const ctaElement = overlay.querySelector(".nzgdc-call-to-action-big");
         if (ctaElement) {
           // Trigger any existing click handlers on the CTA element
           ctaElement.click();
-          this.debug("Big panel overlay clicked for:", eventData.title);
+          this.debug("Big panel overlay clicked (fallback):", eventData.title);
         }
       });
     }
@@ -632,12 +660,40 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       // Make entire overlay clickable for accessibility
       overlay.style.cursor = "pointer";
       overlay.addEventListener("click", (e) => {
-        // Find existing CTA element and trigger its click behavior
+        // NEW: Trigger expanded event details if manager available
+        if (window.ExpandedEventDetailsManager) {
+          try {
+            // Initialize manager if not already done
+            if (!window.expandedEventDetailsManager) {
+              window.expandedEventDetailsManager =
+                new window.ExpandedEventDetailsManager();
+            }
+
+            // Show expanded event details
+            window.expandedEventDetailsManager.showEventDetails(
+              eventData,
+              "main-panel",
+            );
+            this.debug(
+              "Main panel overlay clicked - expanded details shown for:",
+              eventData.title,
+            );
+            return;
+          } catch (error) {
+            console.error(
+              "[UnifiedEventLoader] Failed to show expanded event details:",
+              error,
+            );
+            // Fall through to original behavior
+          }
+        }
+
+        // Fallback to existing behavior
         const ctaElement = overlay.querySelector(".nzgdc-call-to-action-main");
         if (ctaElement) {
           // Trigger any existing click handlers on the CTA element
           ctaElement.click();
-          this.debug("Main panel overlay clicked for:", eventData.title);
+          this.debug("Main panel overlay clicked (fallback):", eventData.title);
         }
       });
     }

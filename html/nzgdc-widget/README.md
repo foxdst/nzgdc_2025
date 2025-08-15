@@ -9,10 +9,12 @@ nzgdc-widget/
 ├── css/
 │   ├── unified-event-panel.css                  # Core event panel styles (620x300px) - ALL WIDGETS
 │   ├── category-filter-overlay.css              # Category dropdown/filter system styles
+│   ├── expanded-event-details-overlay.css       # Expanded event details overlay styles
 │   ├── thursday-schedule-bundle.css             # Thursday-specific schedule layout styles
 │   └── friday-saturday-schedule-bundle.css     # Fri/Sat unified schedule layout styles
 ├── js/
 │   ├── unified-event-loader.js                  # Event panel generator & category management
+│   ├── expanded-event-details-manager.js       # Expanded event details overlay system
 │   ├── widget-core.js                          # Thursday widget controller & logic
 │   ├── friday-saturday-widget-core.js          # Fri/Sat unified widget controller
 │   ├── schedule-generator.js                   # Thursday DOM structure generator
@@ -28,7 +30,8 @@ nzgdc-widget/
 │   ├── morning-events-original.js              # Backup: Original morning events
 │   └── afternoon-events-original.js            # Backup: Original afternoon events
 ├── templates/
-│   └── unified-event-panel.html                # Event panel HTML template (all widgets)
+│   ├── unified-event-panel.html                # Event panel HTML template (all widgets)
+│   └── expanded-event-details-overlay.html     # Expanded event details overlay template
 ├── docs/
 │   ├── audits/                                 # Performance & code quality audits
 │   ├── documentation/                          # Technical documentation
@@ -155,9 +158,11 @@ nzgdc-widget/
 1. **CSS Layer (Loaded First)**:
    - `css/unified-event-panel.css` (CRITICAL FIRST - event panel styles)
    - `css/category-filter-overlay.css` (filter dropdown styles)
+   - `css/expanded-event-details-overlay.css` (expanded details overlay styles)
    - `css/thursday-schedule-bundle.css` (Thursday layout styles)
 
 2. **JavaScript Layer (Loaded Second)**:
+   - `js/expanded-event-details-manager.js` (expanded details system)
    - `js/unified-event-loader.js` (CRITICAL - event panel generator)
    - `js/widget-core.js` (Thursday controller)
    - `js/schedule-generator.js` (Thursday DOM builder)
@@ -166,15 +171,18 @@ nzgdc-widget/
 
 3. **Template Layer (Loaded Third)**:
    - `templates/unified-event-panel.html` (event panel template)
+   - `templates/expanded-event-details-overlay.html` (expanded details template)
 
 ### Friday/Saturday Widget Dependencies (nzgdc-friday-saturday-schedule-widget-modular.js)
 **CRITICAL: Files MUST load in this exact order:**
 1. **CSS Layer (Loaded First)**:
    - `css/unified-event-panel.css` (CRITICAL FIRST - event panel styles)
-   - `css/category-filter-overlay.css` (filter dropdown styles)  
+   - `css/category-filter-overlay.css` (filter dropdown styles)
+   - `css/expanded-event-details-overlay.css` (expanded details overlay styles)
    - `css/friday-saturday-schedule-bundle.css` (Fri/Sat layout styles)
 
 2. **JavaScript Layer (Loaded Second)**:
+   - `js/expanded-event-details-manager.js` (expanded details system)
    - `js/unified-event-loader.js` (CRITICAL - event panel generator)
    - `js/friday-saturday-widget-core.js` (unified Fri/Sat controller)
    - `js/morning-schedule-generator.js` (morning DOM builder)
@@ -186,6 +194,7 @@ nzgdc-widget/
 
 3. **Template Layer (Loaded Third)**:
    - `templates/unified-event-panel.html` (event panel template)
+   - `templates/expanded-event-details-overlay.html` (expanded details template)
 
 ## 🔧 Core Architecture
 
@@ -296,14 +305,18 @@ categoryDefinitions = new Map([
 #### Thursday Widget
 - `js/schedule-data.js`: Workshop time slots, categories, and basic structure
 - `js/workshop-events.js`: Complete workshop details, speakers, descriptions, thumbnails
+- `js/expanded-event-details-manager.js`: Expanded event details overlay system
 - `templates/unified-event-panel.html`: Event panel HTML structure
+- `templates/expanded-event-details-overlay.html`: Expanded details overlay template
 
 #### Friday/Saturday Widget
 - `js/morning-schedule-data.js`: Morning event time slots and structure
 - `js/afternoon-schedule-data.js`: Afternoon event time slots and structure  
 - `js/morning-events.js`: Complete morning event details and speakers
 - `js/afternoon-events.js`: Complete afternoon event details and speakers
+- `js/expanded-event-details-manager.js`: Expanded event details overlay system
 - `templates/unified-event-panel.html`: Event panel HTML structure
+- `templates/expanded-event-details-overlay.html`: Expanded details overlay template
 
 ## 🎨 CSS Architecture & Styling System
 
@@ -620,6 +633,38 @@ widget?.switchToView('afternoon');
 - **View state corruption**: Reinitialize widget with `destroyAllFridaySaturdayWidgets()` then recreate
 - **CSS bundle conflicts**: Verify Friday/Saturday CSS bundle loaded correctly
 - **Generator initialization issues**: Check both morning/afternoon generators loaded
+
+#### 5. Expanded Event Details Not Working
+**Symptoms**: Clicking overlays doesn't show expanded details, overlay not appearing, content missing
+**Debugging Steps**:
+```javascript
+// Check expanded details manager
+console.log('Manager available:', typeof window.ExpandedEventDetailsManager);
+console.log('Manager instance:', window.expandedEventDetailsManager);
+
+// Check manager status
+console.log('Manager status:', window.expandedEventDetailsManager?.getStatus());
+
+// Enable debug mode
+localStorage.setItem('nzgdc-expanded-details-debug', 'true');
+
+// Test manual overlay
+if (window.expandedEventDetailsManager) {
+    const testData = {
+        title: "Test Event",
+        description: "Test description",
+        speakers: [{ name: "Test Speaker", position: "Test Position", bio: "Test bio" }]
+    };
+    window.expandedEventDetailsManager.showEventDetails(testData, 'manual-test');
+}
+```
+
+**Common Causes & Solutions**:
+- **Manager not loaded**: Verify `expanded-event-details-manager.js` loaded correctly
+- **CSS not loaded**: Ensure `expanded-event-details-overlay.css` loaded after unified-event-panel.css
+- **Template loading failure**: Check `templates/expanded-event-details-overlay.html` is accessible
+- **Click handler integration failure**: Verify unified-event-loader.js has manager integration
+- **Event data validation failure**: Check event data has required fields (title, speakers array)
 
 ### Debug API Methods
 

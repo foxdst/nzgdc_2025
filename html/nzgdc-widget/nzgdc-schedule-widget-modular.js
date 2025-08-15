@@ -24,7 +24,7 @@
   // Module loading queue
   const moduleQueue = [];
   let modulesLoaded = 0;
-  const totalModules = 5; // CSS bundle + JS + HTML files
+  const totalModules = 6; // CSS bundle + JS + HTML files + expanded details
 
   // Track loading state
   let widgetReady = false;
@@ -53,8 +53,9 @@
         // Load bundled CSS files
         await Promise.all([
           this.loadCSS("css/unified-event-panel.css"),
-          this.loadCSS("css/thursday-schedule-bundle.css"),
           this.loadCSS("css/category-filter-overlay.css"),
+          this.loadCSS("css/expanded-event-details-overlay.css"),
+          this.loadCSS("css/thursday-schedule-bundle.css"),
         ]);
         this.cssLoaded = true;
         debugLog("CSS bundles loaded successfully");
@@ -63,6 +64,7 @@
         await Promise.all([
           this.loadScript("js/schedule-data.js"),
           this.loadScript("js/workshop-events.js"),
+          this.loadScript("js/expanded-event-details-manager.js"),
         ]);
         debugLog("Data modules loaded successfully");
 

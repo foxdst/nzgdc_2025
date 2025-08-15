@@ -257,6 +257,7 @@
             <button id="destroyBtn" onclick="destroyWidget()">Destroy All</button>
             <button id="verifyBtn" onclick="verifyData()">Verify Data</button>
             <button id="debugBtn" onclick="toggleDebug()">Enable Debug</button>
+            <button id="testExpandedBtn" onclick="testExpandedEventDetails()">Test Expanded Details</button>
         </div>
     </header>
 
@@ -1161,9 +1162,118 @@
             console.log('\n🔍 Debug test complete');
         }
 
+        /**
+         * Test Expanded Event Details System
+         * Verifies that the expanded event details overlay integration is working
+         */
+        function testExpandedEventDetails() {
+            console.log('\n🔍 === EXPANDED EVENT DETAILS SYSTEM TEST ===');
+            console.log('='.repeat(50));
+
+            // Test 1: Check if manager class is available
+            console.log('1. Manager availability:');
+            console.log('   ExpandedEventDetailsManager:', typeof window.ExpandedEventDetailsManager);
+
+            // Test 2: Check CSS loading
+            console.log('\n2. CSS availability:');
+            const expandedCSS = Array.from(document.styleSheets).some(sheet => {
+                try {
+                    return sheet.href && sheet.href.includes('expanded-event-details-overlay.css');
+                } catch (e) {
+                    return false;
+                }
+            });
+            console.log('   Expanded details CSS loaded:', expandedCSS);
+
+            // Test 3: Try to instantiate manager
+            console.log('\n3. Manager instantiation test:');
+            try {
+                if (window.ExpandedEventDetailsManager) {
+                    const testManager = new window.ExpandedEventDetailsManager();
+                    console.log('   ✅ Manager instantiation SUCCESS');
+                    console.log('   Manager status:', testManager.getStatus());
+
+                    // Test 4: Template loading
+                    console.log('\n4. Template loading test:');
+                    testManager.loadTemplate().then(() => {
+                        console.log('   ✅ Template loading SUCCESS');
+                        console.log('   Template loaded:', testManager.templateLoaded);
+
+                        // Test 5: Sample event data
+                        console.log('\n5. Event data test:');
+                        const sampleEventData = {
+                            title: 'Test Event: Expanded Details Integration',
+                            description: 'This is a test event to verify that the expanded event details overlay system is working correctly with the NZGDC widget integration.',
+                            speakers: [
+                                {
+                                    name: 'Test Speaker One',
+                                    position: 'Senior Developer @ Test Company',
+                                    bio: 'Test speaker bio with extensive background in testing and development.',
+                                    email: 'test1@example.com',
+                                    website: 'testcompany.com'
+                                },
+                                {
+                                    name: 'Test Speaker Two',
+                                    position: 'Lead Designer @ Design Studio',
+                                    bio: 'Another test speaker with design expertise.',
+                                    email: 'test2@designstudio.com',
+                                    website: 'designstudio.com'
+                                }
+                            ],
+                            audienceTags: ['PROGRAMMING', 'EVERYONE'],
+                            category: 'PROGRAMMING',
+                            timeframe: '45 minutes'
+                        };
+
+                        try {
+                            // Don't actually show the overlay in the test, just validate the data
+                            const isValid = testManager.validateEventData(sampleEventData);
+                            console.log('   Event data validation:', isValid ? '✅ VALID' : '❌ INVALID');
+
+                            if (isValid) {
+                                console.log('   Sample event title:', sampleEventData.title);
+                                console.log('   Sample speakers count:', sampleEventData.speakers.length);
+                                console.log('   Sample audience tags:', sampleEventData.audienceTags);
+                            }
+
+                            // Clean up test manager
+                            testManager.destroy();
+                            console.log('\n6. Manager cleanup: ✅ SUCCESS');
+
+                        } catch (dataError) {
+                            console.error('   ❌ Event data test FAILED:', dataError);
+                        }
+
+                    }).catch(templateError => {
+                        console.error('   ❌ Template loading FAILED:', templateError);
+                    });
+
+                } else {
+                    console.log('   ❌ ExpandedEventDetailsManager not available');
+                }
+            } catch (error) {
+                console.error('   ❌ Manager instantiation FAILED:', error);
+            }
+
+            // Test 6: Integration with unified event loader
+            console.log('\n7. Integration check:');
+            console.log('   UnifiedEventLoader available:', typeof window.UnifiedEventLoader);
+
+            // Check if click handlers have been modified
+            if (window.UnifiedEventLoader) {
+                console.log('   ✅ UnifiedEventLoader integration ready');
+                console.log('   Note: Click any event panel overlay to test expanded details');
+            } else {
+                console.log('   ⚠️  UnifiedEventLoader not loaded yet');
+            }
+
+            console.log('\n🧪 Expanded Event Details test complete - check results above');
+        }
+
         // Make testing functions available globally
         window.testMainEventPanelCSS = testMainEventPanelCSS;
         window.debugFridaySaturdayWidget = debugFridaySaturdayWidget;
+        window.testExpandedEventDetails = testExpandedEventDetails;
     </script>
 
     <!-- Load widget scripts -->
