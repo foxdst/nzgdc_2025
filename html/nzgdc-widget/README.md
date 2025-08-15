@@ -488,6 +488,41 @@ const categories = [
 - **Category Mapping**: Automatic category detection from event data
 - **Visual Feedback**: Filtered events highlighted, non-matching events dimmed
 
+## 🔍 Expanded Event Details System
+
+### Overview
+The Expanded Event Details system provides comprehensive event information in a full-screen overlay when users click on event panel overlays. This system seamlessly integrates with both Big Panel (620x300) and Main Panel (300x300) designs.
+
+### Core Components
+- **Event Details Manager** (`js/expanded-event-details-manager.js`): Overlay lifecycle management and content population
+- **Overlay Styling** (`css/expanded-event-details-overlay.css`): Complete overlay visual design system
+- **Template System** (`templates/expanded-event-details-overlay.html`): HTML structure for overlay content
+- **Data Integration**: Automatic mapping of widget event data to overlay display format
+
+### User Interaction Flow
+1. **Hover Event Panel**: Overlay appears with speaker preview and CTA
+2. **Click Overlay**: Entire overlay area is clickable (large accessibility target)
+3. **Expanded Details**: Full-screen overlay shows complete event information
+4. **Close Options**: ESC key, click outside, or close button
+
+### Event Information Display
+- **Event Title & Description**: Complete event synopsis and detailed information
+- **Speaker Profiles**: Full speaker bios with headshots, positions, and contact information
+- **Audience Targeting**: Visual tags showing intended audience categories
+- **Event Context**: Category, timeframe, and event-specific details
+
+### Technical Integration
+- **Seamless Integration**: Works with existing overlay click system without breaking functionality
+- **Data Compatibility**: Supports event data from all widget types (Thursday, Morning, Afternoon)
+- **Responsive Design**: Mobile-optimized layout with touch-friendly interactions
+- **Performance Optimized**: Lazy loading and efficient memory management
+
+### Accessibility Features
+- **Keyboard Navigation**: Full keyboard support including ESC to close
+- **Screen Reader Support**: Proper ARIA labels and semantic structure
+- **Focus Management**: Returns focus to trigger element when closed
+- **Large Click Targets**: Entire overlay area clickable for easier interaction
+
 ## 🐛 Debugging & Troubleshooting
 
 ### Debug Mode Activation

@@ -117,18 +117,17 @@
     .nzgdc-title-text-expanded {
         color: var(--color-category-text);
         font-family: var(--font-family-heavy);
-        font-size: 36px;
         font-weight: 600;
-        line-height: 1.2;
         margin: 0;
         max-width: 100%;
+        font-size: 30px;
     }
 
     .nzgdc-event-speakers-list {
         display: flex;
         flex-wrap: wrap;
         justify-content: center;
-        gap: 20px;
+        gap: 10px 20px;
         margin-top: 15px;
     }
 
@@ -146,7 +145,6 @@
     }
 
     .nzgdc-event-synopsis {
-        margin-bottom: 20px;
     }
 
     .nzgdc-synopsis-text {
@@ -154,13 +152,13 @@
         font-family: var(--font-family-medium);
         font-size: 18px;
         line-height: 1.6;
-        margin: 0;
+        margin: 1rem 1rem 2rem 1rem;
     }
 
     .nzgdc-content-separator {
         border: none;
         border-top: 2px solid #ddd;
-        margin: 20px 0;
+        margin: 1rem 1rem;
         width: 100%;
     }
 
@@ -169,6 +167,7 @@
         flex-wrap: wrap;
         align-items: center;
         gap: 15px;
+        margin: 1rem 1rem;
     }
 
     .nzgdc-audience-label {
@@ -209,10 +208,10 @@
     }
 
     .nzgdc-speaker-bio-card {
-        display: flex;
+        display: grid;
         background-color: var(--color-bg);
-        align-items: flex-start;
-        height: auto;
+        grid-template-columns: .5fr 1fr;
+        border: aliceblue;
     }
 
     .nzgdc-speaker-bio-card:last-child {
@@ -220,8 +219,8 @@
     }
 
     .nzgdc-speaker-headshot {
-        align-self: flex-start;
-        flex: 0 1 auto;
+        display: flex;
+        height: auto;
     }
 
     .nzgdc-speaker-headshot img {
@@ -232,8 +231,8 @@
     }
 
     .nzgdc-speaker-headshot-placeholder {
-        width: 250px;
-        height: 250px;
+        width: 100%;
+        height: auto;
         background-color: #e0e0e0;
         display: flex;
         align-items: center;
@@ -242,11 +241,9 @@
         font-family: var(--font-family-medium);
         font-size: 12px;
         text-align: center;
-        padding: 10px;
     }
 
     .nzgdc-speaker-bio-content {
-        flex: 1;
         height: fit-content;
         overflow: hidden;
         display: flex;
@@ -319,7 +316,7 @@
         font-size: 14px;
         color: var(--color-title);
         margin-top: 1rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: 1rem;
     }
 
     .nzgdc-contact-email,
@@ -340,7 +337,7 @@
         }
 
         .nzgdc-title-text-expanded {
-            font-size: 30px;
+            line-height: inherit;
         }
 
         .nzgdc-event-description {
@@ -349,6 +346,21 @@
 
         .nzgdc-speaker-bios {
             display: block;
+        }
+
+        /* Mobile Speaker Bio Header */
+        .nzgdc-mobile-speaker-bio-header {
+            background-color: var(--color-primary);
+            padding: 8px 15px;
+        }
+
+        .nzgdc-mobile-speaker-bio-header h3 {
+            color: var(--color-category-text);
+            font-family: var(--font-family-heavy);
+            font-size: 22px;
+            font-weight: 600;
+            margin: 0;
+            text-align: left;
         }
 
         /* Mobile Grid Layout - Complete speaker card layout */
@@ -367,7 +379,7 @@
 
         .nzgdc-mobile-speaker-headshot {
             width: 100%;
-            height: 200px;
+            height: 300px;
             background: linear-gradient(45deg, #87CEEB 0%, #E6E6FA 25%, #FFB6C1 50%, #DDA0DD 75%, #6495ED 100%);
             display: flex;
             align-items: center;
@@ -404,6 +416,7 @@
 
         .nzgdc-mobile-speaker-details .nzgdc-speaker-contact {
             font-size: 12px;
+            margin-bottom: 1vw;
         }
 
         .nzgdc-audience-section {
@@ -418,10 +431,6 @@
             max-width: 95%;
             margin: 2vh auto;
             max-height: 96vh;
-        }
-
-        .nzgdc-event-header {
-            padding: 20px 10px 10px;
         }
 
         .nzgdc-title-text-expanded {
@@ -442,8 +451,22 @@
         }
 
         .nzgdc-speaker-bios {
-            padding: 0 0 15px 0;
             display: block;
+        }
+
+        /* Mobile Speaker Bio Header */
+        .nzgdc-mobile-speaker-bio-header {
+            background-color: var(--color-primary);
+            padding: 8px 15px;
+        }
+
+        .nzgdc-mobile-speaker-bio-header h3 {
+            color: var(--color-category-text);
+            font-family: var(--font-family-heavy);
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+            text-align: left;
         }
 
         /* Mobile individual speaker cards */
@@ -454,7 +477,7 @@
 
         .nzgdc-mobile-speaker-headshot {
             width: 100%;
-            height: 160px;
+            height: 300px;
             background: linear-gradient(45deg, #87CEEB 0%, #E6E6FA 25%, #FFB6C1 50%, #DDA0DD 75%, #6495ED 100%);
             display: flex;
             align-items: center;
@@ -762,6 +785,13 @@
             // Check if mobile/tablet view
             const isMobileOrTablet = window.innerWidth <= 768;
             if (isMobileOrTablet) {
+                // Add single speaker bio header for mobile
+                const mobileHeader = document.createElement('div');
+                mobileHeader.className = 'nzgdc-mobile-speaker-bio-header';
+                const headerText = eventData.speakers.length === 1 ? 'Speaker Bio' : 'Speaker Bios';
+                mobileHeader.innerHTML = `<h3>${headerText}</h3>`;
+                speakerBiosContainer.appendChild(mobileHeader);
+
                 eventData.speakers.forEach(speaker => {
                     const mobileCard = createMobileSpeakerCard(speaker);
                     speakerBiosContainer.appendChild(mobileCard);

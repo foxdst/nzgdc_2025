@@ -37,12 +37,11 @@ nzgdc-friday-saturday-schedule-widget-modular.js  # Friday/Saturday Unified Widg
 ```
 js/
 ├── unified-event-loader.js          # ⭐ CRITICAL: All event panel creation & content
-├── widget-core.js                   # Thursday schedule widget controller
+├── widget-core.js                   # Thursday schedule widget controller (includes ThursdayCategoryDropdownController)
 ├── schedule-generator.js            # Thursday DOM generation & event loading
-├── friday-saturday-widget-core.js   # Friday/Saturday unified controller
-├── morning-schedule-generator.js    # Friday/Saturday morning DOM generation
-├── afternoon-schedule-generator.js  # Friday/Saturday afternoon DOM generation
-└── category-filter-controller.js    # Category dropdown filtering system
+├── friday-saturday-widget-core.js   # Friday/Saturday unified controller (includes filter coordination)
+├── morning-schedule-generator.js    # Friday/Saturday morning DOM generation (includes filtering)
+└── afternoon-schedule-generator.js  # Friday/Saturday afternoon DOM generation (includes filtering)
 ```
 
 ### CSS Architecture (CRITICAL LOADING ORDER)
@@ -78,7 +77,8 @@ templates/
 ### "I need to modify widget behavior..."
 - **Thursday Widget** → `js/widget-core.js` & `js/schedule-generator.js`
 - **Friday/Saturday Widget** → `js/friday-saturday-widget-core.js` & morning/afternoon generators
-- **Category Filtering** → `js/category-filter-controller.js`
+- **Thursday Category Filtering** → `js/widget-core.js` (ThursdayCategoryDropdownController class)
+- **Friday/Saturday Category Filtering** → `js/friday-saturday-widget-core.js` + respective schedule generators
 
 ### "I need to modify widget layout..."
 - **Thursday Layout** → `css/thursday-schedule-bundle.css`
@@ -170,7 +170,8 @@ console.log(window.UnifiedEventLoader);
 - **Event Panel Issues** → Check unified-event-loader.js console logs
 - **Widget Loading Issues** → Check entry point bundle file console logs  
 - **Styling Issues** → Check CSS loading order in browser dev tools
-- **Filter Issues** → Check category-filter-controller.js debug output
+- **Thursday Filter Issues** → Check widget-core.js ThursdayCategoryDropdownController debug output
+- **Friday/Saturday Filter Issues** → Check friday-saturday-widget-core.js and schedule generator debug output
 
 ---
 
