@@ -7,13 +7,13 @@ A comprehensive, modular JavaScript widget system for displaying New Zealand Gam
 ```
 nzgdc-widget/
 ├── css/
-│   ├── unified-event-panel.css                  # Core event panel styles (620x300px) - ALL WIDGETS
+│   ├── unified-event-panel.css                  # ⭐ CRITICAL: Core event panel styles (all widgets)
 │   ├── category-filter-overlay.css              # Category dropdown/filter system styles
 │   ├── expanded-event-details-overlay.css       # Expanded event details overlay styles
 │   ├── thursday-schedule-bundle.css             # Thursday-specific schedule layout styles
 │   └── friday-saturday-schedule-bundle.css     # Fri/Sat unified schedule layout styles
 ├── js/
-│   ├── unified-event-loader.js                  # Event panel generator & category management
+│   ├── unified-event-loader.js                  # ⭐ CRITICAL: Event panel generator & content
 │   ├── expanded-event-details-manager.js       # Expanded event details overlay system
 │   ├── widget-core.js                          # Thursday widget controller & logic
 │   ├── friday-saturday-widget-core.js          # Fri/Sat unified widget controller
@@ -36,32 +36,51 @@ nzgdc-widget/
 │   ├── audits/                                 # Performance & code quality audits
 │   ├── documentation/                          # Technical documentation
 │   ├── filter-changelogs/                     # Category filter system changes
-│   ├── tasks/                                  # Active development tasks
+│   ├── tasks/                                  # ⚠️ MANDATORY: LLM coding guidelines & warnings
 │   ├── tasks-drafts/                          # Draft specifications
 │   └── tasks-obsolete/                        # Completed/obsolete tasks
-├── changelogs/
-│   ├── 2025-08-13_consolidation_start.md      # Fri/Sat consolidation project start
-│   ├── 2025-08-13_deployment_summary.md       # Complete deployment documentation
-│   ├── 2025-08-13_validation_test_results.md  # Comprehensive testing results
-│   ├── 2025-08-13_container_issue_resolved.md # Container initialization fixes
-│   ├── 2025-08-13_critical_error_fix.md       # Production error resolutions
-│   ├── 2025-08-13_debug_undefined_container.md # Debug logging implementations
-│   ├── 2025-08-13_dropdown_design_fixes.md    # UI/UX dropdown improvements
-│   └── 2025-08-13_thursday_clear_filter_implementation.md # Filter reset functionality
+├── changelogs/                                 # Deployment & feature change history
 ├── .widget-tests/
-│   └── widget-demo.html                        # Comprehensive testing demo page
+│   └── widget-demo.html                        # ⭐ TESTING: Live demo page for all widgets
 ├── .deprecated/
 │   ├── nzgdc-morning-schedule-widget-modular.js    # Legacy: Separate morning widget
 │   ├── nzgdc-afternoon-schedule-widget-modular.js  # Legacy: Separate afternoon widget
-│   ├── morning-schedule-bundle.css                 # Legacy: Morning-only CSS
-│   ├── afternoon-schedule-bundle.css               # Legacy: Afternoon-only CSS
+│   ├── morning-schedule-bundle.css                 # Legacy: Morning-only CSS (MOVED)
+│   ├── afternoon-schedule-bundle.css               # Legacy: Afternoon-only CSS (MOVED)
 │   ├── morning-widget-core.js                      # Legacy: Morning-only controller
 │   ├── afternoon-widget-core.js                    # Legacy: Afternoon-only controller
 │   └── *.html                                      # Legacy: Individual test pages
-├── nzgdc-schedule-widget-modular.js            # ENTRY POINT: Thursday workshop widget
-├── nzgdc-friday-saturday-schedule-widget-modular.js # ENTRY POINT: Fri/Sat unified widget
+├── nzgdc-schedule-widget-modular.js            # 🚀 ENTRY POINT: Thursday workshop widget
+├── nzgdc-friday-saturday-schedule-widget-modular.js # 🚀 ENTRY POINT: Fri/Sat unified widget
 └── README.md                                   # This documentation file
 ```
+
+## ⚠️ CRITICAL LLM/AI CODING WARNINGS
+
+**BEFORE making ANY changes to this codebase, read these mandatory warnings:**
+
+### 🚨 DO NOT DUPLICATE EXISTING FUNCTIONALITY
+- **Event panel overlays are ALREADY clickable buttons** - do not create new buttons
+- **Expanded event details system ALREADY exists** - do not rebuild it
+- **Category filtering ALREADY works** - extend existing system, don't replace it
+- **All event panels have hover overlays** - they are the interactive elements
+
+### 🚨 CRITICAL FILE BOUNDARIES
+- **Event panel styles ONLY in `unified-event-panel.css`** - NEVER in bundle CSS files
+- **Widget layout styles ONLY in bundle CSS files** - NEVER in unified-event-panel.css
+- **All event creation logic ONLY in `unified-event-loader.js`** - NEVER duplicate
+
+### 🚨 MANDATORY READING FOR AI ASSISTANTS
+1. **`docs/tasks/CRITICAL_OVERLAY_BUTTON_WARNING.md`** - Existing clickable functionality
+2. **`docs/tasks/AI_ASSISTANT_QUICK_REFERENCE_GUIDE.md`** - Complete development guide
+3. **Test EXISTING functionality before assuming it doesn't work**
+
+### 🚨 COMMON AI CODING MISTAKES TO AVOID
+- Creating new event detail buttons (overlays ARE the buttons)
+- Modifying CSS files outside their designated scope
+- Rebuilding existing event panel creation logic
+- Ignoring the unified event loader system
+- Breaking the critical CSS loading order
 
 ## 🚀 Quick Start
 
@@ -321,10 +340,10 @@ categoryDefinitions = new Map([
 ## 🎨 CSS Architecture & Styling System
 
 ### Critical CSS Loading Order
-**VIOLATION OF THIS ORDER WILL BREAK THE WIDGETS:**
+**⚠️ VIOLATION OF THIS ORDER WILL BREAK THE WIDGETS:**
 
 1. **`css/unified-event-panel.css`** (MUST BE FIRST)
-   - Contains all event panel styles (620x300px panels)
+   - Contains all event panel styles (620x300px big panels, 300x300px main panels)
    - CSS custom properties for theming
    - Event thumbnail and overlay systems
    - Speaker bio and category display styles
@@ -334,9 +353,18 @@ categoryDefinitions = new Map([
    - Filter button states and interactions
    - Overlay and modal behaviors
 
-3. **Widget-Specific Bundle** (MUST BE THIRD)
-   - `css/thursday-schedule-bundle.css` (Thursday layouts)
-   - `css/friday-saturday-schedule-bundle.css` (Fri/Sat layouts)
+3. **`css/expanded-event-details-overlay.css`** (MUST BE THIRD)
+   - Expanded event details modal styling
+   - Overlay positioning and transitions
+   - Content formatting and responsive behavior
+
+4. **Widget-Specific Bundle** (MUST BE FOURTH)
+   - `css/thursday-schedule-bundle.css` (Thursday layouts only)
+   - `css/friday-saturday-schedule-bundle.css` (Fri/Sat unified layouts only)
+
+**🚨 DEPRECATED FILES (DO NOT REFERENCE):**
+- `morning-schedule-bundle.css` (moved to `.deprecated/`)
+- `afternoon-schedule-bundle.css` (moved to `.deprecated/`)
 
 ### CSS Variable System
 
@@ -385,11 +413,72 @@ categoryDefinitions = new Map([
 ### Critical CSS Architecture Rules
 
 #### ❌ FORBIDDEN: Event Panel CSS in Bundle Files
+**🚨 COMMON LLM MISTAKE: Adding event panel styles to widget bundle files**
+
 **Bundle files (thursday-schedule-bundle.css, friday-saturday-schedule-bundle.css) MUST NEVER contain:**
-- `.nzgdc-event-panel-*` styles
-- `.nzgdc-event-category-*` styles  
-- `.nzgdc-speaker-*` styles
-- Event panel layout or positioning CSS
+- `.nzgdc-event-panel-*` styles (ALL event panel styling belongs in unified-event-panel.css)
+- `.nzgdc-event-category-*` styles (category badges are part of event panels)
+- `.nzgdc-speaker-*` styles (speaker info is part of event panels)
+- `.nzgdc-event-detail-overlay-*` styles (overlays are part of event panels)
+- Event panel layout, positioning, or hover behavior CSS
+- Event thumbnail or image styling
+- ANY CSS that affects the 620x300px or 300x300px event panel areas
+
+**WHY THIS MATTERS:**
+- Event panels are shared across ALL widget types
+- Duplicating styles breaks the unified design system
+- Changes must apply consistently across Thursday, Friday, and Saturday widgets
+- CSS conflicts will break event panel functionality
+
+#### ❌ FORBIDDEN: Widget Layout CSS in Event Panel Files  
+**🚨 COMMON LLM MISTAKE: Adding widget-specific layouts to unified files**
+
+**unified-event-panel.css MUST NEVER contain:**
+- Widget container layouts (`.nzgdc-schedule-widget`, `.nzgdc-friday-saturday-schedule-widget`)
+- Grid or flexbox layouts for widget structure
+- Widget-specific responsive breakpoints
+- Widget header, footer, or navigation styling
+- View switching or tab styling (these are widget behaviors, not event panel behaviors)
+
+#### ✅ REQUIRED: Proper CSS Scoping
+**CORRECT approach for styling modifications:**
+
+```css
+/* ✅ CORRECT: Event panel styling in unified-event-panel.css */
+.nzgdc-event-panel-big {
+    /* Event panel specific styles */
+}
+
+/* ✅ CORRECT: Widget layout in respective bundle files */
+.nzgdc-schedule-widget .widget-grid {
+    /* Widget layout styles */
+}
+```
+
+```css
+/* ❌ WRONG: Event panel styles in bundle files */
+.nzgdc-schedule-widget .nzgdc-event-panel-big {
+    /* This violates architecture boundaries */
+}
+
+/* ❌ WRONG: Widget layout in unified files */
+.nzgdc-event-panel-big .widget-container {
+    /* Event panels don't control widget layouts */
+}
+```
+
+#### 🚨 CRITICAL: Loading Order Enforcement
+**If CSS files are loaded in wrong order, the widgets WILL break:**
+
+1. **unified-event-panel.css** - Defines all event panel base styles
+2. **category-filter-overlay.css** - Defines filter system styles  
+3. **expanded-event-details-overlay.css** - Defines modal overlay styles
+4. **Widget bundle CSS** - Defines widget-specific layouts only
+
+**Common loading order mistakes:**
+- Loading widget bundle before unified-event-panel.css (styles will be overridden)
+- Missing category-filter-overlay.css (filter dropdowns won't display correctly)
+- Loading expanded-event-details-overlay.css after widget bundles (modals won't overlay properly)
 
 **These styles ONLY belong in `css/unified-event-panel.css`**
 
@@ -506,6 +595,39 @@ const categories = [
 ### Overview
 The Expanded Event Details system provides comprehensive event information in a full-screen overlay when users click on event panel overlays. This system seamlessly integrates with both Big Panel (620x300) and Main Panel (300x300) designs.
 
+### 🚨 CRITICAL WARNING FOR AI/LLM DEVELOPERS
+
+**⚠️ THE OVERLAYS ARE ALREADY CLICKABLE BUTTONS - DO NOT DUPLICATE THIS FUNCTIONALITY**
+
+**MANDATORY READING: `docs/tasks/CRITICAL_OVERLAY_BUTTON_WARNING.md`**
+
+#### Existing Functionality (DO NOT REBUILD):
+- **Big Panel (620x300)**: `.nzgdc-event-detail-overlay-big` is a fully clickable button
+- **Main Panel (300x300)**: `.nzgdc-event-panel-overlay-main` is a fully clickable button  
+- **Click Behavior**: Clicking anywhere on overlay opens Expanded Event Details
+- **Interactive Area**: Entire overlay area (300x300px) is the click target
+
+#### ❌ WHAT YOU MUST NOT DO:
+```javascript
+// WRONG - This functionality ALREADY EXISTS
+const newButton = document.createElement('button');
+newButton.textContent = 'Open Event Details';
+eventPanel.appendChild(newButton);
+
+// WRONG - This click handler ALREADY EXISTS  
+eventPanel.addEventListener('click', () => {
+    openEventDetails(); // This is ALREADY implemented
+});
+```
+
+#### ✅ WHAT ALREADY WORKS:
+1. Hover over any event panel thumbnail → overlay appears with speaker details
+2. Click anywhere on the overlay → expanded event details modal opens
+3. The overlays themselves ARE the interactive buttons
+4. All accessibility features are already implemented
+
+**Before implementing ANY event details functionality, test the existing system first!**
+
 ### Core Components
 - **Event Details Manager** (`js/expanded-event-details-manager.js`): Overlay lifecycle management and content population
 - **Overlay Styling** (`css/expanded-event-details-overlay.css`): Complete overlay visual design system
@@ -538,6 +660,45 @@ The Expanded Event Details system provides comprehensive event information in a 
 
 ## 🐛 Debugging & Troubleshooting
 
+### 🚨 BEFORE YOU DEBUG: Test Existing Functionality First
+
+**MANDATORY STEP**: Before assuming any functionality is broken or missing, thoroughly test what already exists:
+
+#### Event Panel Interaction Testing
+```javascript
+// 1. Test overlay appearance on hover
+// Hover over any event panel thumbnail - overlay should appear with speaker details
+
+// 2. Test overlay click functionality  
+// Click anywhere on the overlay - expanded event details should open
+
+// 3. Test existing event details system
+// Verify the modal opens, displays content, and can be closed
+
+// 4. Check browser console for existing debug messages
+console.log('Testing existing functionality...');
+```
+
+#### Filter System Testing
+```javascript
+// 1. Test Thursday filter dropdown
+// Check if category filter dropdown appears and functions
+
+// 2. Test Friday/Saturday filter coordination
+// Verify filters work across both morning and afternoon views
+
+// 3. Test filter state persistence
+// Switch views and verify filter state is maintained
+```
+
+#### Common "Missing" Features That Actually Exist
+- **"Event panels need click handlers"** → Overlays ARE clickable buttons
+- **"Need to build expanded event details"** → System already exists in expanded-event-details-manager.js
+- **"Category filtering doesn't work"** → Filter system is fully implemented
+- **"Panels need hover effects"** → Hover overlays already implemented
+
+**If something appears broken, debug the existing system before rebuilding it!**
+
 ### Debug Mode Activation
 ```javascript
 // Enable debug mode globally
@@ -551,6 +712,28 @@ const widget = window.NZGDCScheduleWidget.create('container', { enableDebug: tru
 ```
 
 ### Common Issues & Solutions
+
+#### 0. "Functionality Doesn't Exist" (Most Common AI/LLM Mistake)
+**Symptoms**: Assuming features need to be built from scratch
+**Reality Check Steps**:
+```javascript
+// Test existing overlay click functionality
+console.log('Testing overlay clicks...');
+// 1. Hover over event thumbnails
+// 2. Click on the overlays that appear
+// 3. Verify expanded event details open
+
+// Check for existing systems
+console.log('Expanded Event Details Manager:', window.ExpandedEventDetailsManager);
+console.log('Unified Event Loader:', window.UnifiedEventLoader);
+
+// Verify existing filter functionality
+// 1. Look for category dropdown on Thursday widget
+// 2. Test filter dropdown on Friday/Saturday widget
+// 3. Verify filters actually work
+```
+
+**Solution**: **USE THE EXISTING FUNCTIONALITY** - extend it, don't rebuild it
 
 #### 1. Widget Not Loading/Initializing
 **Symptoms**: Blank container, no content appears
@@ -568,13 +751,27 @@ console.log('CSS loaded:', !!document.querySelector('link[href*="unified-event-p
 ```
 
 **Common Causes & Solutions**:
+- **Wrong CSS loading order**: CSS files must load in exact sequence (see above)
 - **Missing container element**: Add `data-nzgdc-schedule` or `data-nzgdc-friday-saturday-schedule`
 - **JavaScript errors**: Check browser console for errors
-- **CSS loading failure**: Verify CSS files are accessible
+- **CSS loading failure**: Verify CSS files are accessible and in correct order
 - **CORS issues**: Ensure all files served from same domain
+- **Conflicting CSS**: Check for CSS conflicts with existing site styles
 
 #### 2. Event Panels Not Displaying Correctly
 **Symptoms**: Broken layout, missing content, styling issues
+
+**⚠️ First Check**: Are you testing with the correct CSS loading order?
+```html
+<!-- REQUIRED ORDER - test this exact sequence -->
+<link rel="stylesheet" href="css/unified-event-panel.css">
+<link rel="stylesheet" href="css/category-filter-overlay.css">  
+<link rel="stylesheet" href="css/expanded-event-details-overlay.css">
+<link rel="stylesheet" href="css/thursday-schedule-bundle.css">
+<!-- OR -->
+<link rel="stylesheet" href="css/friday-saturday-schedule-bundle.css">
+```
+
 **Debugging Steps**:
 ```javascript
 // Check template loading
@@ -745,36 +942,85 @@ console.log('Active Fri/Sat widgets:', window.activeFridaySaturdayWidgets.size);
 
 ## 📦 Production Deployment
 
+### 🚨 CRITICAL: Deprecated Files Warning
+**DO NOT upload these files to production (they are in `.deprecated/` folder):**
+- `morning-schedule-bundle.css` ❌ DEPRECATED
+- `afternoon-schedule-bundle.css` ❌ DEPRECATED  
+- `nzgdc-morning-schedule-widget-modular.js` ❌ DEPRECATED
+- `nzgdc-afternoon-schedule-widget-modular.js` ❌ DEPRECATED
+- `morning-widget-core.js` ❌ DEPRECATED
+- `afternoon-widget-core.js` ❌ DEPRECATED
+
+**These have been consolidated into the unified Friday/Saturday widget system.**
+
 ### Pre-Deployment Checklist
+- [ ] Verified no deprecated files are being uploaded
 - [ ] All CSS files accessible and served with correct MIME types
 - [ ] All JavaScript files accessible without CORS restrictions  
 - [ ] Template files accessible from widget entry points
 - [ ] Event data files contain valid JSON/JavaScript
 - [ ] Container elements exist with correct data attributes
+- [ ] CSS loading order tested and verified
+- [ ] Event panel overlay click functionality tested
+- [ ] Category filtering tested across all widget types
+- [ ] Debug mode disabled for production builds
+- [ ] Cross-browser compatibility verified (Chrome, Firefox, Safari, Edge)
+- [ ] Mobile responsive behavior tested
+- [ ] Performance benchmarks within acceptable range
 - [ ] Debug mode disabled (`window.NZGDC_DEBUG = false`)
 - [ ] CDN caching configured (if applicable)
 
 ### File Upload Order (Critical)
-1. **Upload CSS files first** (prevents FOUC - Flash of Unstyled Content):
-   - `css/unified-event-panel.css`
-   - `css/category-filter-overlay.css` 
-   - `css/thursday-schedule-bundle.css`
-   - `css/friday-saturday-schedule-bundle.css`
 
-2. **Upload JavaScript modules**:
-   - `js/unified-event-loader.js`
-   - `js/widget-core.js`
-   - `js/friday-saturday-widget-core.js`
-   - `js/*-generator.js` files
-   - `js/*-data.js` files  
-   - `js/*-events.js` files
+**🚨 UPLOAD ORDER MATTERS - WRONG ORDER WILL BREAK WIDGETS**
 
-3. **Upload templates**:
-   - `templates/unified-event-panel.html`
+#### 1. **Upload CSS files FIRST** (exact order required to prevent FOUC):
+   ```
+   css/unified-event-panel.css                 # MUST BE FIRST - All event panel styles
+   css/category-filter-overlay.css             # MUST BE SECOND - Filter dropdown styles  
+   css/expanded-event-details-overlay.css      # MUST BE THIRD - Event details modal styles
+   css/thursday-schedule-bundle.css            # Widget-specific layouts
+   css/friday-saturday-schedule-bundle.css     # Widget-specific layouts
+   ```
 
-4. **Upload entry points last**:
-   - `nzgdc-schedule-widget-modular.js`
-   - `nzgdc-friday-saturday-schedule-widget-modular.js`
+#### 2. **Upload Core JavaScript Modules**:
+   ```
+   js/unified-event-loader.js                  # CRITICAL: Event panel creation system
+   js/expanded-event-details-manager.js        # CRITICAL: Event details overlay system
+   js/widget-core.js                          # Thursday widget controller
+   js/friday-saturday-widget-core.js          # Friday/Saturday widget controller
+   js/schedule-generator.js                   # Thursday DOM generator
+   js/morning-schedule-generator.js           # Morning DOM generator  
+   js/afternoon-schedule-generator.js         # Afternoon DOM generator
+   ```
+
+#### 3. **Upload Data & Event Files**:
+   ```
+   js/schedule-data.js                        # Thursday workshop configuration
+   js/morning-schedule-data.js               # Morning events configuration
+   js/afternoon-schedule-data.js             # Afternoon events configuration
+   js/workshop-events.js                     # Thursday event details
+   js/morning-events.js                      # Morning event details
+   js/afternoon-events.js                    # Afternoon event details
+   ```
+
+#### 4. **Upload Templates**:
+   ```
+   templates/unified-event-panel.html         # Event panel HTML structure
+   templates/expanded-event-details-overlay.html  # Event details modal structure
+   ```
+
+#### 5. **Upload Entry Points LAST**:
+   ```
+   nzgdc-schedule-widget-modular.js           # Thursday widget entry point
+   nzgdc-friday-saturday-schedule-widget-modular.js  # Friday/Saturday widget entry point
+   ```
+
+**⚠️ CRITICAL DEPLOYMENT NOTES:**
+- CSS files MUST load in exact sequence or widgets will display incorrectly
+- Entry points MUST be uploaded last as they depend on all other files
+- Do NOT upload any files from `.deprecated/` folder
+- Test widget functionality immediately after deployment
 
 ### Integration Examples
 
@@ -949,6 +1195,158 @@ npx serve .
 - **Enhanced Performance**: Shared resource loading and caching
 - **Future-Proof**: Modular architecture supports easy feature additions
 
+## 🚨 COMPREHENSIVE LLM/AI ASSISTANT WARNING SUMMARY
+
+**MANDATORY READING FOR ALL AI ASSISTANTS BEFORE MAKING ANY CODE CHANGES**
+
+This section consolidates all critical warnings about existing functionality and common AI coding mistakes. Read this entirely before starting any development tasks.
+
+### 🔴 EXISTING FUNCTIONALITY - DO NOT DUPLICATE
+
+#### Event Panel Overlays ARE Clickable Buttons
+- **Big Panel (620x300)**: `.nzgdc-event-detail-overlay-big` is ALREADY a clickable button
+- **Main Panel (300x300)**: `.nzgdc-event-panel-overlay-main` is ALREADY a clickable button
+- **Behavior**: Clicking anywhere on overlay opens Expanded Event Details
+- **DO NOT**: Create new buttons, add click handlers, or build event details systems
+
+#### Expanded Event Details System EXISTS
+- **File**: `js/expanded-event-details-manager.js` - Complete overlay system
+- **Template**: `templates/expanded-event-details-overlay.html` - Modal structure
+- **CSS**: `css/expanded-event-details-overlay.css` - Complete styling
+- **Integration**: Already integrated with event panel overlays
+- **DO NOT**: Rebuild modal systems, duplicate overlay functionality
+
+#### Category Filtering System EXISTS
+- **Thursday**: Dropdown filter in `js/widget-core.js` (ThursdayCategoryDropdownController)
+- **Friday/Saturday**: Unified filtering in `js/friday-saturday-widget-core.js`
+- **CSS**: `css/category-filter-overlay.css` - Complete dropdown styling
+- **Features**: Category selection, "Clear Filter", state persistence
+- **DO NOT**: Rebuild filtering systems, create new category dropdowns
+
+#### Event Panel Creation System EXISTS
+- **File**: `js/unified-event-loader.js` - ALL event panel creation logic
+- **Methods**: `createBigEventPanel()`, `createMainEventPanel()` - Complete event panel creation
+- **Template**: `templates/unified-event-panel.html` - HTML structure
+- **Usage**: Used by ALL widgets (Thursday, Friday, Saturday)
+- **DO NOT**: Create separate event panel creation logic, duplicate template systems
+
+### 🔴 CRITICAL ARCHITECTURAL BOUNDARIES
+
+#### CSS File Boundaries (NEVER VIOLATE)
+```
+✅ CORRECT:
+- Event panel styles → unified-event-panel.css ONLY
+- Widget layouts → respective bundle CSS files ONLY
+- Filter styles → category-filter-overlay.css ONLY
+
+❌ WRONG:
+- Event panel styles in bundle CSS files
+- Widget layout styles in unified-event-panel.css
+- Any CSS duplication across files
+```
+
+#### JavaScript File Boundaries (NEVER VIOLATE)
+```
+✅ CORRECT:
+- Event panel creation → unified-event-loader.js ONLY
+- Widget controllers → respective core.js files ONLY
+- Event details → expanded-event-details-manager.js ONLY
+
+❌ WRONG:
+- Event panel logic in widget controllers
+- Duplicate event creation methods
+- Separate event details systems
+```
+
+#### Loading Order Requirements (CRITICAL)
+```
+MANDATORY CSS ORDER:
+1. unified-event-panel.css (FIRST)
+2. category-filter-overlay.css (SECOND)
+3. expanded-event-details-overlay.css (THIRD)
+4. Widget bundle CSS (LAST)
+
+WRONG ORDER = BROKEN WIDGETS
+```
+
+### 🔴 DEPRECATED FILES - DO NOT USE
+
+**These files have been moved to `.deprecated/` and MUST NOT be used:**
+- `morning-schedule-bundle.css` ❌
+- `afternoon-schedule-bundle.css` ❌
+- `nzgdc-morning-schedule-widget-modular.js` ❌
+- `nzgdc-afternoon-schedule-widget-modular.js` ❌
+- `morning-widget-core.js` ❌
+- `afternoon-widget-core.js` ❌
+
+**Use instead:**
+- `friday-saturday-schedule-bundle.css` ✅ (unified styling)
+- `nzgdc-friday-saturday-schedule-widget-modular.js` ✅ (unified widget)
+- `friday-saturday-widget-core.js` ✅ (unified controller)
+
+### 🔴 COMMON AI MISTAKES TO AVOID
+
+#### 1. "Event Panels Need Click Handlers"
+**MISTAKE**: Adding click event listeners to event panels
+**REALITY**: Overlays ARE the click handlers - they're already buttons
+**SOLUTION**: Use existing overlay click functionality
+
+#### 2. "Need to Build Event Details Modal"
+**MISTAKE**: Creating new modal/overlay systems
+**REALITY**: Complete system exists in expanded-event-details-manager.js
+**SOLUTION**: Use existing `showEventDetails()` method
+
+#### 3. "Category Filtering Doesn't Work"
+**MISTAKE**: Rebuilding filter systems
+**REALITY**: Full filtering exists in both widget types
+**SOLUTION**: Test existing filters, extend if needed
+
+#### 4. "Event Panels Don't Have Hover Effects"
+**MISTAKE**: Adding new hover behaviors
+**REALITY**: Sophisticated hover overlay system already exists
+**SOLUTION**: Use existing overlay system in unified-event-loader.js
+
+#### 5. "Need Separate Morning/Afternoon Widgets"
+**MISTAKE**: Using deprecated separate widget files
+**REALITY**: Unified Friday/Saturday widget handles both views
+**SOLUTION**: Use unified widget with view switching
+
+#### 6. "CSS Styles Not Working"
+**MISTAKE**: Adding styles to wrong CSS files
+**REALITY**: Strict architectural boundaries must be respected
+**SOLUTION**: Follow CSS file boundary rules above
+
+### 🚨 MANDATORY TESTING BEFORE DEVELOPMENT
+
+**Before assuming ANY functionality is missing:**
+
+1. **Test Overlay Clicks**: Hover over event thumbnails, click the overlays
+2. **Test Event Details**: Verify expanded details modal opens and functions
+3. **Test Category Filters**: Check dropdown filters in both widget types
+4. **Test View Switching**: Verify Friday/Saturday view switching works
+5. **Check Browser Console**: Look for existing debug messages and systems
+
+### 🚨 EMERGENCY STOP CONDITIONS
+
+**STOP DEVELOPMENT IMMEDIATELY IF:**
+- You're creating new event panel click handlers
+- You're building new modal/overlay systems  
+- You're adding event panel styles to bundle CSS files
+- You're using any deprecated files
+- You're duplicating existing functionality
+- You haven't tested existing systems first
+
+### 🔧 CORRECT DEVELOPMENT APPROACH
+
+**Instead of rebuilding, EXTEND existing systems:**
+1. **Read the code** - Understand what exists
+2. **Test thoroughly** - Verify current functionality  
+3. **Extend methods** - Add to existing systems
+4. **Follow boundaries** - Respect architectural rules
+5. **Use unified systems** - Don't create parallel implementations
+
+**Remember: This is a mature, well-architected system. Most functionality you think you need to build already exists. Your job is to work WITH the system, not replace it.**
+
 ## 🔄 Version History & Recent Changes
 
 ### Current Version: v1.3 (August 2025)
@@ -1002,6 +1400,11 @@ If the unified Friday/Saturday widget causes issues, the deprecated separate wid
 
 ## 📞 Support & Documentation
 
+### 🤖 AI/LLM Assistant Resources (MANDATORY READING)
+- **`docs/tasks/AI_ASSISTANT_QUICK_REFERENCE_GUIDE.md`** - Complete development guide for AI assistants
+- **`docs/tasks/CRITICAL_OVERLAY_BUTTON_WARNING.md`** - Critical warning about existing clickable functionality
+- **Architectural Safety Guidelines** - Prevent common AI coding mistakes and duplicated functionality
+
 ### Additional Documentation
 - **Complete Changelogs**: See `changelogs/` directory for detailed change history
 - **Technical Specifications**: See `docs/documentation/` for technical details  
@@ -1009,6 +1412,15 @@ If the unified Friday/Saturday widget causes issues, the deprecated separate wid
 - **Performance Audits**: See `docs/audits/` for performance analysis
 
 ### Getting Help
+
+#### For AI/LLM Assistants (READ FIRST):
+1. **Read AI Assistant Quick Reference**: `docs/tasks/AI_ASSISTANT_QUICK_REFERENCE_GUIDE.md`
+2. **Check Critical Warnings**: `docs/tasks/CRITICAL_OVERLAY_BUTTON_WARNING.md`
+3. **Test Existing Functionality**: Before assuming anything is broken or missing
+4. **Follow Architectural Boundaries**: Respect CSS and JavaScript file boundaries
+5. **Don't Duplicate Existing Features**: Most functionality already exists
+
+#### For General Development:
 1. **Enable Debug Mode**: Add `?debug=true` to URL and check browser console
 2. **Check Demo Page**: Test functionality in `.widget-tests/widget-demo.html`
 3. **Review Changelogs**: Check recent changes in `changelogs/` directory
@@ -1020,6 +1432,9 @@ When reporting issues, include:
 - **Browser and version**: Chrome 120, Firefox 119, etc.
 - **Widget type**: Thursday, Friday/Saturday, or both
 - **Error messages**: Complete JavaScript console output
+- **CSS loading order**: Verify CSS files are loaded in correct sequence
+- **Existing functionality test results**: What happens when you test existing overlay clicks, filters, etc.
+- **AI Assistant Context**: If you're an AI assistant, confirm you've read the mandatory warning documents
 - **Configuration**: Any custom options or data attributes used
 - **Network information**: Any CORS, 404, or loading errors
 - **Debug output**: Results from `window.NZGDC_DEBUG = true`
