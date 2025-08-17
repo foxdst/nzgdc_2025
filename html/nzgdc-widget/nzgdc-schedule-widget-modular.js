@@ -51,12 +51,40 @@
         });
 
         // Load bundled CSS files
-        await Promise.all([
-          this.loadCSS("css/unified-event-panel.css"),
-          this.loadCSS("css/category-filter-overlay.css"),
-          this.loadCSS("css/expanded-event-details-overlay.css"),
-          this.loadCSS("css/thursday-schedule-bundle.css"),
-        ]);
+        // Skip CSS files that are already loaded statically to prevent overrides
+        const cssPromises = [];
+
+        // Only load unified-event-panel.css if not already present
+        if (!document.querySelector('link[href*="unified-event-panel.css"]')) {
+          cssPromises.push(this.loadCSS("css/unified-event-panel.css"));
+        } else {
+          debugLog(
+            "unified-event-panel.css already loaded statically - skipping",
+          );
+        }
+
+        // Only load other CSS files if not already present
+        if (
+          !document.querySelector('link[href*="category-filter-overlay.css"]')
+        ) {
+          cssPromises.push(this.loadCSS("css/category-filter-overlay.css"));
+        }
+        if (
+          !document.querySelector(
+            'link[href*="expanded-event-details-overlay.css"]',
+          )
+        ) {
+          cssPromises.push(
+            this.loadCSS("css/expanded-event-details-overlay.css"),
+          );
+        }
+        if (
+          !document.querySelector('link[href*="thursday-schedule-bundle.css"]')
+        ) {
+          cssPromises.push(this.loadCSS("css/thursday-schedule-bundle.css"));
+        }
+
+        await Promise.all(cssPromises);
         this.cssLoaded = true;
         debugLog("CSS bundles loaded successfully");
 
@@ -145,6 +173,13 @@
       return new Promise((resolve, reject) => {
         const fullPath = WIDGET_BASE_PATH + path;
         debugLog("Loading script:", fullPath);
+
+        // Check if already loaded
+        if (document.querySelector(`script[src="${fullPath}"]`)) {
+          debugLog(`Script already loaded: ${path}`);
+          resolve();
+          return;
+        }
 
         const script = document.createElement("script");
         script.src = fullPath;
@@ -268,7 +303,7 @@
       return widgetReady;
     },
 
-    create: function (elementId, options = {}) {
+    create: function (elementId, options = {}, dataManager = null) {
       return new Promise((resolve, reject) => {
         debugLog("Creating widget for element:", elementId);
 
@@ -289,7 +324,12 @@
               );
             }
 
-            const widget = new window.NZGDCScheduleWidget(elementId, options);
+            // Pass the dataManager instance to the NZGDCScheduleWidget constructor
+            const widget = new window.NZGDCScheduleWidget(
+              elementId,
+              options,
+              dataManager,
+            );
             activeWidgets.add(widget);
 
             // Add destroy wrapper to track cleanup

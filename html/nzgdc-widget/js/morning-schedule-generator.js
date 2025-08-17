@@ -8,6 +8,8 @@ class MorningScheduleGenerator {
     this.isDestroyed = false;
     this.originalData = null; // Store original unfiltered data
     this.currentFilterCategory = null;
+    this.scheduleData = null; // Store schedule data
+    this.eventData = null; // Store event data
   }
 
   // Debug logging helper - checks global debug flag
@@ -186,9 +188,9 @@ class MorningScheduleGenerator {
       return;
     }
 
-    this.debug("MORNING_EVENTS available:", !!window.MORNING_EVENTS);
-    if (window.MORNING_EVENTS) {
-      this.debug("MORNING_EVENTS keys:", Object.keys(window.MORNING_EVENTS));
+    this.debug("MORNING_EVENTS available:", !!this.eventData);
+    if (this.eventData) {
+      this.debug("MORNING_EVENTS keys:", Object.keys(this.eventData));
     }
 
     eventPanels.forEach((panel, index) => {
@@ -205,13 +207,13 @@ class MorningScheduleGenerator {
         return;
       }
 
-      const eventData = window.MORNING_EVENTS && window.MORNING_EVENTS[eventId];
+      const eventData = this.eventData && this.eventData[eventId];
       if (!eventData) {
         this.debug(`No event data found for ${eventId} in MORNING_EVENTS`);
         this.debug(
           "Available event IDs:",
-          window.MORNING_EVENTS
-            ? Object.keys(window.MORNING_EVENTS)
+          this.eventData
+            ? Object.keys(this.eventData)
             : "MORNING_EVENTS is null/undefined",
         );
         return;
@@ -261,19 +263,88 @@ class MorningScheduleGenerator {
     this.debug("All event filtering cleared");
   }
 
-  async renderSchedule(data) {
+  async renderSchedule(scheduleData, eventData) {
     try {
       if (this.isDestroyed) {
-        console.warn("Cannot render morning schedule - generator is destroyed");
+        console.warn("Cannot render schedule - generator is destroyed");
         return;
       }
 
+      // Enhanced debugging to inspect received data
+      console.log(
+        "[NZGDC Morning Widget] === Schedule Generator Data Inspection ===",
+      );
+      console.log(
+        "[NZGDC Morning Widget] Received scheduleData:",
+        scheduleData,
+      );
+      console.log("[NZGDC Morning Widget] Received eventData:", eventData);
+      console.log(
+        "[NZGDC Morning Widget] scheduleData type:",
+        typeof scheduleData,
+      );
+      console.log("[NZGDC Morning Widget] eventData type:", typeof eventData);
+
+      if (scheduleData) {
+        console.log(
+          "[NZGDC Morning Widget] scheduleData has timeSlots?",
+          "timeSlots" in scheduleData,
+        );
+        console.log(
+          "[NZGDC Morning Widget] scheduleData.timeSlots:",
+          scheduleData.timeSlots,
+        );
+        if (scheduleData.timeSlots) {
+          console.log(
+            "[NZGDC Morning Widget] timeSlots length:",
+            scheduleData.timeSlots.length,
+          );
+          if (scheduleData.timeSlots.length > 0) {
+            console.log(
+              "[NZGDC Morning Widget] First timeSlot:",
+              scheduleData.timeSlots[0],
+            );
+            if (scheduleData.timeSlots[0].events) {
+              console.log(
+                "[NZGDC Morning Widget] First timeSlot events:",
+                scheduleData.timeSlots[0].events,
+              );
+              console.log(
+                "[NZGDC Morning Widget] First timeSlot events length:",
+                scheduleData.timeSlots[0].events.length,
+              );
+            }
+          }
+        }
+      }
+
+      if (eventData) {
+        console.log(
+          "[NZGDC Morning Widget] eventData keys:",
+          Object.keys(eventData),
+        );
+        console.log(
+          "[NZGDC Morning Widget] eventData length:",
+          Object.keys(eventData).length,
+        );
+        const firstKey = Object.keys(eventData)[0];
+        if (firstKey) {
+          console.log(
+            "[NZGDC Morning Widget] Sample event data:",
+            eventData[firstKey],
+          );
+        }
+      }
+
+      this.scheduleData = scheduleData;
+      this.eventData = eventData;
+
       // Preserve original data on first render
-      this.preserveOriginalData(data);
+      this.preserveOriginalData(scheduleData);
 
       this.debug(
         "Starting morning schedule rendering with",
-        data.timeSlots.length,
+        scheduleData.timeSlots.length,
         "time slots",
       );
 
@@ -285,7 +356,7 @@ class MorningScheduleGenerator {
       const fragment = document.createDocumentFragment();
 
       // Generate time slots in fragment first
-      data.timeSlots.forEach((timeSlot) => {
+      scheduleData.timeSlots.forEach((timeSlot) => {
         const timeSlotEl = this.generateTimeSlot(timeSlot);
         fragment.appendChild(timeSlotEl);
       });
@@ -375,17 +446,7 @@ class MorningScheduleGenerator {
     const eventType = container.dataset.eventType || "big";
     this.debug("Loading morning event:", eventId);
 
-    const eventData = window.MORNING_EVENTS
-      ? window.MORNING_EVENTS[eventId]
-      : null;
-
-    // Verify event data availability - critical for debugging data issues
-    if (!window.MORNING_EVENTS) {
-      console.error(
-        "[NZGDC Morning Widget] MORNING_EVENTS not loaded - check data file loading",
-      );
-      return;
-    }
+    const eventData = this.eventData ? this.eventData[eventId] : null;
 
     try {
       if (!eventData) {
@@ -398,7 +459,7 @@ class MorningScheduleGenerator {
       this.debug("Creating morning event panel for:", eventId);
       const eventPanel = this.eventLoader.createEventPanel(
         eventData,
-        eventType,
+        "auto",
         "morning",
       );
 

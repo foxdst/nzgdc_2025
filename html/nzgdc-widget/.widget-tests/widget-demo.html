@@ -8,8 +8,43 @@
     <link rel="stylesheet" href="../css/unified-event-panel.css">
     <!-- Load widget-specific bundles AFTER unified - these only contain layout/positioning, not component styles -->
     <link rel="stylesheet" href="../css/thursday-schedule-bundle.css">
-    <link rel="stylesheet" href="../css/morning-schedule-bundle.css">
-    <link rel="stylesheet" href="../css/afternoon-schedule-bundle.css">
+    <link rel="stylesheet" href="../css/friday-saturday-schedule-bundle.css">
+    <!-- Load core dependencies first - ORDER MATTERS! -->
+    <script src="../js/schedule-data.js"></script>
+    <script src="../js/workshop-events.js"></script>
+    <script src="../js/morning-schedule-data.js"></script>
+    <script src="../js/morning-events.js"></script>
+    <script src="../js/afternoon-schedule-data.js"></script>
+    <script src="../js/afternoon-events.js"></script>
+
+    <!-- Load utility and generator modules -->
+    <script src="../js/unified-event-loader.js"></script>
+    <script src="../js/schedule-generator.js"></script>
+    <script src="../js/morning-schedule-generator.js"></script>
+    <script src="../js/afternoon-schedule-generator.js"></script>
+    <script src="../js/expanded-event-details-manager.js"></script>
+
+    <!-- Load API modules -->
+    <script src="../js/data-transformer.js"></script>
+    <script src="../js/data-manager.js"></script>
+    <script src="../js/event-api.js"></script>
+    <script src="../js/schedule-api.js"></script>
+    <script src="../js/speaker-api.js"></script>
+    <script src="../js/category-api.js"></script>
+    <script src="../js/room-api.js"></script>
+    <script src="../js/stream-api.js"></script>
+    <script src="../js/session-type-api.js"></script>
+
+    <!-- Load widget core modules -->
+    <script src="../js/widget-core.js"></script>
+    <script src="../js/friday-saturday-widget-core.js"></script>
+
+    <!-- Load modular widget entry points -->
+    <script src="../nzgdc-schedule-widget-modular.js"></script>
+    <script src="../nzgdc-friday-saturday-schedule-widget-modular.js"></script>
+
+    <!-- Load thumbnail z-index fix script -->
+    <script src="../thumbnail-zindex-fix.js"></script>
     <style>
         /* NZGDC Color Variables */
         :root {
@@ -71,145 +106,107 @@
         }
 
         .demo-controls button:disabled {
-            opacity: 0.5;
+            background: #ccc;
             cursor: not-allowed;
         }
 
         .status {
-            background: var(--color-white);
-            padding: 15px;
             text-align: center;
-            font-size: 16px;
-            font-family: var(--font-primary);
+            padding: 10px;
+            margin: 20px 0;
+            background: #f0f0f0;
+            border-left: 4px solid #ccc;
             font-weight: 600;
-            border-bottom: 5px solid var(--color-yellow);
         }
 
         .status.success {
-            background: var(--color-yellow);
-            color: var(--color-black);
+            background: #d4edda;
+            border-left-color: #28a745;
         }
+
         .status.error {
-            background: #F53E3E;
-            color: var(--color-white);
+            background: #f8d7da;
+            border-left-color: #dc3545;
         }
 
         .demo-content {
-            min-height: 60vh;
-            padding: 0;
-            background-color: var(--color-white);
-            position: relative;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .no-widgets-message {
-            position: relative;
-            margin: 40px auto;
-            text-align: left;
-            color: var(--color-black);
-            font-family: var(--font-primary);
-            background: rgba(240, 223, 86, 0.1);
-            padding: 30px;
-            border: 2px dashed var(--color-yellow-bright);
+            text-align: center;
+            padding: 40px 20px;
+            background: #f8f9fa;
             border-radius: 8px;
-            max-width: 600px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .no-widgets-message h3 {
             margin: 0 0 20px 0;
+            color: var(--color-blue);
             font-size: 24px;
             font-weight: 800;
-            color: var(--color-blue);
-            text-align: center;
         }
 
         .no-widgets-message p {
+            color: #666;
             margin: 0 0 15px 0;
-            font-size: 16px;
-            line-height: 1.5;
         }
 
         .no-widgets-message ul {
-            margin: 0 0 20px 0;
-            padding-left: 20px;
-            font-size: 16px;
-            line-height: 1.6;
+            text-align: left;
+            max-width: 500px;
+            margin: 20px auto;
         }
 
         .no-widgets-message li {
-            margin: 0 0 10px 0;
+            margin-bottom: 8px;
         }
 
         .no-widgets-message .instructions {
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px dashed var(--color-yellow-bright);
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
         }
 
         .no-widgets-message .demo-controls {
-            margin-top: 25px;
-            justify-content: center;
+            margin-top: 20px;
         }
 
         .no-widgets-message .demo-controls button {
-            font-size: 14px;
-            padding: 8px 16px;
+            margin: 5px;
         }
 
         .demo-footer {
-            background: var(--color-blue);
-            color: var(--color-white);
+            background: #333;
+            color: white;
+            padding: 15px 20px;
             text-align: center;
-            padding: 20px;
-            font-family: var(--font-primary);
-            font-size: 16px;
-            font-weight: 600;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            box-sizing: border-box;
         }
 
         .demo-footer button {
-            background: var(--color-yellow-bright);
-            color: var(--color-black);
-            border: none;
-            padding: 8px 16px;
-            border-radius: 0;
+            background: transparent;
+            color: white;
+            border: 1px solid white;
+            padding: 5px 15px;
             cursor: pointer;
-            font-size: 14px;
-            font-family: var(--font-primary);
-            font-weight: 600;
-            text-transform: uppercase;
-            margin: 0 5px;
-            transition: background-color 0.3s ease;
+            margin-left: 10px;
         }
 
         .demo-footer button:hover {
-            background: var(--color-yellow);
+            background: white;
+            color: #333;
         }
 
         .widget-section {
             margin-bottom: 40px;
-            display: none;
-        }
-
-        .widget-section h2 {
-            text-align: center;
-            padding: 20px;
-            margin: 0;
-            font-family: var(--font-primary);
-            font-weight: 800;
-        }
-
-        .thursday-section h2 {
-            background: #174BEB;
-            color: white;
-        }
-
-        .morning-section h2 {
-            background: #F0DF56;
-            color: black;
-        }
-
-        .afternoon-section h2 {
-            background: #174BEB;
-            color: white;
         }
 
         @media (max-width: 768px) {
@@ -219,14 +216,12 @@
             }
 
             .demo-controls button {
-                width: 90%;
+                width: 80%;
                 max-width: 300px;
-                margin: 5px 0;
             }
 
             .no-widgets-message {
-                margin: 20px;
-                padding: 20px;
+                margin: 10px;
             }
 
             .no-widgets-message h3 {
@@ -237,37 +232,51 @@
                 font-size: 14px;
             }
         }
+
+        /* Widget sections initially hidden */
+        #thursday-container,
+        #friday-saturday-container {
+            display: none;
+            width: 100%;
+            max-width: none;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Widget section headers */
+        .widget-section h2 {
+            color: var(--color-blue);
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-align: center;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
     </style>
 </head>
 <body>
     <header class="demo-header">
         <h1>NZGDC Schedule Widgets Demo</h1>
         <div class="demo-controls">
-            <!--
-                Toggle Button:
-                - Initial label is "Show Thursday Schedule"
-                - When Thursday is shown, label becomes "Show Friday/Saturday Morning Schedule"
-                - When Friday/Saturday Morning is shown, label becomes "Show Thursday Schedule"
-                - Only one schedule widget is visible at a time.
-            -->
-            <button id="toggleBtn" onclick="toggleWidget()">Show Thursday Schedule</button>
-            <button id="testBtn" onclick="testWidget()">Test Widgets</button>
-            <button id="testUnifiedBtn" onclick="testUnifiedSystem()">Test Unified System</button>
-            <button id="clearBtn" onclick="clearWidget()">Clear All</button>
-            <button id="destroyBtn" onclick="destroyWidget()">Destroy All</button>
-            <button id="verifyBtn" onclick="verifyData()">Verify Data</button>
-            <button id="debugBtn" onclick="toggleDebug()">Enable Debug</button>
-            <button id="testExpandedBtn" onclick="testExpandedEventDetails()">Test Expanded Details</button>
+            <button onclick="toggleWidget()" id="toggle-btn">Load Thursday Schedule</button>
+            <button onclick="testWidget()" id="test-btn" disabled>Test Widget</button>
+            <button onclick="clearWidget()" id="clear-btn" disabled>Clear Widget</button>
+            <button onclick="destroyWidget()" id="destroy-btn" disabled>Destroy Widget</button>
+            <button onclick="verifyData()" id="verify-btn">Verify Data</button>
+            <button onclick="toggleDebug()" id="debug-btn">Enable Debug</button>
+            <button onclick="debugFridaySaturdayDataFlow()" id="flow-debug-btn">Debug F/S Data Flow</button>
         </div>
     </header>
 
-    <div class="status" id="status">Ready to load NZGDC Schedule Widgets...</div>
+    <div id="status" class="status">Ready to load widgets</div>
 
     <div class="demo-content">
         <!-- Background message when no widgets are loaded -->
-        <div class="no-widgets-message" id="no-widgets-message">
-            <h3>🎮 NZGDC Schedule Widgets</h3>
-            <p>This demo allows you to toggle between two schedule designs:</p>
+        <div class="no-widgets-message" id="background-message">
+            <h3>Welcome to NZGDC Schedule Widgets Demo</h3>
+            <p>This demo showcases the unified NZGDC event schedule widget system with seamless switching between different schedule views.</p>
 
             <ul>
                 <li><strong>Thursday Schedule:</strong> Workshop schedule with 10 events across morning and afternoon time slots</li>
@@ -287,17 +296,18 @@
             </div>
         </div>
 
-        <!-- Thursday Schedule Widget -->
-        <div class="widget-section thursday-section" id="thursday-container">
-            <h2>Thursday Workshop Schedule</h2>
-            <!-- Widget content will be inserted here -->
-        </div>
+    </div>
 
-        <!-- Friday/Saturday Schedule Widget -->
-        <div class="widget-section friday-saturday-section" id="friday-saturday-container">
-            <h2>Friday & Saturday Schedule</h2>
-            <!-- Unified widget content will be inserted here -->
-        </div>
+    <!-- Thursday Schedule Widget -->
+    <div class="widget-section thursday-section" id="thursday-container">
+        <h2>Thursday Workshop Schedule</h2>
+        <!-- Widget content will be inserted here -->
+    </div>
+
+    <!-- Friday/Saturday Schedule Widget -->
+    <div class="widget-section friday-saturday-section" id="friday-saturday-container">
+        <h2>Friday & Saturday Schedule</h2>
+        <!-- Unified widget content will be inserted here -->
     </div>
 
     <footer class="demo-footer">
@@ -312,72 +322,118 @@
         let fridaySaturdayWidgetLoaded = false;
         let currentWidget = null;
         let currentFridaySaturdayWidget = null;
-        let debugEnabled = false;
+        let debugEnabled = false; // Debug disabled by default
 
-        // Track which widget is currently shown: "thursday" or "friday-saturday"
+        // Set global debug flag for widgets
+        window.NZGDC_DEBUG = false;
+
+        // Globally accessible DataManager instance
+        window.dataManagerInstance = null;
+
+        // Initialize DataManager when DOM and scripts are ready
+        async function initializeDataManager() {
+            // Wait a bit to ensure all scripts are loaded
+            await new Promise(resolve => setTimeout(resolve, 100));
+
+            if (typeof DataManager !== 'undefined') {
+                dataManagerInstance = new DataManager({
+                    dataSource: 'local',
+                    localDataPath: './n8n-entegyapi.json'
+                });
+                try {
+                    await dataManagerInstance.initialize();
+                    console.log('DataManager initialized successfully with local data.');
+
+                    // Debug: Check if we have schedule data
+                    const schedules = dataManagerInstance.getScheduleData();
+                    console.log(`DataManager loaded ${schedules.length} schedules:`,
+                        schedules.map(s => `${s.title} (${s.date})`));
+
+                    // Check for Friday/Saturday schedules specifically
+                    const fridaySat = schedules.filter(s => {
+                        const date = new Date(s.date);
+                        const day = date.getDay();
+                        return day === 5 || day === 6;
+                    });
+                    console.log(`Found ${fridaySat.length} Friday/Saturday schedules with sessions:`,
+                        fridaySat.map(s => `${s.title}: ${s.sessions?.length || 0} sessions`));
+
+                } catch (error) {
+                    console.error('Failed to initialize DataManager:', error);
+                }
+            } else {
+                console.error('DataManager is not defined. Ensure data-manager.js is loaded correctly.');
+                // Retry after a delay
+                setTimeout(initializeDataManager, 500);
+            }
+        }
+
         let currentWidgetType = null;
+
+        function checkScriptLoadingStatus() {
+            if (debugEnabled) {
+                console.log('=== Script Loading Status ===');
+                console.log('SCHEDULE_DATA:', typeof window.SCHEDULE_DATA);
+                console.log('WORKSHOP_EVENTS:', typeof window.WORKSHOP_EVENTS);
+                console.log('MORNING_SCHEDULE_DATA:', typeof window.MORNING_SCHEDULE_DATA);
+                console.log('MORNING_EVENTS:', typeof window.MORNING_EVENTS);
+                console.log('AFTERNOON_SCHEDULE_DATA:', typeof window.AFTERNOON_SCHEDULE_DATA);
+                console.log('AFTERNOON_EVENTS:', typeof window.AFTERNOON_EVENTS);
+                console.log('NZGDCWidget:', typeof window.NZGDCWidget);
+                console.log('NZGDCMorningWidget:', typeof window.NZGDCMorningWidget);
+                console.log('NZGDCAfternoonWidget:', typeof window.NZGDCAfternoonWidget);
+                console.log('UnifiedEventLoader:', typeof window.UnifiedEventLoader);
+                console.log('DataManager:', typeof window.DataManager);
+                console.log('ExpandedEventDetailsManager:', typeof window.ExpandedEventDetailsManager);
+                console.log('DataTransformer:', typeof window.DataTransformer);
+                console.log('EventAPI:', typeof window.EventAPI);
+                console.log('ScheduleAPI:', typeof window.ScheduleAPI);
+                console.log('SpeakerAPI:', typeof window.SpeakerAPI);
+                console.log('CategoryAPI:', typeof window.CategoryAPI);
+                console.log('RoomAPI:', typeof window.RoomAPI);
+                console.log('StreamAPI:', typeof window.StreamAPI);
+                console.log('SessionTypeAPI:', typeof window.SessionTypeAPI);
+            }
+        }
 
         function updateStatus(message, type = 'info') {
             const statusEl = document.getElementById('status');
-            const widgetStatusEl = document.getElementById('widget-status');
-
             statusEl.textContent = message;
             statusEl.className = `status ${type}`;
-
-            if (type === 'success') {
-                const thursdayLoaded = widgetLoaded;
-                const fridaySatLoaded = fridaySaturdayWidgetLoaded;
-                const loadedCount = [thursdayLoaded, fridaySatLoaded].filter(Boolean).length;
-                if (loadedCount === 2) {
-                    widgetStatusEl.textContent = 'All Loaded';
-                } else if (loadedCount === 1) {
-                    widgetStatusEl.textContent = 'One Loaded';
-                } else {
-                    widgetStatusEl.textContent = 'None Loaded';
-                }
-            } else if (type === 'error') {
-                widgetStatusEl.textContent = 'Error';
-            }
-
-            updateButtonStates();
-            updateBackgroundMessage();
         }
 
         function updateButtonStates() {
-            const toggleBtn = document.getElementById('toggleBtn');
-            const testBtn = document.getElementById('testBtn');
-            const clearBtn = document.getElementById('clearBtn');
-            const destroyBtn = document.getElementById('destroyBtn');
-            const verifyBtn = document.getElementById('verifyBtn');
-            const debugBtn = document.getElementById('debugBtn');
+            const toggleBtn = document.getElementById('toggle-btn');
+            const testBtn = document.getElementById('test-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const destroyBtn = document.getElementById('destroy-btn');
+            const debugBtn = document.getElementById('debug-btn');
 
-            const anyWidgetLoaded = widgetLoaded || fridaySaturdayWidgetLoaded;
-            testBtn.disabled = !anyWidgetLoaded;
-            clearBtn.disabled = !anyWidgetLoaded;
-            destroyBtn.disabled = !anyWidgetLoaded;
-
-            // Update toggle button text based on which widget is currently shown
-            // --- Button Label Logic ---
-            // - If Thursday is loaded, label is "Show Friday/Saturday Schedule"
-            // - If Friday/Saturday is loaded, label is "Show Thursday Schedule"
-            // - If none is loaded, label is "Show Thursday Schedule" (initial state)
-            if (toggleBtn) {
-                if (widgetLoaded) {
-                    toggleBtn.textContent = "Show Friday/Saturday Schedule";
-                } else if (fridaySaturdayWidgetLoaded) {
-                    toggleBtn.textContent = "Show Thursday Schedule";
-                } else {
-                    // Default to Thursday first
-                    toggleBtn.textContent = "Show Thursday Schedule";
-                }
+            if (currentWidgetType === 'thursday') {
+                toggleBtn.textContent = 'Switch to Friday/Saturday Schedule';
+                toggleBtn.disabled = false;
+                testBtn.disabled = !widgetLoaded;
+                clearBtn.disabled = !widgetLoaded;
+                destroyBtn.disabled = !widgetLoaded;
+            } else if (currentWidgetType === 'friday-saturday') {
+                toggleBtn.textContent = 'Switch to Thursday Schedule';
+                toggleBtn.disabled = false;
+                testBtn.disabled = !fridaySaturdayWidgetLoaded;
+                clearBtn.disabled = !fridaySaturdayWidgetLoaded;
+                destroyBtn.disabled = !fridaySaturdayWidgetLoaded;
+            } else {
+                toggleBtn.textContent = 'Load Thursday Schedule';
+                toggleBtn.disabled = false;
+                testBtn.disabled = true;
+                clearBtn.disabled = true;
+                destroyBtn.disabled = true;
             }
 
-            // Verify and debug buttons are always enabled
             debugBtn.textContent = debugEnabled ? 'Disable Debug' : 'Enable Debug';
         }
 
         function updateBackgroundMessage() {
-            const backgroundMessage = document.getElementById('no-widgets-message');
+            const backgroundMessage = document.getElementById('background-message');
             const anyWidgetLoaded = widgetLoaded || fridaySaturdayWidgetLoaded;
 
             if (anyWidgetLoaded) {
@@ -402,11 +458,15 @@
                         container.innerHTML = '<h2>Thursday Workshop Schedule</h2>';
                     }
 
-                    // Create new widget instance using the modular API
-                    const widget = await NZGDCWidget.create(container, {
-                        showFilters: true,
-                        showFooter: true
-                    });
+                    // Create new widget instance using the modular API, passing the global dataManagerInstance
+                    const widget = await NZGDCWidget.create(
+                        container,
+                        {
+                            showFilters: true,
+                            showFooter: true
+                        },
+                        dataManagerInstance
+                    );
                     container.style.display = 'block';
                     updateBackgroundMessage();
                     return widget;
@@ -420,41 +480,48 @@
 
         async function createFridaySaturdayWidgetLocal() {
             try {
-                updateStatus("Creating Friday/Saturday Schedule Widget...");
+                updateStatus("Loading Friday/Saturday widget...");
 
-                // Ensure Friday/Saturday container is visible and ready
-                const fridaySaturdayContainer = document.getElementById('friday-saturday-container');
-                if (fridaySaturdayContainer) {
-                    fridaySaturdayContainer.style.display = 'block';
+                // Ensure DataManager is initialized first
+                if (!dataManagerInstance) {
+                    updateStatus("Initializing data manager...");
+                    await initializeDataManager();
+                    if (!dataManagerInstance) {
+                        throw new Error('DataManager could not be initialized');
+                    }
                 }
 
-                // Create unified Friday/Saturday widget
+                // Check if the new widget system is available
+                if (typeof window.createFridaySaturdayWidget !== 'function') {
+                    throw new Error('Friday/Saturday widget system is not ready. Please ensure all required scripts are loaded.');
+                }
+
+                // Create the unified Friday/Saturday widget, passing the DataManager instance
                 currentFridaySaturdayWidget = await window.createFridaySaturdayWidget('friday-saturday-container', {
                     enableDebug: debugEnabled,
                     defaultView: 'morning'
-                });
+                }, dataManagerInstance);
 
                 fridaySaturdayWidgetLoaded = true;
                 currentWidgetType = 'friday-saturday';
 
-                updateStatus("Friday/Saturday Schedule Widget loaded successfully!", "success");
+                document.getElementById('thursday-container').style.display = 'none';
+                document.getElementById('friday-saturday-container').style.display = 'block';
+
+                updateStatus("Friday/Saturday widget loaded successfully", "success");
                 updateButtonStates();
                 updateBackgroundMessage();
 
-                return currentFridaySaturdayWidget;
+                if (debugEnabled) {
+                    console.log('Friday/Saturday widget created successfully:', currentFridaySaturdayWidget);
+                    console.log('DataManager instance passed:', dataManagerInstance);
+                }
             } catch (error) {
-                console.error("Error creating Friday/Saturday widget:", error);
+                console.error('Error creating Friday/Saturday widget:', error);
                 updateStatus(`Failed to create Friday/Saturday widget: ${error.message}`, "error");
-                throw error;
             }
         }
 
-       /**
-        * Show Thursday Schedule Widget
-        * - Destroys the morning widget if loaded
-        * - Hides the morning container
-        * - Loads the Thursday widget and updates toggle button label
-        */
         async function showThursdayWidget() {
             try {
                 updateStatus("Loading Thursday Schedule Widget...");
@@ -494,36 +561,31 @@
             }
         }
 
-       /**
-       * Show Friday/Saturday Schedule Widget
-       * - Hides Thursday container
-       * - Shows Friday/Saturday container with unified widget
-       */
-       async function showFridaySaturdayWidget() {
-           try {
-               updateStatus("Loading Friday/Saturday Schedule Widget...");
+        async function showFridaySaturdayWidget() {
+            try {
+                updateStatus("Loading Friday/Saturday Schedule Widget...");
 
-               // Hide Thursday container
-               document.getElementById('thursday-container').style.display = 'none';
+                // Hide Thursday container
+                document.getElementById('thursday-container').style.display = 'none';
 
-               // Show Friday/Saturday container
-               document.getElementById('friday-saturday-container').style.display = 'block';
+                // Show Friday/Saturday container
+                document.getElementById('friday-saturday-container').style.display = 'block';
 
-               // Create widget if not already created
-               if (!fridaySaturdayWidgetLoaded) {
-                   await createFridaySaturdayWidgetLocal();
-               }
+                // Create widget if not already created
+                if (!fridaySaturdayWidgetLoaded) {
+                    await createFridaySaturdayWidgetLocal();
+                }
 
-               currentWidgetType = 'friday-saturday';
-               updateButtonStates();
-               updateBackgroundMessage();
+                currentWidgetType = 'friday-saturday';
+                updateButtonStates();
+                updateBackgroundMessage();
 
-               updateStatus("Friday/Saturday Schedule Widget displayed successfully!", "success");
-           } catch (error) {
-               console.error("Error showing Friday/Saturday widget:", error);
-               updateStatus(`Failed to show Friday/Saturday widget: ${error.message}`, "error");
-           }
-       }
+                updateStatus("Friday/Saturday Schedule Widget displayed successfully!", "success");
+            } catch (error) {
+                console.error("Error showing Friday/Saturday widget:", error);
+                updateStatus(`Failed to show Friday/Saturday widget: ${error.message}`, "error");
+            }
+        }
 
         async function toggleWidget() {
             try {
@@ -541,61 +603,67 @@
         }
 
         function testWidget() {
-            if (!widgetLoaded && !fridaySaturdayWidgetLoaded) {
-                updateStatus('Load at least one widget first', 'error');
-                return;
+            if (currentWidgetType === 'thursday' && widgetLoaded) {
+                updateStatus("Testing Thursday widget functionality...");
+
+                if (currentWidget && typeof currentWidget.test === 'function') {
+                    currentWidget.test();
+                    updateStatus("Thursday widget test completed - check console for results", "success");
+                } else {
+                    updateStatus("Thursday widget test method not available", "error");
+                }
+            } else if (currentWidgetType === 'friday-saturday' && fridaySaturdayWidgetLoaded) {
+                updateStatus("Testing Friday/Saturday widget functionality...");
+
+                if (currentFridaySaturdayWidget && typeof currentFridaySaturdayWidget.test === 'function') {
+                    currentFridaySaturdayWidget.test();
+                    updateStatus("Friday/Saturday widget test completed - check console for results", "success");
+                } else {
+                    updateStatus("Friday/Saturday widget test method not available", "error");
+                }
+            } else {
+                updateStatus("No widget loaded to test", "error");
             }
-
-            const thursdayWidgets = document.querySelectorAll('.nzgdc-schedule-widget');
-            const fridaySaturdayWidgets = document.querySelectorAll('.nzgdc-friday-saturday-schedule-widget');
-            const morningWidgets = document.querySelectorAll('.nzgdc-morning-schedule-widget');
-            const afternoonWidgets = document.querySelectorAll('.nzgdc-afternoon-schedule-widget');
-            const workshops = document.querySelectorAll('.nzgdc-event-panel-big');
-            const eventPanels = document.querySelectorAll('.nzgdc-event-panel-main, .nzgdc-event-panel-big');
-
-            console.log('Widget test results:', {
-                'Thursday widget instances': thursdayWidgets.length,
-                'Friday/Saturday widget instances': fridaySaturdayWidgets.length,
-                'Morning widget components': morningWidgets.length,
-                'Afternoon widget components': afternoonWidgets.length,
-                'Thursday workshop panels': workshops.length,
-                'Event panels (unified)': eventPanels.length,
-                'Thursday API available': typeof window.NZGDCWidget !== 'undefined',
-                'Friday/Saturday API available': typeof window.createFridaySaturdayWidget !== 'undefined',
-                'Thursday ready': window.NZGDCWidget ? window.NZGDCWidget.isReady() : false
-            });
-
-            const totalWidgets = thursdayWidgets.length + fridaySaturdayWidgets.length;
-            const totalPanels = workshops.length + eventPanels.length;
-            updateStatus(`Test complete: ${totalWidgets} widgets, ${totalPanels} events`, 'success');
         }
 
         function clearWidget() {
-            const thursdayContainer = document.getElementById('thursday-container');
-            const fridaySaturdayContainer = document.getElementById('friday-saturday-container');
+            let clearedCount = 0;
 
-            if (currentWidget && typeof currentWidget.destroy === 'function') {
-                try { currentWidget.destroy(); } catch (e) {}
-                currentWidget = null;
+            // Clear Thursday widget
+            if (currentWidget) {
+                try {
+                    const container = document.getElementById('thursday-container');
+                    const widgetElements = container.querySelectorAll('.nzgdc-schedule-widget');
+                    widgetElements.forEach(el => el.remove());
+
+                    // Reset container content to just the header
+                    container.innerHTML = '<h2>Thursday Workshop Schedule</h2>';
+                    clearedCount++;
+                } catch (error) {
+                    console.error('Error clearing Thursday widget:', error);
+                }
             }
-            if (currentFridaySaturdayWidget && typeof currentFridaySaturdayWidget.destroy === 'function') {
-                try { currentFridaySaturdayWidget.destroy(); } catch (e) {}
-                currentFridaySaturdayWidget = null;
+
+            // Clear Friday/Saturday widget
+            if (currentFridaySaturdayWidget) {
+                try {
+                    const container = document.getElementById('friday-saturday-container');
+                    const widgetElements = container.querySelectorAll('.nzgdc-morning-schedule-widget, .nzgdc-afternoon-schedule-widget');
+                    widgetElements.forEach(el => el.remove());
+
+                    // Reset container content to just the header
+                    container.innerHTML = '<h2>Friday & Saturday Schedule</h2>';
+                    clearedCount++;
+                } catch (error) {
+                    console.error('Error clearing Friday/Saturday widget:', error);
+                }
             }
 
-            thursdayContainer.style.display = 'none';
-            thursdayContainer.innerHTML = '<h2>Thursday Workshop Schedule</h2>';
-
-            fridaySaturdayContainer.style.display = 'none';
-            fridaySaturdayContainer.innerHTML = '<h2>Friday & Saturday Schedule</h2>';
-
-            updateStatus('All widgets cleared - click toggle button to show a schedule', 'info');
-            document.getElementById('widget-status').textContent = 'Cleared';
-            widgetLoaded = false;
-            fridaySaturdayWidgetLoaded = false;
-            currentWidgetType = null;
-            updateBackgroundMessage();
-            updateButtonStates();
+            if (clearedCount > 0) {
+                updateStatus(`${clearedCount} widget(s) cleared`, 'success');
+            } else {
+                updateStatus('No widgets to clear', 'error');
+            }
         }
 
         function destroyWidget() {
@@ -608,7 +676,7 @@
                     currentWidget.destroy();
                     destroyedCount++;
                     const container = document.getElementById('thursday-container');
-                    container.style.display = 'none';
+                    container.innerHTML = '<h2>Thursday Workshop Schedule</h2>';
                     widgetLoaded = false;
                     currentWidget = null;
                 } catch (error) {
@@ -623,7 +691,7 @@
                     currentFridaySaturdayWidget.destroy();
                     destroyedCount++;
                     const container = document.getElementById('friday-saturday-container');
-                    container.style.display = 'none';
+                    container.innerHTML = '<h2>Friday & Saturday Schedule</h2>';
                     fridaySaturdayWidgetLoaded = false;
                     currentFridaySaturdayWidget = null;
                 } catch (error) {
@@ -632,10 +700,18 @@
                 }
             }
 
+            // Reset widget type and update UI
+            currentWidgetType = null;
+
+            // Hide all containers
+            document.getElementById('thursday-container').style.display = 'none';
+            document.getElementById('friday-saturday-container').style.display = 'none';
+
+            updateButtonStates();
+            updateBackgroundMessage();
+
             if (destroyedCount > 0) {
-                updateStatus(`${destroyedCount} widget(s) destroyed and resources cleaned up`, 'info');
-                document.getElementById('widget-status').textContent = 'Destroyed';
-                updateBackgroundMessage();
+                updateStatus(`${destroyedCount} widget(s) destroyed and resources cleaned up`, 'success');
             } else {
                 updateStatus('No widgets to destroy or destroy method not available', 'error');
             }
@@ -647,65 +723,32 @@
         }
 
         function showInfo() {
-            let hasInfo = false;
+            alert(`NZGDC Schedule Widgets Demo
 
-            if (window.NZGDCWidget) {
-                const debugInfo = window.NZGDCWidget.getDebugInfo();
-                const info = {
-                    'Thursday ready': debugInfo.ready,
-                    'Thursday schedule data': debugInfo.modules.scheduleData,
-                    'Thursday workshop events': debugInfo.modules.workshopEvents,
-                    'Thursday workshop loader': debugInfo.modules.workshopLoader,
-                    'Thursday generator': debugInfo.modules.scheduleGenerator,
-                    'Thursday widget core': debugInfo.modules.widgetCore
-                };
-                console.log('=== THURSDAY WIDGET DEBUG INFO ===');
-                console.table(info);
-                console.log('Full Thursday debug info:', debugInfo);
-                hasInfo = true;
-            }
+Current Status:
+- Thursday widget: ${widgetLoaded ? 'Loaded' : 'Not loaded'}
+- Friday/Saturday widget: ${fridaySaturdayWidgetLoaded ? 'Loaded' : 'Not loaded'}
+- Current view: ${currentWidgetType || 'None'}
+- Debug mode: ${debugEnabled ? 'Enabled' : 'Disabled'}
 
-            if (window.NZGDCMorningWidget) {
-                const morningDebugInfo = window.NZGDCMorningWidget.getDebugInfo();
-                const morningInfo = {
-                    'Morning ready': morningDebugInfo.ready,
-                    'Morning schedule data': morningDebugInfo.modules.morningScheduleData,
-                    'Morning events': morningDebugInfo.modules.morningEvents,
-                    'Morning event loader': morningDebugInfo.modules.morningEventLoader,
-                    'Morning generator': morningDebugInfo.modules.morningScheduleGenerator,
-                    'Morning widget core': morningDebugInfo.modules.morningWidgetCore
-                };
-                console.log('=== MORNING WIDGET DEBUG INFO ===');
-                console.table(morningInfo);
-                console.log('Full Morning debug info:', morningDebugInfo);
-                hasInfo = true;
-            }
+Key Features:
+- Unified event panel styling system
+- Seamless widget switching
+- Expanded event details overlay
+- New API integration
+- Responsive design
 
-            if (window.NZGDCAfternoonWidget) {
-                const afternoonDebugInfo = window.NZGDCAfternoonWidget.getDebugInfo();
-                const afternoonInfo = {
-                    'Afternoon ready': afternoonDebugInfo.ready,
-                    'Afternoon schedule data': afternoonDebugInfo.modules.afternoonScheduleData,
-                    'Afternoon events': afternoonDebugInfo.modules.afternoonEvents,
-                    'Afternoon event loader': afternoonDebugInfo.modules.afternoonEventLoader,
-                    'Afternoon generator': afternoonDebugInfo.modules.afternoonScheduleGenerator,
-                    'Afternoon widget core': afternoonDebugInfo.modules.afternoonWidgetCore
-                };
-                console.log('=== AFTERNOON WIDGET DEBUG INFO ===');
-                console.table(afternoonInfo);
-                console.log('Full Afternoon debug info:', afternoonDebugInfo);
-                hasInfo = true;
-            }
-
-            if (hasInfo) {
-                alert('Widget info logged to console (F12)');
-            } else {
-                alert('No widgets loaded');
-            }
+Use the buttons above to test different widget functionality.`);
         }
 
         function showConsole() {
-            alert('Press F12 to open browser console for detailed logs');
+            console.log('=== NZGDC Widget Demo Status ===');
+            console.log('Thursday widget loaded:', widgetLoaded);
+            console.log('Friday/Saturday widget loaded:', fridaySaturdayWidgetLoaded);
+            console.log('Current widget type:', currentWidgetType);
+            console.log('Debug enabled:', debugEnabled);
+            console.log('DataManager instance:', dataManagerInstance);
+            checkScriptLoadingStatus();
         }
 
         function toggleDebug() {
@@ -717,11 +760,6 @@
             if (debugEnabled) {
                 updateStatus('Debug mode enabled - check console for detailed logs', 'info');
                 console.log('%c[NZGDC Debug] Debug mode enabled', 'color: green; font-weight: bold;');
-                console.log('[NZGDC Debug] Available debug info:');
-                console.log('- Widget loader: Detailed module loading progress');
-                console.log('- Workshop/Event loader: Element queries and data population');
-                console.log('- Schedule generator: Event container processing');
-                console.log('- Widget core: Initialization and lifecycle events');
             } else {
                 updateStatus('Debug mode disabled', 'info');
                 console.log('%c[NZGDC Debug] Debug mode disabled', 'color: orange; font-weight: bold;');
@@ -729,555 +767,287 @@
         }
 
         function verifyData() {
-            console.log('%c=== NZGDC WIDGET DATA VERIFICATION ===', 'color: blue; font-weight: bold; font-size: 14px;');
+            console.log('=== BASIC DATA VERIFICATION ===');
 
-            // System status check
-            const systemStatus = {
-                thursdayScheduleData: typeof window.SCHEDULE_DATA !== 'undefined',
-                thursdayWorkshopEvents: typeof window.WORKSHOP_EVENTS !== 'undefined',
-                morningScheduleData: typeof window.MORNING_SCHEDULE_DATA !== 'undefined',
-                morningEvents: typeof window.MORNING_EVENTS !== 'undefined',
-                afternoonScheduleData: typeof window.AFTERNOON_SCHEDULE_DATA !== 'undefined',
-                afternoonEvents: typeof window.AFTERNOON_EVENTS !== 'undefined',
-                thursdayWidgetAPI: typeof window.NZGDCWidget !== 'undefined',
-                morningWidgetAPI: typeof window.NZGDCMorningWidget !== 'undefined',
-                afternoonWidgetAPI: typeof window.NZGDCAfternoonWidget !== 'undefined',
-                thursdayWidgetReady: window.NZGDCWidget ? window.NZGDCWidget.isReady() : false,
-                morningWidgetReady: window.NZGDCMorningWidget ? window.NZGDCMorningWidget.isReady() : false,
-                afternoonWidgetReady: window.NZGDCAfternoonWidget ? window.NZGDCAfternoonWidget.isReady() : false
+            if (!dataManagerInstance) {
+                updateStatus('DataManager not available', 'error');
+                return;
+            }
+
+            const allEvents = dataManagerInstance.getAllEvents();
+            const schedules = dataManagerInstance.getScheduleData();
+
+            console.log(`Events: ${allEvents.length}, Schedules: ${schedules.length}`);
+
+            // Check widget availability
+            const widgetStatus = {
+                thursday: typeof window.NZGDCWidget !== 'undefined',
+                morning: typeof window.NZGDCMorningWidget !== 'undefined',
+                afternoon: typeof window.NZGDCAfternoonWidget !== 'undefined'
             };
 
-            console.log('System Status:', systemStatus);
+            console.log('Widget APIs available:', widgetStatus);
 
-            // Thursday data integrity check
-            if (window.SCHEDULE_DATA && window.WORKSHOP_EVENTS) {
-                let totalWorkshops = 0;
-                let workshopsWithData = 0;
-                let missingWorkshops = [];
+            // Count DOM elements
+            const domCounts = {
+                thursday: document.querySelectorAll('.nzgdc-schedule-widget').length,
+                morning: document.querySelectorAll('.nzgdc-morning-schedule-widget').length,
+                afternoon: document.querySelectorAll('.nzgdc-afternoon-schedule-widget').length
+            };
 
-                console.log('\n=== THURSDAY WIDGET DATA VERIFICATION ===');
-                window.SCHEDULE_DATA.timeSlots.forEach(timeSlot => {
-                    console.log(`\n--- ${timeSlot.title} (${timeSlot.workshops.length} workshops) ---`);
-                    timeSlot.workshops.forEach(workshop => {
-                        totalWorkshops++;
-                        const hasData = window.WORKSHOP_EVENTS[workshop.id];
-
-                        if (hasData) {
-                            workshopsWithData++;
-                            console.log(`✅ ${workshop.id}: ${hasData.title}`);
-                            console.log(`   Category: ${hasData.category} | Speakers: ${hasData.speakers?.length || 0}`);
-                        } else {
-                            missingWorkshops.push(workshop.id);
-                            console.log(`❌ ${workshop.id}: NO DATA FOUND`);
-                        }
-                    });
-                });
-
-                console.log(`\n📊 Thursday Summary: ${workshopsWithData}/${totalWorkshops} workshops have data`);
-                if (missingWorkshops.length > 0) {
-                    console.error('Missing Thursday workshop data for:', missingWorkshops);
-                }
-            }
-
-            // Morning data integrity check
-            if (window.MORNING_SCHEDULE_DATA && window.MORNING_EVENTS) {
-                let totalEvents = 0;
-                let eventsWithData = 0;
-                let missingEvents = [];
-
-                console.log('\n=== MORNING WIDGET DATA VERIFICATION ===');
-                window.MORNING_SCHEDULE_DATA.timeSlots.forEach(timeSlot => {
-                    if (timeSlot.events) {
-                        console.log(`\n--- ${timeSlot.title} (${timeSlot.events.length} events) ---`);
-                        timeSlot.events.forEach(event => {
-                            totalEvents++;
-                            const hasData = window.MORNING_EVENTS[event.id];
-
-                            if (hasData) {
-                                eventsWithData++;
-                                console.log(`✅ ${event.id}: ${hasData.title} (${event.type})`);
-                                console.log(`   Category: ${hasData.category} | Speakers: ${hasData.speakers?.length || 0}`);
-                            } else {
-                                missingEvents.push(event.id);
-                                console.log(`❌ ${event.id}: NO DATA FOUND (${event.type})`);
-                            }
-                        });
-                    }
-                });
-
-                console.log(`\n📊 Morning Summary: ${eventsWithData}/${totalEvents} events have data`);
-                if (missingEvents.length > 0) {
-                    console.error('Missing Morning event data for:', missingEvents);
-                }
-            }
-
-            // Afternoon data integrity check
-            if (window.AFTERNOON_SCHEDULE_DATA && window.AFTERNOON_EVENTS) {
-                let totalEvents = 0;
-                let eventsWithData = 0;
-                let missingEvents = [];
-
-                console.log('\n=== AFTERNOON WIDGET DATA VERIFICATION ===');
-                window.AFTERNOON_SCHEDULE_DATA.timeSlots.forEach(timeSlot => {
-                    if (timeSlot.events) {
-                        console.log(`\n--- ${timeSlot.title} (${timeSlot.events.length} events) ---`);
-                        timeSlot.events.forEach(event => {
-                            totalEvents++;
-                            const hasData = window.AFTERNOON_EVENTS[event.id];
-
-                            if (hasData) {
-                                eventsWithData++;
-                                console.log(`✅ ${event.id}: ${hasData.title} (${event.type})`);
-                                console.log(`   Category: ${hasData.category} | Speakers: ${hasData.speakers?.length || 0}`);
-                            } else {
-                                missingEvents.push(event.id);
-                                console.log(`❌ ${event.id}: NO DATA FOUND (${event.type})`);
-                            }
-                        });
-                    }
-                });
-
-                console.log(`\n📊 Afternoon Summary: ${eventsWithData}/${totalEvents} events have data`);
-                if (missingEvents.length > 0) {
-                    console.error('Missing Afternoon event data for:', missingEvents);
-                }
-            }
-
-            // DOM verification
-            const thursdayContainers = document.querySelectorAll('.nzgdc-event-panel-container[data-event-id]');
-            const thursdayWidgets = document.querySelectorAll('.nzgdc-schedule-widget');
-            const morningContainers = document.querySelectorAll('.nzgdc-morning-event-panel-container[data-event-id], .nzgdc-morning-event-panel-main-container[data-event-id]');
-            const morningWidgets = document.querySelectorAll('.nzgdc-morning-schedule-widget');
-            const afternoonContainers = document.querySelectorAll('.nzgdc-afternoon-event-panel-container[data-event-id], .nzgdc-afternoon-event-panel-main-container[data-event-id]');
-            const afternoonWidgets = document.querySelectorAll('.nzgdc-afternoon-schedule-widget');
-
-            console.log(`\n🏗️ DOM Status:`);
-            console.log(`- Thursday widget instances: ${thursdayWidgets.length}`);
-            console.log(`- Thursday workshop containers: ${thursdayContainers.length}`);
-            console.log(`- Morning widget instances: ${morningWidgets.length}`);
-            console.log(`- Morning event containers: ${morningContainers.length}`);
-            console.log(`- Afternoon widget instances: ${afternoonWidgets.length}`);
-            console.log(`- Afternoon event containers: ${afternoonContainers.length}`);
-
-            if (thursdayContainers.length > 0) {
-                console.log('Thursday container IDs:', Array.from(thursdayContainers).map(c => c.dataset.eventId));
-            }
-            if (morningContainers.length > 0) {
-                console.log('Morning container IDs:', Array.from(morningContainers).map(c => c.dataset.eventId));
-            }
-            if (afternoonContainers.length > 0) {
-                console.log('Afternoon container IDs:', Array.from(afternoonContainers).map(c => c.dataset.eventId));
-            }
-
-            // Debug info if available
-            if (window.NZGDCWidget && typeof window.NZGDCWidget.getDebugInfo === 'function') {
-                console.log('\n🔧 Thursday Widget Debug Info:', window.NZGDCWidget.getDebugInfo());
-            }
-            if (window.NZGDCMorningWidget && typeof window.NZGDCMorningWidget.getDebugInfo === 'function') {
-                console.log('\n🔧 Morning Widget Debug Info:', window.NZGDCMorningWidget.getDebugInfo());
-            }
-            if (window.NZGDCAfternoonWidget && typeof window.NZGDCAfternoonWidget.getDebugInfo === 'function') {
-                console.log('\n🔧 Afternoon Widget Debug Info:', window.NZGDCAfternoonWidget.getDebugInfo());
-            }
-
-            updateStatus(`Data verification complete - check console for details`, 'success');
+            console.log('DOM instances:', domCounts);
+            updateStatus(`Verification complete - ${allEvents.length} events available`, 'success');
         }
+
+        // Comprehensive Thursday event analysis
+        function quickDebug() {
+            console.log('%c=== COMPREHENSIVE FRIDAY/SATURDAY EVENT ANALYSIS ===', 'color: purple; font-weight: bold; font-size: 16px;');
+
+            if (!dataManagerInstance) {
+                console.log('❌ No DataManager instance available');
+                return;
+            }
+
+            const schedules = dataManagerInstance.getScheduleData();
+            console.log(`Widget states: Thu=${widgetLoaded}, Fri/Sat=${fridaySaturdayWidgetLoaded}`);
+            console.log(`Current type: ${currentWidgetType}`);
+            console.log(`DataManager instance:`, dataManagerInstance);
+
+            // Find Friday/Saturday schedules
+            let fridaySaturdaySchedules = [];
+            if (schedules && schedules.length > 0) {
+                console.log('\n📅 SCHEDULE ANALYSIS:');
+                schedules.forEach((schedule, index) => {
+                    const scheduleDate = new Date(schedule.date);
+                    const dayName = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][scheduleDate.getDay()];
+                    const dayOfWeek = scheduleDate.getDay();
+                    console.log(`Schedule ${index}: "${schedule.title}", Date: ${schedule.date} (${dayName})`);
+                    console.log(`  Sessions in schedule: ${schedule.sessions ? schedule.sessions.length : 'N/A'}`);
+
+                    if (dayOfWeek === 5 || dayOfWeek === 6) { // Friday or Saturday
+                        fridaySaturdaySchedules.push(schedule);
+                        console.log(`  🎯 FRIDAY/SATURDAY SCHEDULE FOUND!`);
+                        console.log(`  ${dayName} has ${schedule.sessions ? schedule.sessions.length : 0} sessions`);
+                    }
+                });
+            }
+
+            // Detailed Friday/Saturday analysis
+            if (fridaySaturdaySchedules.length > 0) {
+                console.log(`\n🔥 FRIDAY/SATURDAY SCHEDULE BREAKDOWN:`);
+                console.log(`Found ${fridaySaturdaySchedules.length} Friday/Saturday schedules`);
+
+                let morningEvents = [];
+                let afternoonEvents = [];
+
+                fridaySaturdaySchedules.forEach(schedule => {
+                    if (schedule.sessions) {
+                        schedule.sessions.forEach((session, index) => {
+                            const startTime = session.startTime || "00:00";
+                            const hour = parseInt(startTime.split(":")[0], 10);
+
+                            console.log(`  "${session.title}" - ${session.startTime}-${session.endTime} (Hour: ${hour})`);
+                            console.log(`    Has copy: ${!!session.copy}`);
+                            console.log(`    Stream: ${session.stream ? session.stream.title : 'N/A'}`);
+                            console.log(`    Speakers: ${session.speakers ? session.speakers.length : 0}`);
+
+                            if (session.speakers) {
+                                session.speakers.forEach(speaker => {
+                                    console.log(`      - ${speaker.displayName}: Has bio: ${!!speaker.copy}`);
+                                });
+                            }
+
+                            if (hour < 12) {
+                                morningEvents.push(session);
+                            } else {
+                                afternoonEvents.push(session);
+                            }
+                        });
+                    }
+                });
+
+                console.log(`\n🌅 MORNING EVENTS: ${morningEvents.length}`);
+                console.log(`🌇 AFTERNOON EVENTS: ${afternoonEvents.length}`);
+
+                // Test if Friday/Saturday widget is actually using this data
+                if (currentFridaySaturdayWidget && currentFridaySaturdayWidget.dataManager) {
+                    console.log(`\n✅ Widget has DataManager connection`);
+                    console.log(`Widget DataManager:`, currentFridaySaturdayWidget.dataManager);
+                } else {
+                    console.log(`\n❌ Widget missing DataManager connection!`);
+                    if (currentFridaySaturdayWidget) {
+                        console.log(`Widget object:`, currentFridaySaturdayWidget);
+                    }
+                }
+            }
+
+            // Count DOM elements
+            const thursdayEvents = document.querySelectorAll('#thursday-container .nzgdc-event-panel-container').length;
+            const morningEvents = document.querySelectorAll('#friday-saturday-container .nzgdc-morning-event-panel-container, #friday-saturday-container .nzgdc-morning-event-panel-main-container').length;
+            const afternoonEvents = document.querySelectorAll('#friday-saturday-container .nzgdc-afternoon-event-panel-container, #friday-saturday-container .nzgdc-afternoon-event-panel-main-container').length;
+
+            console.log(`\n🏗️ DOM ELEMENTS:`);
+            console.log(`Rendered Thu panels: ${thursdayEvents}`);
+            console.log(`Rendered Morning panels: ${morningEvents}`);
+            console.log(`Rendered Afternoon panels: ${afternoonEvents}`);
+
+            const summary = `F/S Analysis: ${fridaySaturdaySchedules.length} schedules, ${morningEvents} morning, ${afternoonEvents} afternoon panels rendered`;
+            updateStatus(summary, fridaySaturdaySchedules.length > 0 ? 'success' : 'error');
+        }
+
+        window.quickDebug = quickDebug;
 
         // Initialize button states
         updateButtonStates();
         updateBackgroundMessage();
 
-        // Note: Auto-loading is DISABLED - widgets only load when manually requested
-        // This ensures users see the background message and can choose which widgets to load
+        // Initialize DataManager when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(initializeDataManager, 100);
+        });
 
-        // Debugging function for testing unified system
-        function testUnifiedSystem() {
-            console.log('🧪 Testing NZGDC Unified Widget System...\n');
-
-            // Test UnifiedEventLoader availability
-            console.log('1. UnifiedEventLoader availability:', typeof window.UnifiedEventLoader);
-
-            if (window.UnifiedEventLoader) {
-                try {
-                    const loader = new UnifiedEventLoader();
-                    console.log('2. UnifiedEventLoader instantiation: ✅ Success');
-
-                    // Test template loading
-                    loader.loadTemplate().then(() => {
-                        console.log('3. Template loading: ✅ Success');
-                        console.log('   Template loaded:', loader.template ? 'Yes' : 'No');
-
-                        // Test event panel creation with sample data
-                        const sampleEventData = {
-                            category: 'Test Category',
-                            title: 'Test Event Title',
-                            timeframe: '30 minutes',
-                            speakers: [
-                                { name: 'Test Speaker', position: 'Test Position at Test Company' }
-                            ]
-                        };
-
-                        try {
-                            // Test big panel creation for each widget type
-                            const thursdayPanel = loader.createEventPanel(sampleEventData, 'big', 'thursday');
-                            const morningPanel = loader.createEventPanel(sampleEventData, 'big', 'morning');
-                            const afternoonPanel = loader.createEventPanel(sampleEventData, 'big', 'afternoon');
-
-                            console.log('4. Event panel creation:');
-                            console.log('   Thursday big panel: ✅ Success');
-                            console.log('   Morning big panel: ✅ Success');
-                            console.log('   Afternoon big panel: ✅ Success');
-
-                            // Test main panel creation
-                            const mainPanel = loader.createEventPanel(sampleEventData, 'main', 'morning');
-                            console.log('   Main panel: ✅ Success');
-
-                        } catch (panelError) {
-                            console.error('4. Event panel creation: ❌ Failed', panelError);
-                        }
-
-                    }).catch(templateError => {
-                        console.error('3. Template loading: ❌ Failed', templateError);
-                    });
-
-                } catch (loaderError) {
-                    console.error('2. UnifiedEventLoader instantiation: ❌ Failed', loaderError);
-                }
+        // Update widget status in footer
+        function updateWidgetStatus() {
+            const statusEl = document.getElementById('widget-status');
+            if (widgetLoaded && currentWidgetType === 'thursday') {
+                statusEl.textContent = 'Thursday widget loaded';
+            } else if (fridaySaturdayWidgetLoaded && currentWidgetType === 'friday-saturday') {
+                statusEl.textContent = 'Friday/Saturday widget loaded';
             } else {
-                console.error('1. UnifiedEventLoader not found - check if scripts loaded correctly');
+                statusEl.textContent = 'Not loaded';
             }
-
-            // Test widget APIs
-            console.log('\n5. Widget API availability:');
-            console.log('   NZGDCWidget (Thursday):', typeof window.NZGDCWidget);
-            console.log('   NZGDCMorningWidget:', typeof window.NZGDCMorningWidget);
-            console.log('   NZGDCAfternoonWidget:', typeof window.NZGDCAfternoonWidget);
-
-            // Test data availability
-            console.log('\n6. Data availability:');
-            console.log('   WORKSHOP_EVENTS:', typeof window.WORKSHOP_EVENTS);
-            console.log('   MORNING_EVENTS:', typeof window.MORNING_EVENTS);
-            console.log('   AFTERNOON_EVENTS:', typeof window.AFTERNOON_EVENTS);
-            console.log('   SCHEDULE_DATA:', typeof window.SCHEDULE_DATA);
-            console.log('   MORNING_SCHEDULE_DATA:', typeof window.MORNING_SCHEDULE_DATA);
-            console.log('   AFTERNOON_SCHEDULE_DATA:', typeof window.AFTERNOON_SCHEDULE_DATA);
-
-            // Test template availability
-            console.log('\n7. Template availability:');
-            console.log('   UNIFIED_EVENT_PANEL_TEMPLATE:', typeof window.UNIFIED_EVENT_PANEL_TEMPLATE);
-
-            console.log('\n🧪 Unified system test complete - check results above');
         }
 
-        // Make function available globally for console testing
-        window.testUnifiedSystem = testUnifiedSystem;
+        // Add comprehensive debug function for Friday/Saturday data flow
+        function debugFridaySaturdayDataFlow() {
+            console.log('%c=== FRIDAY/SATURDAY DATA FLOW DEBUG ===', 'color: red; font-weight: bold; font-size: 16px;');
 
-        /**
-         * Test Main Event Panel CSS availability and fix verification
-         * Verifies that the CSS fix for missing main panel styles is working
-         */
-        function testMainEventPanelCSS() {
-            console.log('\n🔧 === Main Event Panel CSS Verification Test ===');
-
-            // Test CSS rule availability for both widget types
-            const testResults = {
-                morning: {},
-                afternoon: {}
-            };
-
-            // Check if critical main panel CSS classes are available
-            const criticalClasses = [
-                '.nzgdc-event-panel-main',
-                '.nzgdc-event-category-main',
-                '.nzgdc-category-text-main',
-                '.nzgdc-event-panel-title-main',
-                '.nzgdc-title-text-main',
-                '.nzgdc-event-panel-thumbnail-main',
-                '.nzgdc-session-thumbnail-main',
-                '.nzgdc-event-panel-overlay-main',
-                '.nzgdc-speaker-details-main',
-                '.nzgdc-speaker-name-main',
-                '.nzgdc-speaker-position-company-main',
-                '.nzgdc-call-to-action-main',
-                '.nzgdc-open-marker-main',
-                '.nzgdc-cta-text-main'
-            ];
-
-            // Create test elements to verify CSS is applied
-            console.log('\n1. Testing Morning Widget CSS:');
-            const morningTestContainer = document.createElement('div');
-            morningTestContainer.className = 'nzgdc-morning-schedule-widget';
-            morningTestContainer.style.position = 'absolute';
-            morningTestContainer.style.left = '-9999px';
-            morningTestContainer.style.top = '-9999px';
-
-            const morningTestPanel = document.createElement('div');
-            morningTestPanel.className = 'nzgdc-event-panel-main';
-            morningTestContainer.appendChild(morningTestPanel);
-            document.body.appendChild(morningTestContainer);
-
-            // Test computed styles
-            const morningStyles = window.getComputedStyle(morningTestPanel);
-            testResults.morning.width = morningStyles.width;
-            testResults.morning.height = morningStyles.height;
-            testResults.morning.display = morningStyles.display;
-
-            console.log('   Morning main panel width:', testResults.morning.width);
-            console.log('   Morning main panel height:', testResults.morning.height);
-            console.log('   Morning main panel display:', testResults.morning.display);
-
-            // Test afternoon widget
-            console.log('\n2. Testing Afternoon Widget CSS:');
-            const afternoonTestContainer = document.createElement('div');
-            afternoonTestContainer.className = 'nzgdc-afternoon-schedule-widget';
-            afternoonTestContainer.style.position = 'absolute';
-            afternoonTestContainer.style.left = '-9999px';
-            afternoonTestContainer.style.top = '-9999px';
-
-            const afternoonTestPanel = document.createElement('div');
-            afternoonTestPanel.className = 'nzgdc-event-panel-main';
-            afternoonTestContainer.appendChild(afternoonTestPanel);
-            document.body.appendChild(afternoonTestContainer);
-
-            const afternoonStyles = window.getComputedStyle(afternoonTestPanel);
-            testResults.afternoon.width = afternoonStyles.width;
-            testResults.afternoon.height = afternoonStyles.height;
-            testResults.afternoon.display = afternoonStyles.display;
-
-            console.log('   Afternoon main panel width:', testResults.afternoon.width);
-            console.log('   Afternoon main panel height:', testResults.afternoon.height);
-            console.log('   Afternoon main panel display:', testResults.afternoon.display);
-
-            // Clean up test elements
-            document.body.removeChild(morningTestContainer);
-            document.body.removeChild(afternoonTestContainer);
-
-            // Analyze results
-            console.log('\n3. Test Results Analysis:');
-            const morningValid = testResults.morning.width === '300px' &&
-                                 testResults.morning.height === '300px' &&
-                                 testResults.morning.display === 'flex';
-            const afternoonValid = testResults.afternoon.width === '300px' &&
-                                   testResults.afternoon.height === '300px' &&
-                                   testResults.afternoon.display === 'flex';
-
-            console.log('   Morning widget CSS fix status:', morningValid ? '✅ WORKING' : '❌ FAILED');
-            console.log('   Afternoon widget CSS fix status:', afternoonValid ? '✅ WORKING' : '❌ FAILED');
-
-            // Test CSS specificity
-            console.log('\n4. CSS Specificity Test:');
-            const stylesheets = Array.from(document.styleSheets);
-            let foundMorningRules = 0;
-            let foundAfternoonRules = 0;
-
-            stylesheets.forEach((sheet, index) => {
-                try {
-                    const rules = Array.from(sheet.cssRules || []);
-                    rules.forEach(rule => {
-                        if (rule.selectorText) {
-                            if (rule.selectorText.includes('.nzgdc-morning-schedule-widget .nzgdc-event-panel-main')) {
-                                foundMorningRules++;
-                            }
-                            if (rule.selectorText.includes('.nzgdc-afternoon-schedule-widget .nzgdc-event-panel-main')) {
-                                foundAfternoonRules++;
-                            }
-                        }
-                    });
-                } catch (e) {
-                    // Skip stylesheets that can't be accessed (CORS)
-                }
-            });
-
-            console.log('   Morning main panel CSS rules found:', foundMorningRules);
-            console.log('   Afternoon main panel CSS rules found:', foundAfternoonRules);
-
-            // Final assessment
-            console.log('\n5. Final Assessment:');
-            const overallSuccess = morningValid && afternoonValid && foundMorningRules > 0 && foundAfternoonRules > 0;
-
-            if (overallSuccess) {
-                console.log('   🎉 SUCCESS: Main Event Panel CSS fix is working correctly!');
-                console.log('   ✅ Both Morning and Afternoon widgets have proper main panel styles');
-                console.log('   ✅ CSS specificity conflicts have been resolved');
-            } else {
-                console.log('   ⚠️  WARNING: Main Event Panel CSS fix may have issues');
-                if (!morningValid) console.log('   - Morning widget main panel styles not applied correctly');
-                if (!afternoonValid) console.log('   - Afternoon widget main panel styles not applied correctly');
-                if (foundMorningRules === 0) console.log('   - Morning main panel CSS rules not found');
-                if (foundAfternoonRules === 0) console.log('   - Afternoon main panel CSS rules not found');
+            // 1. Check DataManager status
+            console.log('\n1️⃣ DATAMANAGER STATUS:');
+            if (!dataManagerInstance) {
+                console.log('❌ DataManager instance not available');
+                return;
             }
+            console.log('✅ DataManager instance available');
 
-            return {
-                success: overallSuccess,
-                morning: { valid: morningValid, rules: foundMorningRules },
-                afternoon: { valid: afternoonValid, rules: foundAfternoonRules },
-                results: testResults
-            };
-        }
-
-        // Debug function to test Friday/Saturday widget system independently
-        function debugFridaySaturdayWidget() {
-            console.log('\n🔍 DEBUGGING FRIDAY/SATURDAY WIDGET SYSTEM');
-            console.log('='.repeat(50));
-
-            // Test 1: Check global function availability
-            console.log('1. Global function availability:');
-            console.log('   window.createFridaySaturdayWidget:', typeof window.createFridaySaturdayWidget);
-            console.log('   window.NZGDCFridaySaturdayWidget:', typeof window.NZGDCFridaySaturdayWidget);
-            console.log('   window.FridaySaturdayWidgetCore:', typeof window.FridaySaturdayWidgetCore);
-
-            // Test 2: Check container element
-            console.log('\n2. Container element check:');
-            const container = document.getElementById('friday-saturday-container');
-            console.log('   friday-saturday-container exists:', !!container);
-            console.log('   container display style:', container ? container.style.display : 'N/A');
-
-            // Test 3: Try direct class instantiation
-            console.log('\n3. Direct class instantiation test:');
+            // 2. Check raw API data
+            console.log('\n2️⃣ RAW API DATA:');
             try {
-                if (window.FridaySaturdayWidgetCore) {
-                    const testWidget = new window.FridaySaturdayWidgetCore('friday-saturday-container', {
-                        enableDebug: true,
-                        defaultView: 'morning'
-                    });
-                    console.log('   ✅ Direct instantiation SUCCESS');
-                    console.log('   testWidget.containerId:', testWidget.containerId);
-                    console.log('   testWidget.uniqueId:', testWidget.uniqueId);
-                } else {
-                    console.log('   ❌ FridaySaturdayWidgetCore not available');
-                }
+                const schedules = dataManagerInstance.getScheduleData();
+                console.log(`Total schedules: ${schedules.length}`);
+
+                const fridaySaturday = schedules.filter(s => {
+                    const date = new Date(s.date);
+                    const day = date.getDay();
+                    return day === 5 || day === 6;
+                });
+
+                console.log(`Friday/Saturday schedules: ${fridaySaturday.length}`);
+                fridaySaturday.forEach(schedule => {
+                    console.log(`  ${schedule.title} (${schedule.date}): ${schedule.sessions?.length || 0} sessions`);
+                });
             } catch (error) {
-                console.log('   ❌ Direct instantiation FAILED:', error.message);
+                console.log('❌ Error getting schedule data:', error);
             }
 
-            // Test 4: Try global function call (dry run)
-            console.log('\n4. Global function call test (dry run):');
-            if (typeof window.createFridaySaturdayWidget === 'function') {
-                console.log('   ✅ Global function exists and is callable');
-                console.log('   Function length (parameter count):', window.createFridaySaturdayWidget.length);
-            } else {
-                console.log('   ❌ Global function not available');
+            // 3. Check widget instance
+            console.log('\n3️⃣ WIDGET INSTANCE:');
+            if (!currentFridaySaturdayWidget) {
+                console.log('❌ Friday/Saturday widget not created');
+                return;
             }
+            console.log('✅ Widget instance exists');
+            console.log('Widget has DataManager:', !!currentFridaySaturdayWidget.dataManager);
 
-            console.log('\n🔍 Debug test complete');
-        }
-
-        /**
-         * Test Expanded Event Details System
-         * Verifies that the expanded event details overlay integration is working
-         */
-        function testExpandedEventDetails() {
-            console.log('\n🔍 === EXPANDED EVENT DETAILS SYSTEM TEST ===');
-            console.log('='.repeat(50));
-
-            // Test 1: Check if manager class is available
-            console.log('1. Manager availability:');
-            console.log('   ExpandedEventDetailsManager:', typeof window.ExpandedEventDetailsManager);
-
-            // Test 2: Check CSS loading
-            console.log('\n2. CSS availability:');
-            const expandedCSS = Array.from(document.styleSheets).some(sheet => {
+            // 4. Test widget's data filtering
+            console.log('\n4️⃣ WIDGET DATA FILTERING:');
+            if (currentFridaySaturdayWidget.dataManager) {
                 try {
-                    return sheet.href && sheet.href.includes('expanded-event-details-overlay.css');
-                } catch (e) {
-                    return false;
-                }
-            });
-            console.log('   Expanded details CSS loaded:', expandedCSS);
+                    const testSchedules = currentFridaySaturdayWidget.dataManager.getScheduleData();
+                    console.log(`Widget can access ${testSchedules.length} schedules`);
 
-            // Test 3: Try to instantiate manager
-            console.log('\n3. Manager instantiation test:');
-            try {
-                if (window.ExpandedEventDetailsManager) {
-                    const testManager = new window.ExpandedEventDetailsManager();
-                    console.log('   ✅ Manager instantiation SUCCESS');
-                    console.log('   Manager status:', testManager.getStatus());
+                    // Test morning events filtering
+                    const morningData = {};
+                    testSchedules.forEach(schedule => {
+                        const scheduleDate = new Date(schedule.date);
+                        const dayOfWeek = scheduleDate.getDay();
 
-                    // Test 4: Template loading
-                    console.log('\n4. Template loading test:');
-                    testManager.loadTemplate().then(() => {
-                        console.log('   ✅ Template loading SUCCESS');
-                        console.log('   Template loaded:', testManager.templateLoaded);
+                        if ((dayOfWeek === 5 || dayOfWeek === 6) && schedule.sessions) {
+                            schedule.sessions.forEach(session => {
+                                const startTime = session.startTime || "00:00";
+                                const hour = parseInt(startTime.split(":")[0], 10);
 
-                        // Test 5: Sample event data
-                        console.log('\n5. Event data test:');
-                        const sampleEventData = {
-                            title: 'Test Event: Expanded Details Integration',
-                            description: 'This is a test event to verify that the expanded event details overlay system is working correctly with the NZGDC widget integration.',
-                            speakers: [
-                                {
-                                    name: 'Test Speaker One',
-                                    position: 'Senior Developer @ Test Company',
-                                    bio: 'Test speaker bio with extensive background in testing and development.',
-                                    email: 'test1@example.com',
-                                    website: 'testcompany.com'
-                                },
-                                {
-                                    name: 'Test Speaker Two',
-                                    position: 'Lead Designer @ Design Studio',
-                                    bio: 'Another test speaker with design expertise.',
-                                    email: 'test2@designstudio.com',
-                                    website: 'designstudio.com'
+                                if (hour < 12) {
+                                    morningData[session.id] = {
+                                        title: session.title,
+                                        copy: session.copy,
+                                        speakers: session.speakers?.length || 0
+                                    };
                                 }
-                            ],
-                            audienceTags: ['PROGRAMMING', 'EVERYONE'],
-                            category: 'PROGRAMMING',
-                            timeframe: '45 minutes'
-                        };
-
-                        try {
-                            // Don't actually show the overlay in the test, just validate the data
-                            const isValid = testManager.validateEventData(sampleEventData);
-                            console.log('   Event data validation:', isValid ? '✅ VALID' : '❌ INVALID');
-
-                            if (isValid) {
-                                console.log('   Sample event title:', sampleEventData.title);
-                                console.log('   Sample speakers count:', sampleEventData.speakers.length);
-                                console.log('   Sample audience tags:', sampleEventData.audienceTags);
-                            }
-
-                            // Clean up test manager
-                            testManager.destroy();
-                            console.log('\n6. Manager cleanup: ✅ SUCCESS');
-
-                        } catch (dataError) {
-                            console.error('   ❌ Event data test FAILED:', dataError);
+                            });
                         }
-
-                    }).catch(templateError => {
-                        console.error('   ❌ Template loading FAILED:', templateError);
                     });
 
-                } else {
-                    console.log('   ❌ ExpandedEventDetailsManager not available');
+                    console.log(`Filtered morning events: ${Object.keys(morningData).length}`);
+                    console.log('Sample morning events:', Object.values(morningData).slice(0, 2));
+
+                } catch (error) {
+                    console.log('❌ Error testing widget filtering:', error);
                 }
-            } catch (error) {
-                console.error('   ❌ Manager instantiation FAILED:', error);
-            }
-
-            // Test 6: Integration with unified event loader
-            console.log('\n7. Integration check:');
-            console.log('   UnifiedEventLoader available:', typeof window.UnifiedEventLoader);
-
-            // Check if click handlers have been modified
-            if (window.UnifiedEventLoader) {
-                console.log('   ✅ UnifiedEventLoader integration ready');
-                console.log('   Note: Click any event panel overlay to test expanded details');
             } else {
-                console.log('   ⚠️  UnifiedEventLoader not loaded yet');
+                console.log('❌ Widget missing DataManager connection!');
             }
 
-            console.log('\n🧪 Expanded Event Details test complete - check results above');
+            // 5. Check DOM rendering
+            console.log('\n5️⃣ DOM RENDERING:');
+            const morningPanels = document.querySelectorAll('#friday-saturday-container .nzgdc-morning-event-panel-container, #friday-saturday-container .nzgdc-morning-event-panel-main-container').length;
+            const afternoonPanels = document.querySelectorAll('#friday-saturday-container .nzgdc-afternoon-event-panel-container, #friday-saturday-container .nzgdc-afternoon-event-panel-main-container').length;
+
+            console.log(`Rendered morning panels: ${morningPanels}`);
+            console.log(`Rendered afternoon panels: ${afternoonPanels}`);
+
+            // 6. Test expanded event details
+            console.log('\n6️⃣ EXPANDED EVENT DETAILS:');
+            console.log('ExpandedEventDetailsManager available:', typeof ExpandedEventDetailsManager !== 'undefined');
+
+            if (typeof ExpandedEventDetailsManager !== 'undefined') {
+                const manager = new ExpandedEventDetailsManager();
+
+                // Test with sample API session data
+                const testSession = {
+                    title: "Test Event",
+                    copy: "<p>This is a test event description with <strong>HTML</strong> formatting.</p>",
+                    speakers: [{
+                        displayName: "Test Speaker",
+                        copy: "<p>This is a test speaker bio with <strong>HTML</strong> formatting.</p>",
+                        speakerImage: "https://example.com/speaker.jpg"
+                    }]
+                };
+
+                const adaptedData = manager.adaptEventData(testSession);
+                console.log('Event adaptation test:', {
+                    title: adaptedData.title,
+                    hasDescription: adaptedData.description !== 'Event description not available.',
+                    speakerCount: adaptedData.speakers.length
+                });
+
+                if (adaptedData.speakers.length > 0) {
+                    const adaptedSpeaker = adaptedData.speakers[0];
+                    console.log('Speaker adaptation test:', {
+                        name: adaptedSpeaker.name,
+                        hasBio: adaptedSpeaker.bio !== 'Speaker bio not available.',
+                        hasHeadshot: !!adaptedSpeaker.headshot
+                    });
+                }
+            }
+
+            console.log('\n🎯 DIAGNOSIS COMPLETE - Check console output above for issues');
         }
 
-        // Make testing functions available globally
-        window.testMainEventPanelCSS = testMainEventPanelCSS;
-        window.debugFridaySaturdayWidget = debugFridaySaturdayWidget;
-        window.testExpandedEventDetails = testExpandedEventDetails;
-    </script>
+        window.debugFridaySaturdayDataFlow = debugFridaySaturdayDataFlow;
 
-    <!-- Load widget scripts -->
-    <script src="../nzgdc-schedule-widget-modular.js"></script>
-    <script src="../nzgdc-friday-saturday-schedule-widget-modular.js"></script>
+        // Update status periodically
+        setInterval(updateWidgetStatus, 1000);
+    </script>
 </body>
 </html>

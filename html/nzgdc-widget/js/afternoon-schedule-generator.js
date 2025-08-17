@@ -188,12 +188,9 @@ class AfternoonScheduleGenerator {
       return;
     }
 
-    this.debug("AFTERNOON_EVENTS available:", !!window.AFTERNOON_EVENTS);
-    if (window.AFTERNOON_EVENTS) {
-      this.debug(
-        "AFTERNOON_EVENTS keys:",
-        Object.keys(window.AFTERNOON_EVENTS),
-      );
+    this.debug("eventData available:", !!this.eventData);
+    if (this.eventData) {
+      this.debug("eventData keys:", Object.keys(this.eventData));
     }
 
     eventPanels.forEach((panel, index) => {
@@ -210,15 +207,14 @@ class AfternoonScheduleGenerator {
         return;
       }
 
-      const eventData =
-        window.AFTERNOON_EVENTS && window.AFTERNOON_EVENTS[eventId];
+      const eventData = this.eventData && this.eventData[eventId];
       if (!eventData) {
-        this.debug(`No event data found for ${eventId} in AFTERNOON_EVENTS`);
+        this.debug(`No event data found for ${eventId} in this.eventData`);
         this.debug(
           "Available event IDs:",
-          window.AFTERNOON_EVENTS
-            ? Object.keys(window.AFTERNOON_EVENTS)
-            : "AFTERNOON_EVENTS is null/undefined",
+          this.eventData
+            ? Object.keys(this.eventData)
+            : "eventData is null/undefined",
         );
         return;
       }
@@ -267,7 +263,7 @@ class AfternoonScheduleGenerator {
     this.debug("All event filtering cleared");
   }
 
-  async renderSchedule(data) {
+  async renderSchedule(scheduleData, eventData) {
     try {
       if (this.isDestroyed) {
         console.warn(
@@ -276,12 +272,16 @@ class AfternoonScheduleGenerator {
         return;
       }
 
-      // Preserve original data on first render
-      this.preserveOriginalData(data);
+      // Store received data
+      this.scheduleData = scheduleData;
+      this.eventData = eventData;
+
+      // Preserve original data for filter reset
+      this.preserveOriginalData(this.scheduleData);
 
       this.debug(
         "Starting afternoon schedule rendering with",
-        data.timeSlots.length,
+        this.scheduleData.timeSlots.length,
         "time slots",
       );
 
@@ -293,7 +293,7 @@ class AfternoonScheduleGenerator {
       const fragment = document.createDocumentFragment();
 
       // Generate time slots in fragment first
-      data.timeSlots.forEach((timeSlot) => {
+      this.scheduleData.timeSlots.forEach((timeSlot) => {
         const timeSlotEl = this.generateTimeSlot(timeSlot);
         fragment.appendChild(timeSlotEl);
       });
@@ -386,17 +386,7 @@ class AfternoonScheduleGenerator {
     const eventType = container.dataset.eventType || "big";
     this.debug("Loading afternoon event:", eventId);
 
-    const eventData = window.AFTERNOON_EVENTS
-      ? window.AFTERNOON_EVENTS[eventId]
-      : null;
-
-    // Verify event data availability - critical for debugging data issues
-    if (!window.AFTERNOON_EVENTS) {
-      console.error(
-        "[NZGDC Afternoon Widget] AFTERNOON_EVENTS not loaded - check data file loading",
-      );
-      return;
-    }
+    const eventData = this.eventData ? this.eventData[eventId] : null;
 
     try {
       if (!eventData) {
@@ -409,7 +399,7 @@ class AfternoonScheduleGenerator {
       this.debug("Creating afternoon event panel for:", eventId);
       const eventPanel = this.eventLoader.createEventPanel(
         eventData,
-        eventType,
+        "auto",
         "afternoon",
       );
 

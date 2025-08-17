@@ -46,12 +46,44 @@
         });
 
         // Load CSS files in correct order (CRITICAL: unified-event-panel.css FIRST)
-        await Promise.all([
-          this.loadCSS("css/unified-event-panel.css"),
-          this.loadCSS("css/category-filter-overlay.css"),
-          this.loadCSS("css/expanded-event-details-overlay.css"),
-          this.loadCSS("css/friday-saturday-schedule-bundle.css"),
-        ]);
+        // Skip CSS files that are already loaded statically to prevent overrides
+        const cssPromises = [];
+
+        // Only load unified-event-panel.css if not already present
+        if (!document.querySelector('link[href*="unified-event-panel.css"]')) {
+          cssPromises.push(this.loadCSS("css/unified-event-panel.css"));
+        } else {
+          debugLog(
+            "unified-event-panel.css already loaded statically - skipping",
+          );
+        }
+
+        // Only load other CSS files if not already present
+        if (
+          !document.querySelector('link[href*="category-filter-overlay.css"]')
+        ) {
+          cssPromises.push(this.loadCSS("css/category-filter-overlay.css"));
+        }
+        if (
+          !document.querySelector(
+            'link[href*="expanded-event-details-overlay.css"]',
+          )
+        ) {
+          cssPromises.push(
+            this.loadCSS("css/expanded-event-details-overlay.css"),
+          );
+        }
+        if (
+          !document.querySelector(
+            'link[href*="friday-saturday-schedule-bundle.css"]',
+          )
+        ) {
+          cssPromises.push(
+            this.loadCSS("css/friday-saturday-schedule-bundle.css"),
+          );
+        }
+
+        await Promise.all(cssPromises);
         this.cssLoaded = true;
 
         // Load JavaScript modules
@@ -202,7 +234,11 @@
   }
 
   // Widget creation function
-  async function createFridaySaturdayWidget(containerId, options = {}) {
+  async function createFridaySaturdayWidget(
+    containerId,
+    options = {},
+    dataManager = null,
+  ) {
     // Validate parameters
     if (!containerId || typeof containerId !== "string") {
       throw new Error(
@@ -224,8 +260,12 @@
         throw new Error("FridaySaturdayWidgetCore not available");
       }
 
-      // Create widget instance
-      const widget = new window.FridaySaturdayWidgetCore(containerId, options);
+      // Create widget instance, passing the dataManager
+      const widget = new window.FridaySaturdayWidgetCore(
+        containerId,
+        options,
+        dataManager,
+      );
       await widget.initialize();
 
       // Track for cleanup
@@ -276,8 +316,8 @@
       return widgetReady;
     },
 
-    create: function (elementId, options = {}) {
-      return createFridaySaturdayWidget(elementId, options);
+    create: function (elementId, options = {}, dataManager = null) {
+      return createFridaySaturdayWidget(elementId, options, dataManager);
     },
 
     getDebugInfo: function () {

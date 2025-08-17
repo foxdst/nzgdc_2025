@@ -250,19 +250,31 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       return mapping[categoryString] || "PROGRAMMING";
     }
 
-    createEventPanel(eventData, eventType = "big", widgetType = "schedule") {
+    createEventPanel(eventData, eventType = "auto", widgetType = "schedule") {
       if (this.isDestroyed) {
         throw new Error("UnifiedEventLoader has been destroyed");
       }
 
       try {
+        // Auto-detect event type based on speaker count if not explicitly specified
+        let finalEventType = eventType;
+        if (eventType === "auto") {
+          const speakerCount = eventData.speakers
+            ? eventData.speakers.length
+            : 0;
+          finalEventType = speakerCount > 1 ? "big" : "main";
+          this.debug(
+            `Auto-detected event type: ${finalEventType} (${speakerCount} speakers)`,
+          );
+        }
+
         this.debug(
-          `Creating ${eventType} event panel for widget type: ${widgetType}`,
+          `Creating ${finalEventType} event panel for widget type: ${widgetType}`,
         );
         this.debug("Event data:", eventData);
 
         // Create the appropriate panel type
-        if (eventType === "main") {
+        if (finalEventType === "main") {
           return this.createMainEventPanel(eventData, widgetType);
         } else {
           return this.createBigEventPanel(eventData, widgetType);
@@ -348,13 +360,13 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       <!-- Event Panel Thumbnail (Bottom) -->
       <div class="nzgdc-event-panel-thumbnail-main">
         <!-- Session Thumbnail (Background) -->
-        <div class="nzgdc-session-thumbnail-main" ${eventData.thumbnail ? `style="background-image: url('${eventData.thumbnail}')"` : ""}></div>
+        <div class="nzgdc-session-thumbnail-main" style="${eventData.thumbnail ? `background-image: url('${eventData.thumbnail}')` : "background-image: none"}"></div>
 
         <!-- Event Panel Overlay -->
         <div class="nzgdc-event-panel-overlay-main">
           <!-- Speaker Details -->
           <div class="nzgdc-speaker-details-main">
-            <div class="nzgdc-speaker-name-main">Presented by ${eventData.speakers?.[0]?.name || "Speaker Name"}</div>
+            <div class="nzgdc-speaker-name-main">Presented by ${eventData.speakers?.[0]?.name || eventData.speakers?.[0]?.displayName || "Speaker Name"}</div>
             <div class="nzgdc-speaker-position-company-main">${eventData.speakers?.[0]?.position || "Position + Company"}</div>
           </div>
 
@@ -470,9 +482,14 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       }
 
       // Update thumbnail (only if provided)
-      if (thumbnailEl && eventData.thumbnail) {
-        thumbnailEl.style.backgroundImage = `url('${eventData.thumbnail}')`;
-        this.debug("Set unified thumbnail:", eventData.thumbnail);
+      if (thumbnailEl) {
+        if (eventData.thumbnail) {
+          thumbnailEl.style.backgroundImage = `url('${eventData.thumbnail}')`;
+          this.debug("Set unified thumbnail:", eventData.thumbnail);
+        } else {
+          thumbnailEl.style.backgroundImage = "none";
+          this.debug("Cleared unified thumbnail - no thumbnail available");
+        }
       }
 
       // Update timeframe
@@ -486,10 +503,22 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
         );
       }
 
-      // Update speakers
-      const speakers = eventData.speakers || [
-        { name: "TBA", position: "Speaker details coming soon" },
-      ];
+      // Update speakers with safety checks
+      let speakers = [];
+      if (
+        eventData.speakers &&
+        Array.isArray(eventData.speakers) &&
+        eventData.speakers.length > 0
+      ) {
+        speakers = eventData.speakers.filter(
+          (speaker) => speaker && typeof speaker === "object",
+        );
+      }
+
+      // Fallback if no valid speakers
+      if (speakers.length === 0) {
+        speakers = [{ name: "TBA", position: "Speaker details coming soon" }];
+      }
 
       this.debug(
         "Processing unified speakers:",
@@ -506,7 +535,8 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
           );
 
           if (nameEl) {
-            const speakerName = speaker.name || "Speaker TBA";
+            const speakerName =
+              speaker.name || speaker.displayName || "Speaker TBA";
             nameEl.textContent = speakerName;
             this.debug(`Unified speaker ${index + 1} name:`, speakerName);
           } else {
@@ -727,6 +757,314 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       } catch (error) {
         console.error("Error destroying UnifiedEventLoader:", error);
       }
+    }
+
+    /**
+     * Update an existing event panel with new data
+     * @param {HTMLElement} panelElement - The existing panel element to update
+     * @param {Object} eventData - New event data to populate the panel with
+     * @param {string} widgetType - Type of widget (schedule, thursday, morning, afternoon)
+     */
+    updateEventPanel(panelElement, eventData, widgetType = "schedule") {
+      if (this.isDestroyed) {
+        throw new Error("UnifiedEventLoader has been destroyed");
+      }
+
+      try {
+        this.debug(
+          "Updating event panel with new data:",
+          eventData?.title || "Unknown",
+        );
+
+        // Determine panel type (big or main) based on class
+        const isBigPanel =
+          panelElement.classList.contains("nzgdc-event-panel-big") ||
+          panelElement.querySelector(".nzgdc-event-panel-big");
+        const isMainPanel =
+          panelElement.classList.contains("nzgdc-event-panel-main") ||
+          panelElement.querySelector(".nzgdc-event-panel-main");
+
+        if (isBigPanel) {
+          this.updateBigEventContent(
+            panelElement.querySelector(".nzgdc-event-panel-big") ||
+              panelElement,
+            eventData,
+            widgetType,
+          );
+        } else if (isMainPanel) {
+          this.updateMainEventContent(
+            panelElement.querySelector(".nzgdc-event-panel-main") ||
+              panelElement,
+            eventData,
+            widgetType,
+          );
+        } else {
+          console.warn("[NZGDC Unified Widget] Unknown panel type for update");
+          // Fallback to recreating the panel
+          const newPanel = this.createEventPanel(
+            eventData,
+            isBigPanel ? "big" : "main",
+            widgetType,
+          );
+          panelElement.replaceWith(newPanel);
+        }
+      } catch (error) {
+        console.error(
+          "[NZGDC Unified Widget] Failed to update event panel:",
+          error,
+        );
+      }
+    }
+
+    /**
+     * Update content of a big event panel
+     * @param {HTMLElement} clone - The panel element to update
+     * @param {Object} eventData - New event data
+     * @param {string} widgetType - Type of widget
+     */
+    updateBigEventContent(clone, eventData, widgetType = "schedule") {
+      this.debug(
+        "Updating unified event content for:",
+        eventData?.title || "Unknown",
+      );
+
+      // Direct element queries - more reliable than caching
+      const categoryEl = clone.querySelector(".nzgdc-category-text-big");
+      const titleEl = clone.querySelector(".nzgdc-title-text-big");
+      const thumbnailEl = clone.querySelector(".nzgdc-session-thumbnail-big");
+      const timeframeEl = clone.querySelector(".nzgdc-timeframe-text-big");
+      const introEl = clone.querySelector(".nzgdc-introduction-text-big");
+      const speakerContainers = clone.querySelectorAll(
+        ".nzgdc-speaker-biolines-big",
+      );
+
+      // Verify elements found - critical for debugging data population issues
+      const elementsFound = {
+        category: !!categoryEl,
+        title: !!titleEl,
+        thumbnail: !!thumbnailEl,
+        timeframe: !!timeframeEl,
+        intro: !!introEl,
+        speakers: speakerContainers.length,
+      };
+
+      this.debug("Unified element query results:", elementsFound);
+
+      // Alert if critical elements are missing
+      if (
+        !categoryEl ||
+        !titleEl ||
+        !timeframeEl ||
+        speakerContainers.length === 0
+      ) {
+        console.warn(
+          "[NZGDC Unified Widget] Missing critical template elements:",
+          elementsFound,
+        );
+      }
+
+      // Update category display - only validate if category data exists
+      if (categoryEl) {
+        if (eventData.categoryKey || eventData.category) {
+          const categoryData = this.validateCategoryData(eventData);
+          categoryEl.textContent = categoryData.displayName;
+          // Update data-category attribute if it exists
+          clone.setAttribute("data-category", categoryData.categoryKey);
+          this.debug(
+            "Set unified category:",
+            categoryData.displayName,
+            `(${categoryData.categoryKey})`,
+          );
+        } else {
+          categoryEl.textContent = eventData.category || "Event";
+          this.debug(
+            "Set category without validation:",
+            eventData.category || "Event",
+          );
+        }
+      } else {
+        console.warn(
+          "[NZGDC Unified Widget] Category element not found - check template structure",
+        );
+      }
+
+      // Update title
+      if (titleEl) {
+        const titleText = eventData.title || "Event Title";
+        titleEl.textContent = titleText;
+        this.debug("Set unified title:", titleText);
+      } else {
+        console.warn(
+          "[NZGDC Unified Widget] Title element not found - check template structure",
+        );
+      }
+
+      // Update introduction text based on widget type
+      if (introEl) {
+        let introText = "NZGDC 2025 Event by";
+        switch (widgetType) {
+          case "schedule":
+          case "thursday":
+            introText = "NZGDC 2025 Workshop by";
+            break;
+          case "morning":
+            introText = "NZGDC 2025 Morning Event by";
+            break;
+          case "afternoon":
+            introText = "NZGDC 2025 Afternoon Event by";
+            break;
+        }
+        introEl.textContent = introText;
+        this.debug("Set unified intro text:", introText);
+      }
+
+      // Update thumbnail (only if provided)
+      if (thumbnailEl) {
+        if (eventData.thumbnail) {
+          thumbnailEl.style.backgroundImage = `url('${eventData.thumbnail}')`;
+          this.debug("Set unified thumbnail:", eventData.thumbnail);
+        } else {
+          thumbnailEl.style.backgroundImage = "none";
+          this.debug("Cleared unified thumbnail - no thumbnail available");
+        }
+      }
+
+      // Update timeframe
+      if (timeframeEl) {
+        const timeframeText = eventData.timeframe || "TBA";
+        timeframeEl.textContent = timeframeText;
+        this.debug("Set unified timeframe:", timeframeText);
+      } else {
+        console.warn(
+          "[NZGDC Unified Widget] Timeframe element not found - check template structure",
+        );
+      }
+
+      // Update speakers
+      const speakers = eventData.speakers || [
+        { name: "TBA", position: "Speaker details coming soon" },
+      ];
+
+      this.debug(
+        "Processing unified speakers:",
+        speakers.length,
+        "speakers found",
+      );
+
+      speakers.forEach((speaker, index) => {
+        if (index < speakerContainers.length) {
+          const container = speakerContainers[index];
+          const nameEl = container.querySelector(".nzgdc-speaker-bioName-big");
+          const positionEl = container.querySelector(
+            ".nzgdc-speaker-bioPosition-big",
+          );
+
+          if (nameEl) {
+            const speakerName =
+              speaker.name || speaker.displayName || "Speaker TBA";
+            nameEl.textContent = speakerName;
+            this.debug(`Unified speaker ${index + 1} name:`, speakerName);
+          } else {
+            console.warn(
+              `[NZGDC Unified Widget] Speaker ${index + 1} name element not found`,
+            );
+          }
+
+          if (positionEl) {
+            const speakerPosition = speaker.position || "Details coming soon";
+            positionEl.textContent = speakerPosition;
+            this.debug(
+              `Unified speaker ${index + 1} position:`,
+              speakerPosition,
+            );
+          } else {
+            console.warn(
+              `[NZGDC Unified Widget] Speaker ${index + 1} position element not found`,
+            );
+          }
+        }
+      });
+
+      // Hide unused speaker containers
+      for (let i = speakers.length; i < speakerContainers.length; i++) {
+        speakerContainers[i].style.display = "none";
+        this.debug(`Hiding unused unified speaker container ${i + 1}`);
+      }
+
+      // Update speaker details hover functionality
+      this.setupSpeakerDetailsHover(clone, eventData);
+    }
+
+    /**
+     * Update content of a main event panel
+     * @param {HTMLElement} mainPanel - The main panel element to update
+     * @param {Object} eventData - New event data
+     * @param {string} widgetType - Type of widget
+     */
+    updateMainEventContent(mainPanel, eventData, widgetType = "schedule") {
+      this.debug(
+        "Updating main event panel with new data:",
+        eventData?.title || "Unknown",
+      );
+
+      // Update category data attributes if event data has valid category information
+      let categoryData = null;
+      if (eventData.categoryKey || eventData.category) {
+        categoryData = this.validateCategoryData(eventData);
+        mainPanel.setAttribute("data-category", categoryData.categoryKey);
+        this.debug(`Updated category attributes: ${categoryData.categoryKey}`);
+      } else {
+        this.debug(
+          "No category data found, keeping existing category attributes",
+        );
+      }
+
+      // Update category display
+      const categoryEl = mainPanel.querySelector(".nzgdc-category-text-main");
+      if (categoryEl) {
+        categoryEl.textContent = categoryData
+          ? categoryData.displayName
+          : eventData.category || "Event";
+      }
+
+      // Update title
+      const titleEl = mainPanel.querySelector(".nzgdc-title-text-main");
+      if (titleEl) {
+        titleEl.textContent = eventData.title || "Event Title";
+      }
+
+      // Update thumbnail
+      const thumbnailEl = mainPanel.querySelector(
+        ".nzgdc-session-thumbnail-main",
+      );
+      if (thumbnailEl) {
+        if (eventData.thumbnail) {
+          thumbnailEl.style.backgroundImage = `url('${eventData.thumbnail}')`;
+        } else {
+          thumbnailEl.style.backgroundImage = "none";
+        }
+      }
+
+      // Update speaker details
+      const speakerNameEl = mainPanel.querySelector(".nzgdc-speaker-name-main");
+      const speakerPositionEl = mainPanel.querySelector(
+        ".nzgdc-speaker-position-company-main",
+      );
+
+      if (speakerNameEl) {
+        speakerNameEl.textContent =
+          eventData.speakers?.[0]?.name ||
+          eventData.speakers?.[0]?.displayName ||
+          "Speaker Name";
+      }
+
+      if (speakerPositionEl) {
+        speakerPositionEl.textContent =
+          eventData.speakers?.[0]?.position || "Position + Company";
+      }
+
+      // Update speaker details hover functionality
+      this.setupSpeakerDetailsHover(mainPanel, eventData);
     }
   }
 

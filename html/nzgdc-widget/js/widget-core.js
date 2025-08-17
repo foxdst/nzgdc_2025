@@ -1,7 +1,7 @@
 // NZGDC Schedule Widget - Main Widget Class
 
 class NZGDCScheduleWidget {
-  constructor(elementId, options = {}) {
+  constructor(elementId, options = {}, dataManager = null) {
     this.element =
       typeof elementId === "string"
         ? document.getElementById(elementId)
@@ -18,6 +18,7 @@ class NZGDCScheduleWidget {
       ...options,
     };
 
+    this.dataManager = dataManager; // Store DataManager instance
     this.uniqueId = this.generateUniqueId();
     this.initialized = false;
 
@@ -77,11 +78,13 @@ class NZGDCScheduleWidget {
   validateDependencies() {
     const missing = [];
 
-    if (typeof window.SCHEDULE_DATA === "undefined") {
-      missing.push("SCHEDULE_DATA");
-    }
-    if (typeof window.WORKSHOP_EVENTS === "undefined") {
-      missing.push("WORKSHOP_EVENTS");
+    if (!this.dataManager) {
+      if (typeof window.SCHEDULE_DATA === "undefined") {
+        missing.push("SCHEDULE_DATA");
+      }
+      if (typeof window.WORKSHOP_EVENTS === "undefined") {
+        missing.push("WORKSHOP_EVENTS");
+      }
     }
     if (typeof window.UnifiedEventLoader === "undefined") {
       missing.push("UnifiedEventLoader");
@@ -199,8 +202,12 @@ class NZGDCScheduleWidget {
   getAvailableCategories() {
     const availableCategories = new Set();
 
-    if (window.WORKSHOP_EVENTS) {
-      Object.values(window.WORKSHOP_EVENTS).forEach((event) => {
+    const workshopEvents = this.dataManager
+      ? this.dataManager.getEventData()
+      : window.WORKSHOP_EVENTS;
+
+    if (workshopEvents) {
+      Object.values(workshopEvents).forEach((event) => {
         if (event.categoryKey) {
           availableCategories.add(event.categoryKey);
         }
@@ -412,12 +419,83 @@ class NZGDCScheduleWidget {
       }
 
       // Ensure data is loaded
-      if (!window.SCHEDULE_DATA) {
-        throw new Error("Schedule data not found");
+      let scheduleData;
+      let eventData;
+
+      if (this.dataManager) {
+        this.debug("Using DataManager for schedule initialization");
+
+        // Get data from DataManager and create compatible structure
+        const schedules = this.dataManager.getScheduleData();
+        eventData = this.dataManager.getEventData();
+
+        this.debug("Raw schedules from DataManager:", schedules);
+        this.debug("Raw eventData from DataManager:", eventData);
+
+        if (!schedules || schedules.length === 0) {
+          throw new Error("No schedule data found in DataManager");
+        }
+
+        this.debug(`Found ${schedules.length} schedules in DataManager`);
+
+        // Thursday widget should ONLY use Thursday schedule data
+        const thursdaySchedule = schedules.find((schedule) => {
+          if (schedule.date) {
+            const scheduleDate = new Date(schedule.date);
+            return (
+              !isNaN(scheduleDate.getTime()) && scheduleDate.getDay() === 4
+            );
+          }
+          return (
+            schedule.title && schedule.title.toLowerCase().includes("thursday")
+          );
+        });
+
+        if (thursdaySchedule) {
+          this.debug("Found Thursday schedule, creating compatible structure");
+          scheduleData = this.createCompatibleScheduleStructure(
+            thursdaySchedule,
+            eventData,
+          );
+        } else if (schedules.length === 1) {
+          this.debug("Only one schedule available, assuming it's Thursday");
+          scheduleData = this.createCompatibleScheduleStructure(
+            schedules[0],
+            eventData,
+          );
+        } else {
+          throw new Error("No Thursday schedule found in DataManager");
+        }
+
+        this.debug("Compatible schedule structure created:", scheduleData);
+      } else {
+        this.debug("Using fallback static data");
+        // Fallback to original static data
+        scheduleData = window.SCHEDULE_DATA;
+        eventData = window.WORKSHOP_EVENTS;
+
+        if (!scheduleData) {
+          throw new Error("Schedule data not found");
+        }
+
+        // Validate that static data has the expected timeSlots structure
+        if (!scheduleData.timeSlots || !Array.isArray(scheduleData.timeSlots)) {
+          this.debug(
+            "Static scheduleData missing timeSlots, attempting to fix",
+          );
+          // If static data is malformed, try to create a compatible structure
+          scheduleData = {
+            id: "static-schedule",
+            title: "Static Schedule",
+            timeSlots: scheduleData.timeSlots || [],
+          };
+        }
+
+        this.debug("Using static scheduleData:", scheduleData);
       }
 
       this.scheduleGenerator = new ScheduleGenerator(scheduleContainer);
-      await this.scheduleGenerator.renderSchedule(window.SCHEDULE_DATA);
+      await this.scheduleGenerator.renderSchedule(scheduleData, eventData);
 
       // Add back-to-top click handler with cleanup tracking
       this.addBackToTopHandler();
@@ -522,6 +600,90 @@ class NZGDCScheduleWidget {
                 <button onclick="location.reload()" style="margin-top: 10px; padding: 5px 10px;">Refresh Page</button>
             </div>
         `;
+  }
+
+  /**
+   * Refresh widget data and update display
+   * @param {Object} newData - Optional new data to use for refresh
+   */
+  async refreshData(newData) {
+    try {
+      this.debug("Refreshing widget data...");
+
+      // Prioritize the instance's DataManager first
+      if (this.dataManager) {
+        this.debug("Refreshing data via instance DataManager...");
+        await this.dataManager.refreshData();
+      } else if (
+        window.dataManager &&
+        typeof window.dataManager.refreshData === "function"
+      ) {
+        // Fallback to global DataManager if instance DataManager is not provided
+        this.debug("Refreshing data via global DataManager...");
+        await window.dataManager.refreshData();
+      } else if (newData) {
+        this.debug("Updating data with provided newData parameter...");
+        if (newData.workshopEvents) {
+          window.WORKSHOP_EVENTS = newData.workshopEvents;
+        }
+        if (newData.scheduleData) {
+          window.SCHEDULE_DATA = newData.scheduleData;
+        }
+      } else {
+        this.debug(
+          "No DataManager (instance or global) or newData provided to refresh.",
+        );
+        return; // Nothing to refresh
+      }
+
+      // Determine which event data to use for refresh
+      const currentEvents = this.dataManager
+        ? this.dataManager.getEventData()
+        : window.WORKSHOP_EVENTS;
+
+      // Refresh schedule content if schedule generator is available
+      if (
+        this.scheduleGenerator &&
+        typeof this.scheduleGenerator.refreshWorkshopContent === "function"
+      ) {
+        this.debug("Refreshing schedule generator content...");
+        await this.scheduleGenerator.refreshWorkshopContent(currentEvents);
+      } else {
+        // Fallback: reinitialize schedule if no refresh method available
+        this.debug("Reinitializing schedule...");
+        await this.initializeSchedule();
+      }
+
+      // Update dropdown with new categories if they exist
+      if (this.dropdownController) {
+        this.debug("Updating dropdown with new categories...");
+        // Re-render the dropdown with new data
+        const filtersSection = this.element.querySelector(
+          ".nzgdc-filters-section",
+        );
+        if (filtersSection) {
+          const dropdownHTML = this.generateCategoryDropdownHTML();
+          // Re-render the dropdown with new data
+          const existingDropdown = filtersSection.querySelector(
+            ".category-dropdown-overlay",
+          );
+          const existingBackdrop = filtersSection.querySelector(
+            ".category-dropdown-backdrop",
+          );
+
+          if (existingDropdown) {
+            existingDropdown.innerHTML = this.generateCategoryOptions();
+            // Re-attach event handlers for newly rendered dropdown items
+            this.initializeDropdownController();
+          }
+        }
+      }
+
+      this.debug("Widget data refresh completed successfully");
+    } catch (error) {
+      console.error("[NZGDC Widget] Failed to refresh widget data:", error);
+      this.showInitializationError(error);
+    }
   }
 }
 
@@ -694,6 +856,328 @@ class ThursdayCategoryDropdownController {
     this.isOpen = false;
   }
 }
+
+/**
+ * Create compatible schedule structure from DataManager data
+ * @param {Object} schedule - Schedule object from DataManager
+ * @param {Object} eventData - Event data from DataManager
+ * @returns {Object} Compatible schedule structure with timeSlots
+ */
+NZGDCScheduleWidget.prototype.createCompatibleScheduleStructure = function (
+  schedule,
+  eventData,
+) {
+  this.debug("Creating compatible schedule structure from DataManager data");
+  this.debug("Input schedule:", schedule);
+  this.debug("Input eventData:", eventData);
+
+  // Convert sessions to timeSlots format
+  const timeSlots = [];
+
+  if (schedule.sessions && Array.isArray(schedule.sessions)) {
+    // Group sessions by time or create generic time slots
+    const sessionGroups = this.groupSessionsByTime(schedule.sessions);
+
+    Object.keys(sessionGroups).forEach((timeKey, index) => {
+      const sessions = sessionGroups[timeKey];
+      const timeSlot = {
+        id: timeKey.toLowerCase().replace(/\s+/g, "-"),
+        timeRange: timeKey,
+        title: `${timeKey} Sessions`,
+        theme: index % 2 === 0 ? "a" : "b", // Alternate themes
+        workshops: sessions.map((session) => ({
+          id: session.id, // Use actual session ID for event lookup
+          category:
+            session.categories && session.categories[0]
+              ? session.categories[0].name
+              : "General",
+          title: session.title || session.name,
+        })),
+      };
+      timeSlots.push(timeSlot);
+    });
+  }
+
+  // If no sessions, create default structure from events
+  if (timeSlots.length === 0 && eventData) {
+    const events = Object.values(eventData);
+    this.debug(`Processing ${events.length} events for timeSlot creation`);
+
+    // Debug: Show sample events and their time information
+    if (events.length > 0) {
+      this.debug("Sample events for day detection:");
+      events.slice(0, 3).forEach((event, index) => {
+        // Create proper date object by combining schedule date with event time
+        const fullDateTime = this.createFullDateTime(
+          schedule.date,
+          event.startTime,
+        );
+        this.debug(`  Event ${index + 1}: "${event.title}"`);
+        this.debug(`    - scheduleDate: ${schedule.date}`);
+        this.debug(`    - startTime: ${event.startTime}`);
+        this.debug(`    - fullDateTime: ${fullDateTime}`);
+        this.debug(
+          `    - day of week: ${fullDateTime ? fullDateTime.getDay() : "N/A"} (4=Thursday)`,
+        );
+      });
+    }
+
+    // Since we now only get Thursday schedule data, we can use all events from it
+    // But still filter to be safe in case of mixed data
+    const thursdayEvents = events.filter((event) => {
+      // Create proper date object by combining schedule date with event time
+      const fullDateTime = this.createFullDateTime(
+        schedule.date,
+        event.startTime,
+      );
+
+      // Primary filter: Use actual date if available
+      if (fullDateTime && !isNaN(fullDateTime.getTime())) {
+        // 4 = Thursday (0=Sunday, 1=Monday, ..., 6=Saturday)
+        return fullDateTime.getDay() === 4;
+      }
+
+      // Fallback: Check schedule date directly (YYYY-MM-DD format)
+      if (schedule.date) {
+        const scheduleDate = new Date(schedule.date);
+        if (!isNaN(scheduleDate.getTime())) {
+          return scheduleDate.getDay() === 4;
+        }
+      }
+
+      // If we got this far and schedule.date suggests Thursday, include the event
+      // This is much safer than the previous text-based fallback
+      return true;
+    });
+
+    this.debug(
+      `Filtered to ${thursdayEvents.length} Thursday events from ${events.length} total events`,
+    );
+
+    // Try more flexible time-based filtering on Thursday events
+    const morning = thursdayEvents.filter((event) => {
+      const timeStr = (event.startTime || event.time || "").toLowerCase();
+      const dateObj = event.startTime ? new Date(event.startTime) : null;
+
+      // Check various time formats and patterns
+      return (
+        timeStr.includes("morning") ||
+        timeStr.includes("9") ||
+        timeStr.includes("10") ||
+        timeStr.includes("11") ||
+        timeStr.includes("9:") ||
+        timeStr.includes("10:") ||
+        timeStr.includes("11:") ||
+        (dateObj && dateObj.getHours() >= 9 && dateObj.getHours() < 12)
+      );
+    });
+
+    const afternoon = thursdayEvents.filter((event) => {
+      const timeStr = (event.startTime || event.time || "").toLowerCase();
+      const dateObj = event.startTime ? new Date(event.startTime) : null;
+
+      // Check various time formats and patterns
+      return (
+        timeStr.includes("afternoon") ||
+        timeStr.includes("12") ||
+        timeStr.includes("1") ||
+        timeStr.includes("2") ||
+        timeStr.includes("3") ||
+        timeStr.includes("12:") ||
+        timeStr.includes("13:") ||
+        timeStr.includes("14:") ||
+        timeStr.includes("15:") ||
+        (dateObj && dateObj.getHours() >= 12 && dateObj.getHours() < 17)
+      );
+    });
+
+    // If time-based filtering didn't work well, split Thursday events roughly
+    if (
+      morning.length === 0 &&
+      afternoon.length === 0 &&
+      thursdayEvents.length > 0
+    ) {
+      this.debug(
+        "Time-based filtering failed, splitting Thursday events evenly",
+      );
+      const midpoint = Math.ceil(thursdayEvents.length / 2);
+      morning.push(...thursdayEvents.slice(0, midpoint));
+      afternoon.push(...thursdayEvents.slice(midpoint));
+    }
+
+    if (morning.length > 0) {
+      this.debug(`Found ${morning.length} morning events`);
+      timeSlots.push({
+        id: "morning",
+        timeRange: "9.00am - 12.00pm",
+        title: "Morning Workshops",
+        theme: "a",
+        workshops: morning.map((event) => ({
+          id: event.id, // Use actual event ID for event lookup
+          category:
+            event.categories && event.categories[0]
+              ? event.categories[0].name
+              : "General",
+          title: event.title,
+        })),
+      });
+    }
+
+    if (afternoon.length > 0) {
+      this.debug(`Found ${afternoon.length} afternoon events`);
+      timeSlots.push({
+        id: "afternoon",
+        timeRange: "12.00pm - 3.00pm",
+        title: "Afternoon Workshops",
+        theme: "b",
+        workshops: afternoon.map((event) => ({
+          id: event.id, // Use actual event ID for event lookup
+          category:
+            event.categories && event.categories[0]
+              ? event.categories[0].name
+              : "General",
+          title: event.title,
+        })),
+      });
+    }
+
+    // If we still have no workshops in our timeSlots, create one timeSlot with all Thursday events
+    if (
+      timeSlots.every((slot) => slot.workshops.length === 0) &&
+      thursdayEvents.length > 0
+    ) {
+      this.debug("Creating single timeSlot with all Thursday events");
+      timeSlots.push({
+        id: "all-thursday-events",
+        timeRange: "All Day",
+        title: "Thursday Events",
+        theme: "a",
+        workshops: thursdayEvents.map((event) => ({
+          id: event.id,
+          category:
+            event.categories && event.categories[0]
+              ? event.categories[0].name
+              : "General",
+          title: event.title,
+        })),
+      });
+    }
+  }
+
+  // Ensure we always have at least one timeSlot, even if no data found
+  if (timeSlots.length === 0) {
+    this.debug("No timeSlots created, adding default fallback");
+    timeSlots.push({
+      id: "default",
+      timeRange: "All Day",
+      title: "Schedule Events",
+      theme: "a",
+      workshops: [],
+    });
+  }
+
+  this.debug(`Created ${timeSlots.length} timeSlots for schedule`);
+
+  const result = {
+    id: schedule.id,
+    title: schedule.title || "Schedule",
+    timeSlots: timeSlots,
+  };
+
+  this.debug("Final compatible schedule structure:", result);
+  return result;
+};
+
+/**
+ * Group sessions by time for timeSlot creation
+ * @param {Array} sessions - Array of session objects
+ * @returns {Object} Sessions grouped by time key
+ */
+NZGDCScheduleWidget.prototype.groupSessionsByTime = function (sessions) {
+  const groups = {};
+
+  sessions.forEach((session) => {
+    // Extract time information from session
+    let timeKey = "General";
+
+    if (session.startTime) {
+      const startTime = new Date(session.startTime);
+      const hour = startTime.getHours();
+
+      if (hour < 12) {
+        timeKey = "Morning";
+      } else if (hour < 17) {
+        timeKey = "Afternoon";
+      } else {
+        timeKey = "Evening";
+      }
+    } else if (session.time) {
+      timeKey = session.time;
+    }
+
+    if (!groups[timeKey]) {
+      groups[timeKey] = [];
+    }
+    groups[timeKey].push(session);
+  });
+
+  return groups;
+};
+
+// Helper method to create full datetime from schedule date and session time
+NZGDCScheduleWidget.prototype.createFullDateTime = function (
+  scheduleDate,
+  sessionTime,
+) {
+  if (!scheduleDate || !sessionTime) {
+    return null;
+  }
+
+  try {
+    // scheduleDate is in YYYY-MM-DD format
+    // sessionTime is in HH:MM format
+    const fullDateTimeString = `${scheduleDate}T${sessionTime}:00`;
+    const dateObj = new Date(fullDateTimeString);
+
+    if (isNaN(dateObj.getTime())) {
+      return null;
+    }
+
+    return dateObj;
+  } catch (error) {
+    this.debug("Error creating full datetime:", error);
+    return null;
+  }
+};
+
+NZGDCScheduleWidget.prototype.mergeSchedulesForWidget = function (
+  schedules,
+  eventData,
+) {
+  this.debug("Merging multiple schedules into compatible structure");
+
+  const allTimeSlots = [];
+
+  schedules.forEach((schedule, index) => {
+    const compatibleSchedule = this.createCompatibleScheduleStructure(
+      schedule,
+      eventData,
+    );
+
+    // Add time slots with unique IDs
+    compatibleSchedule.timeSlots.forEach((timeSlot) => {
+      timeSlot.id = `${schedule.id}-${timeSlot.id}`;
+      timeSlot.title = `${schedule.title || "Schedule"} - ${timeSlot.title}`;
+      allTimeSlots.push(timeSlot);
+    });
+  });
+
+  return {
+    id: "merged-schedules",
+    title: "Merged Schedule",
+    timeSlots: allTimeSlots,
+  };
+};
 
 // Note: Auto-initialization is handled by the modular loader
 // to ensure all dependencies are loaded before widget creation

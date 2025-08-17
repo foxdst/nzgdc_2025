@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Friday/Saturday API Integration</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .event-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f8f9fa;
+            border-left: 4px solid #007bff;
+        }
+        .event-title { font-weight: bold; color: #495057; }
+        .event-details { font-size: 0.9em; color: #6c757d; margin-top: 5px; }
+        .speaker-info {
+            margin: 5px 0;
+            padding: 5px 10px;
+            background: #e9ecef;
+            border-radius: 3px;
+        }
+        .copy-content {
+            background: #fff3cd;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 3px;
+            font-size: 0.85em;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        .test-controls {
+            margin-bottom: 20px;
+        }
+        .test-controls button {
+            margin: 5px;
+            padding: 10px 15px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .test-controls button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Friday/Saturday API Integration Test</h1>
+        <p>This test verifies that the Friday/Saturday widget can properly process API data and extract events with rich content (<code>copy</code> fields, speaker bios, etc.)</p>
+
+        <div class="test-controls">
+            <button onclick="runApiDataTest()">Test API Data Processing</button>
+            <button onclick="testFridaySaturdayFiltering()">Test Day Filtering</button>
+            <button onclick="testExpandedEventDetails()">Test Expanded Event Details</button>
+            <button onclick="clearResults()">Clear Results</button>
+        </div>
+
+        <div id="test-results"></div>
+    </div>
+
+    <!-- Load necessary scripts -->
+    <script src="js/data-manager.js"></script>
+    <script src="js/data-transformer.js"></script>
+    <script src="js/expanded-event-details-manager.js"></script>
+    <script src="js/friday-saturday-widget-core.js"></script>
+
+    <script>
+        let testResults = document.getElementById('test-results');
+        let dataManager;
+
+        // Initialize data manager
+        async function initializeDataManager() {
+            try {
+                dataManager = new DataManager({
+                    dataSource: 'local',
+                    localDataPath: './n8n-entegyapi.json'
+                });
+                await dataManager.initialize();
+                addResult('success', 'Data Manager Initialization', 'DataManager initialized successfully with API data');
+                return true;
+            } catch (error) {
+                addResult('error', 'Data Manager Initialization', `Failed to initialize DataManager: ${error.message}`);
+                return false;
+            }
+        }
+
+        // Test API data processing
+        async function runApiDataTest() {
+            clearResults();
+
+            if (!dataManager && !(await initializeDataManager())) {
+                return;
+            }
+
+            try {
+                const schedules = dataManager.getScheduleData();
+                addResult('info', 'API Data Structure', `Loaded ${schedules.length} schedules from API`);
+
+                // Analyze schedule dates
+                schedules.forEach(schedule => {
+                    const scheduleDate = new Date(schedule.date);
+                    const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][scheduleDate.getDay()];
+                    const sessionCount = schedule.sessions ? schedule.sessions.length : 0;
+
+                    addResult('info', `${dayName} Schedule`,
+                        `Date: ${schedule.date}, Sessions: ${sessionCount}`);
+                });
+
+            } catch (error) {
+                addResult('error', 'API Data Test', `Error testing API data: ${error.message}`);
+            }
+        }
+
+        // Test Friday/Saturday filtering
+        async function testFridaySaturdayFiltering() {
+            if (!dataManager && !(await initializeDataManager())) {
+                return;
+            }
+
+            try {
+                const schedules = dataManager.getScheduleData();
+
+                // Find Friday and Saturday schedules
+                const fridaySaturdaySchedules = schedules.filter(schedule => {
+                    const scheduleDate = new Date(schedule.date);
+                    const dayOfWeek = scheduleDate.getDay();
+                    return dayOfWeek === 5 || dayOfWeek === 6; // Friday (5) or Saturday (6)
+                });
+
+                addResult('success', 'Friday/Saturday Filtering',
+                    `Found ${fridaySaturdaySchedules.length} Friday/Saturday schedules`);
+
+                // Test morning filtering
+                let morningEvents = [];
+                let afternoonEvents = [];
+
+                fridaySaturdaySchedules.forEach(schedule => {
+                    if (schedule.sessions) {
+                        schedule.sessions.forEach(session => {
+                            const startTime = session.startTime || "00:00";
+                            const hour = parseInt(startTime.split(":")[0], 10);
+
+                            if (hour < 12) {
+                                morningEvents.push(session);
+                            } else {
+                                afternoonEvents.push(session);
+                            }
+                        });
+                    }
+                });
+
+                addResult('info', 'Time Filtering Results',
+                    `Morning events: ${morningEvents.length}, Afternoon events: ${afternoonEvents.length}`);
+
+                // Show sample events with copy content
+                if (morningEvents.length > 0) {
+                    displaySampleEvents('Morning Events', morningEvents.slice(0, 3));
+                }
+                if (afternoonEvents.length > 0) {
+                    displaySampleEvents('Afternoon Events', afternoonEvents.slice(0, 3));
+                }
+
+            } catch (error) {
+                addResult('error', 'Friday/Saturday Filtering', `Error: ${error.message}`);
+            }
+        }
+
+        // Test expanded event details integration
+        async function testExpandedEventDetails() {
+            if (!dataManager && !(await initializeDataManager())) {
+                return;
+            }
+
+            try {
+                // Get a sample Friday/Saturday event
+                const schedules = dataManager.getScheduleData();
+                const fridaySaturdaySchedules = schedules.filter(schedule => {
+                    const scheduleDate = new Date(schedule.date);
+                    const dayOfWeek = scheduleDate.getDay();
+                    return dayOfWeek === 5 || dayOfWeek === 6;
+                });
+
+                if (fridaySaturdaySchedules.length === 0) {
+                    addResult('error', 'Expanded Event Details Test', 'No Friday/Saturday events found');
+                    return;
+                }
+
+                const sampleSession = fridaySaturdaySchedules[0].sessions?.[0];
+                if (!sampleSession) {
+                    addResult('error', 'Expanded Event Details Test', 'No sample session found');
+                    return;
+                }
+
+                // Test ExpandedEventDetailsManager field adaptation
+                if (typeof ExpandedEventDetailsManager !== 'undefined') {
+                    const manager = new ExpandedEventDetailsManager();
+
+                    // Test event data adaptation
+                    const adaptedEventData = manager.adaptEventData(sampleSession);
+                    addResult('success', 'Event Data Adaptation',
+                        `Event: "${adaptedEventData.title}", Description available: ${adaptedEventData.description !== 'Event description not available.'}`);
+
+                    // Test speaker data adaptation if speakers exist
+                    if (sampleSession.speakers && sampleSession.speakers.length > 0) {
+                        const adaptedSpeakers = manager.adaptSpeakerData(sampleSession.speakers);
+                        addResult('success', 'Speaker Data Adaptation',
+                            `Adapted ${adaptedSpeakers.length} speakers with bios`);
+
+                        // Show sample speaker data
+                        const sampleSpeaker = adaptedSpeakers[0];
+                        displaySpeakerInfo(sampleSpeaker);
+                    }
+                } else {
+                    addResult('error', 'Expanded Event Details Test', 'ExpandedEventDetailsManager not available');
+                }
+
+            } catch (error) {
+                addResult('error', 'Expanded Event Details Test', `Error: ${error.message}`);
+            }
+        }
+
+        // Helper functions
+        function addResult(type, title, message) {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = `test-section ${type}`;
+            resultDiv.innerHTML = `<h3>${title}</h3><p>${message}</p>`;
+            testResults.appendChild(resultDiv);
+        }
+
+        function displaySampleEvents(sectionTitle, events) {
+            const section = document.createElement('div');
+            section.className = 'test-section info';
+            section.innerHTML = `<h3>${sectionTitle}</h3>`;
+
+            events.forEach(event => {
+                const eventDiv = document.createElement('div');
+                eventDiv.className = 'event-item';
+
+                let speakersInfo = '';
+                if (event.speakers && event.speakers.length > 0) {
+                    speakersInfo = event.speakers.map(speaker =>
+                        `<div class="speaker-info">
+                            <strong>${speaker.displayName || speaker.name || 'Speaker'}</strong>
+                            ${speaker.copy ? `<div class="copy-content">${speaker.copy.substring(0, 200)}...</div>` : ''}
+                        </div>`
+                    ).join('');
+                }
+
+                eventDiv.innerHTML = `
+                    <div class="event-title">${event.title}</div>
+                    <div class="event-details">
+                        <strong>Time:</strong> ${event.startTime} - ${event.endTime}<br>
+                        <strong>Stream:</strong> ${event.stream?.title || 'N/A'}<br>
+                        <strong>Room:</strong> ${event.room?.title || 'N/A'}
+                    </div>
+                    ${event.copy ? `<div class="copy-content"><strong>Description:</strong><br>${event.copy.substring(0, 300)}...</div>` : ''}
+                    ${speakersInfo}
+                `;
+                section.appendChild(eventDiv);
+            });
+
+            testResults.appendChild(section);
+        }
+
+        function displaySpeakerInfo(speaker) {
+            const section = document.createElement('div');
+            section.className = 'test-section info';
+            section.innerHTML = `
+                <h3>Sample Speaker Data</h3>
+                <div class="speaker-info">
+                    <strong>Name:</strong> ${speaker.name}<br>
+                    <strong>Position:</strong> ${speaker.position}<br>
+                    <strong>Bio Available:</strong> ${speaker.bio !== 'Speaker bio not available.' ? 'Yes' : 'No'}<br>
+                    <strong>Headshot:</strong> ${speaker.headshot ? 'Available' : 'Not available'}
+                    ${speaker.bio !== 'Speaker bio not available.' ? `<div class="copy-content">${speaker.bio.substring(0, 200)}...</div>` : ''}
+                </div>
+            `;
+            testResults.appendChild(section);
+        }
+
+        function clearResults() {
+            testResults.innerHTML = '';
+        }
+
+        // Auto-initialize when page loads
+        window.addEventListener('load', async () => {
+            addResult('info', 'Test Page Loaded', 'Ready to test Friday/Saturday API integration. Click the buttons above to run tests.');
+        });
+    </script>
+</body>
+</html>

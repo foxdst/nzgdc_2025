@@ -5,7 +5,7 @@
   "use strict";
 
   class FridaySaturdayWidgetCore {
-    constructor(containerId, options = {}) {
+    constructor(containerId, options = {}, dataManager = null) {
       // Generate unique ID for this widget instance first
       this.uniqueId = `friday-saturday-widget-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -24,6 +24,8 @@
         showFilters: true,
         ...options,
       };
+
+      this.dataManager = dataManager; // Store the DataManager instance
 
       // State management
       this.currentView = this.options.defaultView;
@@ -64,7 +66,7 @@
         }
 
         // Set up widget structure
-        this.setupWidgetStructure();
+        await this.setupWidgetStructure();
 
         // Initialize generators
         await this.initializeGenerators();
@@ -86,7 +88,7 @@
       }
     }
 
-    setupWidgetStructure() {
+    async setupWidgetStructure() {
       this.container.className = `nzgdc-friday-saturday-schedule-widget ${this.currentView}-view`;
 
       // Create complete widget structure like the original separate widgets do
@@ -104,7 +106,7 @@
               <div class="nzgdc-morning-filters-value" data-dropdown-trigger="morning-category-dropdown">
                 <span class="nzgdc-morning-filters-value-text">ALL EVENTS ▶</span>
               </div>
-              ${this.generateCategoryDropdownHTML("morning")}
+              ${await this.generateCategoryDropdownHTML("morning")}
             </div>
           </div>
           <div id="morning-schedule-content-${this.uniqueId}" class="nzgdc-morning-schedule-container"></div>
@@ -125,7 +127,7 @@
               <div class="nzgdc-afternoon-filters-value" data-dropdown-trigger="afternoon-category-dropdown">
                 <span class="nzgdc-afternoon-filters-value-text">ALL EVENTS ▶</span>
               </div>
-              ${this.generateCategoryDropdownHTML("afternoon")}
+              ${await this.generateCategoryDropdownHTML("afternoon")}
             </div>
           </div>
           <div id="afternoon-schedule-content-${this.uniqueId}" class="nzgdc-afternoon-schedule-container"></div>
@@ -144,16 +146,16 @@
       );
     }
 
-    generateCategoryDropdownHTML(viewType) {
+    async generateCategoryDropdownHTML(viewType) {
       return `
         <div class="category-dropdown-backdrop" id="${viewType}-category-backdrop"></div>
         <div class="category-dropdown-overlay" id="${viewType}-category-dropdown">
-          ${this.generateCategoryOptions(viewType)}
+          ${await this.generateCategoryOptions(viewType)}
         </div>
       `;
     }
 
-    generateCategoryOptions(viewType) {
+    async generateCategoryOptions(viewType) {
       const allCategories = [
         { key: "GAME_DESIGN", name: "Game Design" },
         { key: "ART", name: "Art" },
@@ -169,7 +171,7 @@
       ];
 
       // Get available categories from the appropriate events data
-      const availableCategories = this.getAvailableCategories(viewType);
+      const availableCategories = await this.getAvailableCategories(viewType);
 
       // Filter to only show categories that exist in the data
       const categories = allCategories.filter((category) =>
@@ -204,14 +206,51 @@
         .join("");
     }
 
-    getAvailableCategories(viewType) {
-      const events =
-        viewType === "morning"
-          ? window.MORNING_EVENTS || {}
-          : window.AFTERNOON_EVENTS || {};
+    async getAvailableCategories(viewType) {
+      let eventsToProcess;
+      if (this.dataManager) {
+        // Get schedule data and filter for Friday/Saturday events
+        const schedules = this.dataManager.getScheduleData();
+        if (schedules && schedules.length > 0) {
+          // Find Friday and Saturday schedules
+          const fridaySaturdaySchedules = schedules.filter((schedule) => {
+            const scheduleDate = new Date(schedule.date);
+            const dayOfWeek = scheduleDate.getDay();
+            return dayOfWeek === 5 || dayOfWeek === 6; // Friday (5) or Saturday (6)
+          });
+
+          // Extract events from Friday/Saturday sessions and filter by time
+          eventsToProcess = [];
+          fridaySaturdaySchedules.forEach((schedule) => {
+            if (schedule.sessions) {
+              const filteredSessions = schedule.sessions.filter((session) => {
+                // Parse time to determine morning vs afternoon
+                const startTime = session.startTime || "00:00";
+                const hour = parseInt(startTime.split(":")[0], 10);
+
+                if (viewType === "morning") {
+                  return hour < 12; // Events before noon
+                } else if (viewType === "afternoon") {
+                  return hour >= 12; // Events from noon onwards
+                }
+                return false;
+              });
+              eventsToProcess.push(...filteredSessions);
+            }
+          });
+        } else {
+          eventsToProcess = [];
+        }
+      } else {
+        eventsToProcess =
+          viewType === "morning"
+            ? window.MORNING_EVENTS || {}
+            : window.AFTERNOON_EVENTS || {};
+        eventsToProcess = Object.values(eventsToProcess); // Ensure it's an array for consistency
+      }
 
       const categories = new Set();
-      Object.values(events).forEach((event) => {
+      eventsToProcess.forEach((event) => {
         if (event.categoryKey) {
           categories.add(event.categoryKey);
         }
@@ -298,6 +337,68 @@
           filterText.textContent = currentText.replace("▼", "▶");
         }
       }
+    }
+
+    // Clean HTML content by removing problematic tags while preserving content
+    cleanHtmlContent(htmlContent) {
+      if (!htmlContent) return "";
+
+      // Step 1: Remove problematic paragraph tags with inline styles
+      let cleanedContent = htmlContent
+        .replace(/<p\s+style="[^"]*display:\s*block[^"]*">/gi, "")
+        .replace(/<p\s+style="[^"]*min-height[^"]*">/gi, "")
+        .replace(/<p\s+style="">/gi, "")
+        .replace(/<p\s+style=""\s*>/gi, "");
+
+      // Step 2: Remove problematic span tags with inline styles
+      cleanedContent = cleanedContent
+        .replace(/<span\s+style="[^"]*color:\s*rgb\([^)]+\)[^"]*">/gi, "")
+        .replace(/<span\s+style="">/gi, "")
+        .replace(/<\/span>/gi, "");
+
+      // Step 3: Remove empty paragraph tags
+      cleanedContent = cleanedContent
+        .replace(/<p>\s*<\/p>/gi, "")
+        .replace(/<p><\/p>/gi, "");
+
+      // Step 4: Convert remaining closing paragraph tags to spaces
+      cleanedContent = cleanedContent.replace(/<\/p>/gi, " ");
+
+      // Step 5: Remove any remaining opening paragraph tags
+      cleanedContent = cleanedContent.replace(/<p>/gi, "");
+
+      // Step 6: Clean up extra whitespace
+      cleanedContent = cleanedContent.replace(/\s+/g, " ").trim();
+
+      return cleanedContent;
+    }
+
+    // Map API stream titles to category keys
+    mapStreamTitleToCategoryKey(streamTitle) {
+      if (!streamTitle) return "ALL";
+
+      const streamTitleMap = {
+        "Game Design": "GAME_DESIGN",
+        Art: "ART",
+        Programming: "PROGRAMMING",
+        Audio: "AUDIO",
+        "Story and Narrative": "STORY_NARRATIVE",
+        "Business & Marketing": "BUSINESS_MARKETING",
+        Culture: "CULTURE",
+        "Production & QA": "PRODUCTION_QA",
+        "Realities (AR, MR, VR)": "REALITIES_VR_AR_MR",
+        "Data, Testing & Research": "DATA_TESTING_RESEARCH",
+        "Serious & Educational Games": "SERIOUS_EDUCATIONAL",
+      };
+
+      return streamTitleMap[streamTitle] || "ALL";
+    }
+
+    // Determine panel type based on speaker count
+    determinePanelType(speakers) {
+      const speakerCount =
+        speakers && Array.isArray(speakers) ? speakers.length : 0;
+      return speakerCount >= 2 ? "big" : "main";
     }
 
     // Get category CSS class based on category key
@@ -484,9 +585,151 @@
       }
 
       try {
-        // Generate morning schedule directly into container
+        // Get schedule data
+        let morningScheduleData;
+        let morningEventData;
+
+        if (this.dataManager) {
+          // Get schedule data from DataManager and create compatible structure
+          const schedules = this.dataManager.getScheduleData();
+
+          this.debugLog("Friday/Saturday Morning View - DataManager data:", {
+            schedules: schedules?.length || 0,
+          });
+
+          if (schedules && schedules.length > 0) {
+            // Create compatible schedule structure for morning view
+            morningScheduleData =
+              this.createCompatibleMorningSchedule(schedules);
+
+            // Extract morning event data from Friday/Saturday sessions
+            morningEventData = {};
+            this.debugLog(
+              "Processing schedules for morning events:",
+              schedules.length,
+            );
+            schedules.forEach((schedule) => {
+              const scheduleDate = new Date(schedule.date);
+              const dayOfWeek = scheduleDate.getDay();
+              const dayName = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][
+                dayOfWeek
+              ];
+
+              this.debugLog(
+                `Processing ${dayName} schedule (${schedule.date}) with ${schedule.sessions?.length || 0} sessions`,
+              );
+
+              // Only process Friday (5) and Saturday (6) schedules
+              if ((dayOfWeek === 5 || dayOfWeek === 6) && schedule.sessions) {
+                schedule.sessions.forEach((session) => {
+                  const startTime = session.startTime || "00:00";
+                  const hour = parseInt(startTime.split(":")[0], 10);
+
+                  // Morning events (before noon)
+                  if (hour < 12) {
+                    // Determine thumbnail - use event thumbnail or fallback to first speaker headshot
+                    let thumbnailUrl = session.thumbnail || "";
+
+                    if (
+                      !thumbnailUrl &&
+                      session.speakers &&
+                      session.speakers.length > 0
+                    ) {
+                      const firstSpeaker = session.speakers[0];
+                      thumbnailUrl =
+                        firstSpeaker.speakerImage ||
+                        firstSpeaker.image ||
+                        firstSpeaker.headshot ||
+                        "";
+                    }
+
+                    morningEventData[session.id] = {
+                      id: session.id,
+                      title: session.title,
+                      copy: this.cleanHtmlContent(
+                        session.copy || session.description || "",
+                      ),
+                      description: this.cleanHtmlContent(
+                        session.copy || session.description || "",
+                      ),
+                      synopsis: this.cleanHtmlContent(
+                        session.copy || session.description || "",
+                      ),
+                      category: session.stream?.title || "Event",
+                      categoryKey: this.mapStreamTitleToCategoryKey(
+                        session.stream?.title,
+                      ),
+                      timeframe: `${session.startTime || ""} - ${session.endTime || ""}`,
+                      startTime: session.startTime,
+                      endTime: session.endTime,
+                      speakers: (session.speakers || []).map((speaker) => ({
+                        id: speaker.id,
+                        name: speaker.displayName || speaker.name || "Speaker",
+                        displayName:
+                          speaker.displayName || speaker.name || "Speaker",
+                        position: speaker.position || speaker.title || "",
+                        title: speaker.position || speaker.title || "",
+                        bio: this.cleanHtmlContent(
+                          speaker.copy || speaker.bio || "",
+                        ),
+                        copy: this.cleanHtmlContent(
+                          speaker.copy || speaker.bio || "",
+                        ),
+                        description: this.cleanHtmlContent(
+                          speaker.copy || speaker.bio || "",
+                        ),
+                        email: speaker.email || "",
+                        website: speaker.website || speaker.web || "",
+                        headshot:
+                          speaker.speakerImage ||
+                          speaker.image ||
+                          speaker.headshot ||
+                          "",
+                        speakerImage:
+                          speaker.speakerImage ||
+                          speaker.image ||
+                          speaker.headshot ||
+                          "",
+                        image:
+                          speaker.speakerImage ||
+                          speaker.image ||
+                          speaker.headshot ||
+                          "",
+                      })),
+                      room: session.room,
+                      stream: session.stream,
+                      type: session.type,
+                      thumbnail: thumbnailUrl,
+                    };
+                    const panelType = this.determinePanelType(session.speakers);
+                    this.debugLog(
+                      `Added morning event: "${session.title}" with ${session.speakers?.length || 0} speakers, panel type: "${panelType}", thumbnail: ${thumbnailUrl ? "YES" : "NO"}, stream: "${session.stream?.title}"`,
+                    );
+                  }
+                });
+              }
+            });
+          } else {
+            throw new Error("No schedule data found in DataManager");
+          }
+
+          this.debugLog(
+            `Total morning events extracted: ${Object.keys(morningEventData).length}`,
+          );
+        } else {
+          morningScheduleData = window.MORNING_SCHEDULE_DATA;
+          morningEventData = window.MORNING_EVENTS;
+        }
+        // Generate morning schedule directly into container, passing eventData
+        this.debugLog("Calling morningGenerator.renderSchedule with:", {
+          scheduleData: morningScheduleData,
+          eventData: morningEventData
+            ? Object.keys(morningEventData).length + " events"
+            : "null/undefined",
+        });
         await this.morningGenerator.renderSchedule(
-          window.MORNING_SCHEDULE_DATA,
+          morningScheduleData,
+          morningEventData,
         );
 
         // Wire up the existing Morning/Afternoon Events buttons in the generated content
@@ -509,9 +752,151 @@
       }
 
       try {
-        // Generate afternoon schedule directly into container
+        // Get schedule data
+        let afternoonScheduleData;
+        let afternoonEventData;
+
+        if (this.dataManager) {
+          // Get schedule data from DataManager and create compatible structure
+          const schedules = this.dataManager.getScheduleData();
+
+          this.debugLog("Friday/Saturday Afternoon View - DataManager data:", {
+            schedules: schedules?.length || 0,
+          });
+
+          if (schedules && schedules.length > 0) {
+            // Create compatible schedule structure for afternoon view
+            afternoonScheduleData =
+              this.createCompatibleAfternoonSchedule(schedules);
+
+            // Extract afternoon event data from Friday/Saturday sessions
+            afternoonEventData = {};
+            this.debugLog(
+              "Processing schedules for afternoon events:",
+              schedules.length,
+            );
+            schedules.forEach((schedule) => {
+              const scheduleDate = new Date(schedule.date);
+              const dayOfWeek = scheduleDate.getDay();
+              const dayName = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][
+                dayOfWeek
+              ];
+
+              this.debugLog(
+                `Processing ${dayName} schedule (${schedule.date}) with ${schedule.sessions?.length || 0} sessions`,
+              );
+
+              // Only process Friday (5) and Saturday (6) schedules
+              if ((dayOfWeek === 5 || dayOfWeek === 6) && schedule.sessions) {
+                schedule.sessions.forEach((session) => {
+                  const startTime = session.startTime || "00:00";
+                  const hour = parseInt(startTime.split(":")[0], 10);
+
+                  // Afternoon events (noon and after)
+                  if (hour >= 12) {
+                    // Determine thumbnail - use event thumbnail or fallback to first speaker headshot
+                    let thumbnailUrl = session.thumbnail || "";
+
+                    if (
+                      !thumbnailUrl &&
+                      session.speakers &&
+                      session.speakers.length > 0
+                    ) {
+                      const firstSpeaker = session.speakers[0];
+                      thumbnailUrl =
+                        firstSpeaker.speakerImage ||
+                        firstSpeaker.image ||
+                        firstSpeaker.headshot ||
+                        "";
+                    }
+
+                    afternoonEventData[session.id] = {
+                      id: session.id,
+                      title: session.title,
+                      copy: this.cleanHtmlContent(
+                        session.copy || session.description || "",
+                      ),
+                      description: this.cleanHtmlContent(
+                        session.copy || session.description || "",
+                      ),
+                      synopsis: this.cleanHtmlContent(
+                        session.copy || session.description || "",
+                      ),
+                      category: session.stream?.title || "Event",
+                      categoryKey: this.mapStreamTitleToCategoryKey(
+                        session.stream?.title,
+                      ),
+                      timeframe: `${session.startTime || ""} - ${session.endTime || ""}`,
+                      startTime: session.startTime,
+                      endTime: session.endTime,
+                      speakers: (session.speakers || []).map((speaker) => ({
+                        id: speaker.id,
+                        name: speaker.displayName || speaker.name || "Speaker",
+                        displayName:
+                          speaker.displayName || speaker.name || "Speaker",
+                        position: speaker.position || speaker.title || "",
+                        title: speaker.position || speaker.title || "",
+                        bio: this.cleanHtmlContent(
+                          speaker.copy || speaker.bio || "",
+                        ),
+                        copy: this.cleanHtmlContent(
+                          speaker.copy || speaker.bio || "",
+                        ),
+                        description: this.cleanHtmlContent(
+                          speaker.copy || speaker.bio || "",
+                        ),
+                        email: speaker.email || "",
+                        website: speaker.website || speaker.web || "",
+                        headshot:
+                          speaker.speakerImage ||
+                          speaker.image ||
+                          speaker.headshot ||
+                          "",
+                        speakerImage:
+                          speaker.speakerImage ||
+                          speaker.image ||
+                          speaker.headshot ||
+                          "",
+                        image:
+                          speaker.speakerImage ||
+                          speaker.image ||
+                          speaker.headshot ||
+                          "",
+                      })),
+                      room: session.room,
+                      stream: session.stream,
+                      type: session.type,
+                      thumbnail: thumbnailUrl,
+                    };
+                    const panelType = this.determinePanelType(session.speakers);
+                    this.debugLog(
+                      `Added afternoon event: "${session.title}" with ${session.speakers?.length || 0} speakers, panel type: "${panelType}", thumbnail: ${thumbnailUrl ? "YES" : "NO"}, stream: "${session.stream?.title}"`,
+                    );
+                  }
+                });
+              }
+            });
+          } else {
+            throw new Error("No schedule data found in DataManager");
+          }
+
+          this.debugLog(
+            `Total afternoon events extracted: ${Object.keys(afternoonEventData).length}`,
+          );
+        } else {
+          afternoonScheduleData = window.AFTERNOON_SCHEDULE_DATA;
+          afternoonEventData = window.AFTERNOON_EVENTS;
+        }
+        // Generate afternoon schedule directly into container, passing eventData
+        this.debugLog("Calling afternoonGenerator.renderSchedule with:", {
+          scheduleData: afternoonScheduleData,
+          eventData: afternoonEventData
+            ? Object.keys(afternoonEventData).length + " events"
+            : "null/undefined",
+        });
         await this.afternoonGenerator.renderSchedule(
-          window.AFTERNOON_SCHEDULE_DATA,
+          afternoonScheduleData,
+          afternoonEventData,
         );
 
         // Wire up the existing Morning/Afternoon Events buttons in the generated content
@@ -899,6 +1284,175 @@
           this.debugLog(`Error in event listener for ${event}:`, error);
         }
       });
+    }
+
+    // Helper method to filter schedule by time (morning/afternoon)
+    filterScheduleByTime(schedule, viewType) {
+      const filteredSchedule = {};
+      for (const timeSlot in schedule) {
+        if (schedule.hasOwnProperty(timeSlot)) {
+          const eventsInSlot = schedule[timeSlot];
+          const [hourStr] = timeSlot.split(":");
+          const hour = parseInt(hourStr, 10);
+
+          let includeTimeSlot = false;
+          if (viewType === "morning" && hour < 12) {
+            includeTimeSlot = true;
+          } else if (viewType === "afternoon" && hour >= 12) {
+            includeTimeSlot = true;
+          }
+
+          if (includeTimeSlot) {
+            filteredSchedule[timeSlot] = eventsInSlot;
+          }
+        }
+      }
+      return filteredSchedule;
+    }
+
+    // Create compatible morning schedule structure from DataManager data
+    createCompatibleMorningSchedule(schedules) {
+      this.debugLog("Creating compatible morning schedule structure");
+
+      // Find Friday and Saturday schedules
+      const fridaySaturdaySchedules = schedules.filter((schedule) => {
+        const scheduleDate = new Date(schedule.date);
+        const dayOfWeek = scheduleDate.getDay();
+        return dayOfWeek === 5 || dayOfWeek === 6; // Friday (5) or Saturday (6)
+      });
+
+      this.debugLog(
+        `Found ${fridaySaturdaySchedules.length} Friday/Saturday schedules`,
+      );
+
+      // Extract morning sessions from Friday/Saturday schedules
+      const morningEvents = [];
+      fridaySaturdaySchedules.forEach((schedule) => {
+        if (schedule.sessions) {
+          const morningSessions = schedule.sessions.filter((session) => {
+            const startTime = session.startTime || "00:00";
+            const hour = parseInt(startTime.split(":")[0], 10);
+            return hour < 12; // Morning events (before noon)
+          });
+          morningEvents.push(...morningSessions);
+        }
+      });
+
+      this.debugLog(
+        `Filtered to ${morningEvents.length} Friday/Saturday morning events`,
+      );
+
+      const scheduleStructure = {
+        id: "morning-schedule",
+        title: "Morning Events",
+        timeSlots: [
+          {
+            id: "morning",
+            timeRange: "9.00am - 12.00pm",
+            title: "Morning Events",
+            theme: "a",
+            events: morningEvents.map((session) => ({
+              id: session.id,
+              category: session.stream?.title || "General",
+              title: session.title,
+              type: this.determinePanelType(session.speakers),
+            })),
+          },
+        ],
+      };
+
+      this.debugLog("Generated morning schedule structure:", scheduleStructure);
+      return scheduleStructure;
+    }
+
+    // Create compatible afternoon schedule structure from DataManager data
+    createCompatibleAfternoonSchedule(schedules) {
+      this.debugLog("Creating compatible afternoon schedule structure");
+
+      // Find Friday and Saturday schedules
+      const fridaySaturdaySchedules = schedules.filter((schedule) => {
+        const scheduleDate = new Date(schedule.date);
+        const dayOfWeek = scheduleDate.getDay();
+        return dayOfWeek === 5 || dayOfWeek === 6; // Friday (5) or Saturday (6)
+      });
+
+      this.debugLog(
+        `Found ${fridaySaturdaySchedules.length} Friday/Saturday schedules`,
+      );
+
+      // Extract afternoon sessions from Friday/Saturday schedules
+      const afternoonEvents = [];
+      fridaySaturdaySchedules.forEach((schedule) => {
+        if (schedule.sessions) {
+          const afternoonSessions = schedule.sessions.filter((session) => {
+            const startTime = session.startTime || "00:00";
+            const hour = parseInt(startTime.split(":")[0], 10);
+            return hour >= 12; // Afternoon events (noon and after)
+          });
+          afternoonEvents.push(...afternoonSessions);
+        }
+      });
+
+      this.debugLog(
+        `Filtered to ${afternoonEvents.length} Friday/Saturday afternoon events`,
+      );
+
+      const scheduleStructure = {
+        id: "afternoon-schedule",
+        title: "Afternoon Events",
+        timeSlots: [
+          {
+            id: "afternoon",
+            timeRange: "12.00pm - 5.00pm",
+            title: "Afternoon Events",
+            theme: "b",
+            events: afternoonEvents.map((session) => ({
+              id: session.id,
+              category: session.stream?.title || "General",
+              title: session.title,
+              type: this.determinePanelType(session.speakers),
+            })),
+          },
+        ],
+      };
+
+      this.debugLog(
+        "Generated afternoon schedule structure:",
+        scheduleStructure,
+      );
+      return scheduleStructure;
+    }
+
+    // Helper method to create full datetime from schedule date and session time
+    createFullDateTime(schedules, event) {
+      if (!event.startTime) {
+        return null;
+      }
+
+      // Find the schedule that contains this event
+      for (const schedule of schedules) {
+        if (schedule.date && schedule.sessions) {
+          // Check if this event is in this schedule's sessions
+          const eventInSchedule = schedule.sessions.find(
+            (session) => session.id === event.id,
+          );
+          if (eventInSchedule) {
+            try {
+              // Combine schedule date with event time
+              const fullDateTimeString = `${schedule.date}T${event.startTime}:00`;
+              const dateObj = new Date(fullDateTimeString);
+
+              if (!isNaN(dateObj.getTime())) {
+                return dateObj;
+              }
+            } catch (error) {
+              this.debugLog("Error creating full datetime:", error);
+            }
+          }
+        }
+      }
+
+      return null;
     }
   }
 

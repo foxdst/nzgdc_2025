@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataManager Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .status.success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .status.error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .status.info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .data-display {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DataManager Test</h1>
+
+        <div class="test-section">
+            <h2>DataManager Initialization</h2>
+            <div id="init-status" class="status info">Waiting for initialization...</div>
+            <button onclick="testDataManager()" id="test-btn">Test DataManager</button>
+            <button onclick="testDataRefresh()" id="refresh-btn" disabled>Test Data Refresh</button>
+        </div>
+
+        <div class="test-section">
+            <h2>Data Summary</h2>
+            <div id="data-summary" class="data-display">No data loaded yet</div>
+        </div>
+
+        <div class="test-section">
+            <h2>Sample Events</h2>
+            <div id="sample-events" class="data-display">No events loaded yet</div>
+        </div>
+
+        <div class="test-section">
+            <h2>Console Output</h2>
+            <div id="console-output" class="data-display">Console messages will appear here</div>
+        </div>
+    </div>
+
+    <!-- Load dependencies in correct order -->
+    <script src="../js/data-transformer.js"></script>
+    <script src="../js/data-manager.js"></script>
+
+    <script>
+        let dataManagerInstance = null;
+        let originalConsoleLog = console.log;
+        let originalConsoleError = console.error;
+        let originalConsoleWarn = console.warn;
+
+        // Capture console output
+        const consoleOutput = document.getElementById('console-output');
+        function logToPage(type, ...args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg =>
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            consoleOutput.textContent += `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, arguments);
+            logToPage('log', ...args);
+        };
+
+        console.error = function(...args) {
+            originalConsoleError.apply(console, arguments);
+            logToPage('error', ...args);
+        };
+
+        console.warn = function(...args) {
+            originalConsoleWarn.apply(console, arguments);
+            logToPage('warn', ...args);
+        };
+
+        function updateStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+        }
+
+        function updateDataSummary(dataManager) {
+            const summary = document.getElementById('data-summary');
+            if (!dataManager) {
+                summary.textContent = 'No DataManager instance available';
+                return;
+            }
+
+            try {
+                const events = dataManager.getAllEvents();
+                const schedules = dataManager.getScheduleData();
+                const speakers = Array.from(dataManager.getSpeakerData().values());
+                const categories = Array.from(dataManager.getCategoryData().values());
+
+                const summaryText = `Data Summary:
+• Events: ${events.length}
+• Schedules: ${schedules.length}
+• Speakers: ${speakers.length}
+• Categories: ${categories.length}
+• DataManager initialized: ${dataManager.isDataManagerInitialized()}`;
+
+                summary.textContent = summaryText;
+            } catch (error) {
+                summary.textContent = `Error getting data summary: ${error.message}`;
+            }
+        }
+
+        function updateSampleEvents(dataManager) {
+            const sampleEventsDiv = document.getElementById('sample-events');
+            if (!dataManager) {
+                sampleEventsDiv.textContent = 'No DataManager instance available';
+                return;
+            }
+
+            try {
+                const events = dataManager.getAllEvents();
+                const sampleEvents = events.slice(0, 3); // Show first 3 events
+
+                let eventsText = 'Sample Events:\n\n';
+                sampleEvents.forEach((event, index) => {
+                    eventsText += `${index + 1}. ID: ${event.id}
+   Title: ${event.title}
+   Start: ${event.startTime}
+   End: ${event.endTime}
+   Room: ${event.room?.name || 'N/A'}
+   Speakers: ${event.speakers?.map(s => s.name).join(', ') || 'N/A'}
+
+`;
+                });
+
+                sampleEventsDiv.textContent = eventsText;
+            } catch (error) {
+                sampleEventsDiv.textContent = `Error getting sample events: ${error.message}`;
+            }
+        }
+
+        async function testDataManager() {
+            updateStatus('init-status', 'Testing DataManager...', 'info');
+
+            try {
+                // Check if DataManager class is available
+                if (typeof DataManager === 'undefined') {
+                    throw new Error('DataManager class is not available. Check if data-manager.js loaded correctly.');
+                }
+
+                console.log('DataManager class is available');
+
+                // Create DataManager instance
+                dataManagerInstance = new DataManager({
+                    dataSource: 'local',
+                    localDataPath: './n8n-entegyapi.json'
+                });
+
+                console.log('DataManager instance created');
+
+                // Initialize DataManager
+                const success = await dataManagerInstance.initialize();
+
+                if (success) {
+                    updateStatus('init-status', 'DataManager initialized successfully!', 'success');
+                    document.getElementById('refresh-btn').disabled = false;
+
+                    // Update displays
+                    updateDataSummary(dataManagerInstance);
+                    updateSampleEvents(dataManagerInstance);
+
+                    console.log('DataManager test completed successfully');
+                } else {
+                    throw new Error('DataManager initialization returned false');
+                }
+
+            } catch (error) {
+                updateStatus('init-status', `DataManager test failed: ${error.message}`, 'error');
+                console.error('DataManager test failed:', error);
+            }
+        }
+
+        async function testDataRefresh() {
+            if (!dataManagerInstance) {
+                updateStatus('init-status', 'No DataManager instance available for refresh test', 'error');
+                return;
+            }
+
+            updateStatus('init-status', 'Testing data refresh...', 'info');
+
+            try {
+                const success = await dataManagerInstance.refreshData();
+
+                if (success) {
+                    updateStatus('init-status', 'Data refresh completed successfully!', 'success');
+
+                    // Update displays with refreshed data
+                    updateDataSummary(dataManagerInstance);
+                    updateSampleEvents(dataManagerInstance);
+
+                    console.log('Data refresh test completed successfully');
+                } else {
+                    throw new Error('Data refresh returned false');
+                }
+
+            } catch (error) {
+                updateStatus('init-status', `Data refresh failed: ${error.message}`, 'error');
+                console.error('Data refresh failed:', error);
+            }
+        }
+
+        // Initialize when page loads
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, checking for dependencies...');
+
+            // Check if dependencies are loaded
+            setTimeout(() => {
+                if (typeof DataManager !== 'undefined') {
+                    console.log('Dependencies loaded successfully');
+                    updateStatus('init-status', 'Dependencies loaded. Click "Test DataManager" to begin.', 'info');
+                } else {
+                    updateStatus('init-status', 'Dependencies not loaded. Check console for errors.', 'error');
+                    console.error('DataManager not found. Check if scripts loaded correctly.');
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

@@ -206,6 +206,14 @@ class ExpandedEventDetailsManager {
         await this.loadTemplate();
       }
 
+      // Recreate overlay if it was removed from DOM
+      if (
+        !this.overlayContainer ||
+        !document.body.contains(this.overlayContainer)
+      ) {
+        await this.loadTemplate();
+      }
+
       // Validate event data
       if (!this.validateEventData(eventData)) {
         throw new Error("Invalid event data provided");
@@ -290,6 +298,7 @@ class ExpandedEventDetailsManager {
       description:
         eventData.description ||
         eventData.synopsis ||
+        eventData.copy ||
         "Event description not available.",
       speakers: this.adaptSpeakerData(eventData.speakers || []),
       audienceTags: this.extractAudienceTags(eventData),
@@ -306,12 +315,17 @@ class ExpandedEventDetailsManager {
     }
 
     return speakers.map((speaker) => ({
-      name: speaker.name || "Speaker Name",
+      name: speaker.name || speaker.displayName || "Speaker Name",
       position: speaker.position || speaker.title || "Position",
-      bio: speaker.bio || speaker.description || "Speaker bio not available.",
+      bio:
+        speaker.bio ||
+        speaker.description ||
+        speaker.copy ||
+        "Speaker bio not available.",
       email: speaker.email || null,
       website: speaker.website || null,
-      headshot: speaker.headshot || speaker.image || null,
+      headshot:
+        speaker.headshot || speaker.image || speaker.speakerImage || null,
     }));
   }
 
@@ -324,6 +338,11 @@ class ExpandedEventDetailsManager {
 
     if (eventData.audience && Array.isArray(eventData.audience)) {
       return eventData.audience;
+    }
+
+    // Handle Friday/Saturday API categories array
+    if (eventData.categories && Array.isArray(eventData.categories)) {
+      return eventData.categories.map((cat) => cat.name || cat);
     }
 
     if (eventData.category) {
@@ -365,7 +384,8 @@ class ExpandedEventDetailsManager {
     speakers.forEach((speaker, index) => {
       const speakerItem = document.createElement("div");
       speakerItem.className = "nzgdc-speaker-name-item";
-      speakerItem.textContent = speaker.name;
+      speakerItem.textContent =
+        speaker.name || speaker.displayName || "Speaker TBA";
       speakersListElement.appendChild(speakerItem);
     });
   }
@@ -376,7 +396,7 @@ class ExpandedEventDetailsManager {
       "#expanded-event-synopsis",
     );
     if (descriptionElement) {
-      descriptionElement.textContent = description;
+      descriptionElement.innerHTML = description;
     }
   }
 
@@ -481,7 +501,7 @@ class ExpandedEventDetailsManager {
     if (speaker.headshot) {
       const img = document.createElement("img");
       img.src = speaker.headshot;
-      img.alt = speaker.name;
+      img.alt = speaker.name || speaker.displayName || "Speaker";
       headshotDiv.appendChild(img);
     } else {
       const placeholder = document.createElement("div");
@@ -516,17 +536,17 @@ class ExpandedEventDetailsManager {
     // Speaker name
     const nameDiv = document.createElement("div");
     nameDiv.className = "nzgdc-expanded-speaker-name";
-    nameDiv.textContent = speaker.name;
+    nameDiv.textContent = speaker.name || speaker.displayName || "Speaker Name";
 
     // Speaker position
     const positionDiv = document.createElement("div");
     positionDiv.className = "nzgdc-expanded-speaker-position";
-    positionDiv.textContent = speaker.position;
+    positionDiv.textContent = speaker.position || "Position";
 
     // Speaker bio description
     const descriptionDiv = document.createElement("div");
     descriptionDiv.className = "nzgdc-expanded-speaker-description";
-    descriptionDiv.textContent = speaker.bio;
+    descriptionDiv.innerHTML = speaker.bio || "Bio information not available";
 
     // Contact information
     const contactDiv = document.createElement("div");
@@ -600,6 +620,13 @@ class ExpandedEventDetailsManager {
     setTimeout(() => {
       if (this.overlayContainer) {
         this.overlayContainer.style.display = "none";
+
+        // CRITICAL: Remove the overlay completely from DOM to prevent click blocking
+        if (this.overlayContainer.parentNode) {
+          this.overlayContainer.parentNode.removeChild(this.overlayContainer);
+        }
+
+        this.overlayContainer = null;
       }
 
       // Restore body scroll
@@ -672,6 +699,9 @@ class ExpandedEventDetailsManager {
 // Export for module systems
 if (typeof module !== "undefined" && module.exports) {
   module.exports = ExpandedEventDetailsManager;
-} else if (typeof window !== "undefined") {
+} else if (
+  typeof window !== "undefined" &&
+  !window.ExpandedEventDetailsManager
+) {
   window.ExpandedEventDetailsManager = ExpandedEventDetailsManager;
 }

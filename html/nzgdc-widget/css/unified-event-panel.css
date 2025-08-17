@@ -48,7 +48,6 @@
     position: absolute;
     top: 0;
     left: 0;
-    z-index: -1;
     background-size: cover;
     background-position: center;
 }
@@ -79,6 +78,7 @@
     width: 260px;
     height: 61px;
     cursor: pointer;
+    background: transparent;
 }
 
 .nzgdc-open-marker-big {
@@ -98,7 +98,7 @@
     text-align: center;
     line-height: 21px;
     overflow-wrap: break-word;
-    margin: 0;
+    background: transparent;
 }
 
 /* Event Panel Details (Right Side) */
@@ -352,7 +352,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    z-index: -1;
+    z-index: 0;
     background-size: cover;
     background-position: center;
 }
@@ -410,6 +410,7 @@
     align-items: center;
     gap: 8px;
     cursor: pointer;
+    background: transparent;
 }
 
 .nzgdc-open-marker-main {

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basic Module Loading Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .console-log {
+            background-color: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+        }
+        .module-status {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .module-item {
+            padding: 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+        .module-available {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .module-missing {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Basic Module Loading Test</h1>
+        <p>This test loads the NZGDC widget modules step by step to identify any loading issues.</p>
+
+        <div class="test-section">
+            <h2>Module Loading Status</h2>
+            <button onclick="checkModules()">Check All Modules</button>
+            <button onclick="testDataManager()">Test DataManager</button>
+            <button onclick="clearLogs()">Clear Logs</button>
+            <div id="module-status" class="module-status"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>Console Output</h2>
+            <div id="console-output" class="console-log">Console output will appear here...</div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test Results</h2>
+            <div id="test-results" class="status info">Click "Check All Modules" to begin testing</div>
+        </div>
+    </div>
+
+    <!-- Load scripts in dependency order -->
+    <!-- Core data structures first -->
+    <script src="../js/schedule-data.js"></script>
+    <script src="../js/workshop-events.js"></script>
+    <script src="../js/morning-schedule-data.js"></script>
+    <script src="../js/morning-events.js"></script>
+    <script src="../js/afternoon-schedule-data.js"></script>
+    <script src="../js/afternoon-events.js"></script>
+
+    <!-- Utility modules -->
+    <script src="../js/unified-event-loader.js"></script>
+    <script src="../js/schedule-generator.js"></script>
+    <script src="../js/morning-schedule-generator.js"></script>
+    <script src="../js/afternoon-schedule-generator.js"></script>
+    <script src="../js/expanded-event-details-manager.js"></script>
+
+    <!-- API modules -->
+    <script src="../js/data-transformer.js"></script>
+    <script src="../js/data-manager.js"></script>
+    <script src="../js/event-api.js"></script>
+    <script src="../js/schedule-api.js"></script>
+    <script src="../js/speaker-api.js"></script>
+    <script src="../js/category-api.js"></script>
+    <script src="../js/room-api.js"></script>
+    <script src="../js/stream-api.js"></script>
+    <script src="../js/session-type-api.js"></script>
+
+    <!-- Widget core modules -->
+    <script src="../js/widget-core.js"></script>
+    <script src="../js/friday-saturday-widget-core.js"></script>
+
+    <!-- Modular widget entry points -->
+    <script src="../nzgdc-schedule-widget-modular.js"></script>
+    <script src="../nzgdc-friday-saturday-schedule-widget-modular.js"></script>
+
+    <script>
+        // Console capturing
+        const consoleOutput = document.getElementById('console-output');
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        function logToPage(type, ...args) {
+            const timestamp = new Date().toLocaleTimeString();
+            const message = args.map(arg =>
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ');
+            consoleOutput.textContent += `[${timestamp}] ${type.toUpperCase()}: ${message}\n`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            originalLog.apply(console, arguments);
+            logToPage('log', ...args);
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, arguments);
+            logToPage('error', ...args);
+        };
+
+        console.warn = function(...args) {
+            originalWarn.apply(console, arguments);
+            logToPage('warn', ...args);
+        };
+
+        // Test functions
+        function clearLogs() {
+            consoleOutput.textContent = 'Console cleared...\n';
+            document.getElementById('test-results').textContent = 'Logs cleared. Ready for new tests.';
+            document.getElementById('test-results').className = 'status info';
+        }
+
+        function checkModules() {
+            console.log('=== MODULE LOADING TEST ===');
+
+            const modules = {
+                // Core data structures
+                'SCHEDULE_DATA': typeof SCHEDULE_DATA !== 'undefined',
+                'WORKSHOP_EVENTS': typeof WORKSHOP_EVENTS !== 'undefined',
+                'MORNING_SCHEDULE_DATA': typeof MORNING_SCHEDULE_DATA !== 'undefined',
+                'MORNING_EVENTS': typeof MORNING_EVENTS !== 'undefined',
+                'AFTERNOON_SCHEDULE_DATA': typeof AFTERNOON_SCHEDULE_DATA !== 'undefined',
+                'AFTERNOON_EVENTS': typeof AFTERNOON_EVENTS !== 'undefined',
+
+                // Utility modules
+                'UnifiedEventLoader': typeof UnifiedEventLoader !== 'undefined',
+                'ScheduleGenerator': typeof ScheduleGenerator !== 'undefined',
+                'MorningScheduleGenerator': typeof MorningScheduleGenerator !== 'undefined',
+                'AfternoonScheduleGenerator': typeof AfternoonScheduleGenerator !== 'undefined',
+                'ExpandedEventDetailsManager': typeof ExpandedEventDetailsManager !== 'undefined',
+
+                // API modules
+                'DataTransformer': typeof DataTransformer !== 'undefined',
+                'DataManager': typeof DataManager !== 'undefined',
+                'EventAPI': typeof EventAPI !== 'undefined',
+                'ScheduleAPI': typeof ScheduleAPI !== 'undefined',
+                'SpeakerAPI': typeof SpeakerAPI !== 'undefined',
+                'CategoryAPI': typeof CategoryAPI !== 'undefined',
+                'RoomAPI': typeof RoomAPI !== 'undefined',
+                'StreamAPI': typeof StreamAPI !== 'undefined',
+                'SessionTypeAPI': typeof SessionTypeAPI !== 'undefined',
+
+                // Widget modules
+                'NZGDCScheduleWidget': typeof NZGDCScheduleWidget !== 'undefined',
+                'NZGDCWidget': typeof NZGDCWidget !== 'undefined',
+                'createFridaySaturdayWidget': typeof createFridaySaturdayWidget !== 'undefined'
+            };
+
+            // Display module status
+            const moduleStatusDiv = document.getElementById('module-status');
+            moduleStatusDiv.innerHTML = '';
+
+            const availableCount = Object.values(modules).filter(Boolean).length;
+            const totalCount = Object.keys(modules).length;
+
+            Object.entries(modules).forEach(([name, available]) => {
+                const div = document.createElement('div');
+                div.className = `module-item ${available ? 'module-available' : 'module-missing'}`;
+                div.textContent = `${name}: ${available ? '✅' : '❌'}`;
+                moduleStatusDiv.appendChild(div);
+
+                console.log(`${name}: ${available ? '✅ Available' : '❌ Missing'}`);
+            });
+
+            // Summary
+            const allLoaded = availableCount === totalCount;
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.textContent = `Module Loading Summary:\n✅ Available: ${availableCount}\n❌ Missing: ${totalCount - availableCount}\n📊 Total: ${totalCount}\n\nStatus: ${allLoaded ? 'ALL MODULES LOADED SUCCESSFULLY' : 'SOME MODULES MISSING'}`;
+            resultsDiv.className = `status ${allLoaded ? 'success' : 'error'}`;
+
+            console.log(`\n=== SUMMARY ===`);
+            console.log(`Modules loaded: ${availableCount}/${totalCount}`);
+            console.log(`Overall status: ${allLoaded ? 'SUCCESS' : 'FAILURE'}`);
+
+            return modules;
+        }
+
+        async function testDataManager() {
+            console.log('\n=== DATAMANAGER TEST ===');
+
+            try {
+                // Check if DataManager is available
+                if (typeof DataManager === 'undefined') {
+                    throw new Error('DataManager class is not available');
+                }
+                console.log('✅ DataManager class found');
+
+                // Check if DataTransformer is available (required dependency)
+                if (typeof DataTransformer === 'undefined') {
+                    throw new Error('DataTransformer class is not available (required by DataManager)');
+                }
+                console.log('✅ DataTransformer class found');
+
+                // Create DataManager instance
+                console.log('Creating DataManager instance...');
+                const dataManager = new DataManager({
+                    dataSource: 'local',
+                    localDataPath: './n8n-entegyapi.json'
+                });
+                console.log('✅ DataManager instance created');
+
+                // Initialize DataManager
+                console.log('Initializing DataManager...');
+                const initSuccess = await dataManager.initialize();
+
+                if (initSuccess) {
+                    console.log('✅ DataManager initialized successfully');
+
+                    // Test data access
+                    const events = dataManager.getAllEvents();
+                    const schedules = dataManager.getScheduleData();
+                    const speakers = Array.from(dataManager.getSpeakerData().values());
+
+                    console.log(`📊 Data loaded: ${events.length} events, ${schedules.length} schedules, ${speakers.length} speakers`);
+
+                    // Test a specific event
+                    if (events.length > 0) {
+                        const firstEvent = events[0];
+                        console.log(`📝 Sample event: "${firstEvent.title}" (ID: ${firstEvent.id})`);
+                    }
+
+                    const resultsDiv = document.getElementById('test-results');
+                    resultsDiv.textContent = `DataManager Test: SUCCESS\n\n✅ DataManager created and initialized\n✅ Data loaded successfully\n📊 Events: ${events.length}\n📊 Schedules: ${schedules.length}\n📊 Speakers: ${speakers.length}`;
+                    resultsDiv.className = 'status success';
+
+                } else {
+                    throw new Error('DataManager initialization returned false');
+                }
+
+            } catch (error) {
+                console.error('❌ DataManager test failed:', error.message);
+                console.error('Error details:', error);
+
+                const resultsDiv = document.getElementById('test-results');
+                resultsDiv.textContent = `DataManager Test: FAILED\n\n❌ Error: ${error.message}\n\nCheck console for details.`;
+                resultsDiv.className = 'status error';
+            }
+        }
+
+        // Initialize page
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded. Ready for testing.');
+            console.log('Click "Check All Modules" to verify module loading.');
+            console.log('Click "Test DataManager" to test data loading functionality.');
+        });
+    </script>
+</body>
+</html>

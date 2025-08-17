@@ -643,7 +643,7 @@
             position: absolute;
             top: 0;
             left: 0;
-            z-index: -1;
+            z-index: 0;
         }
 
         .nzgdc-morning-event-detail-overlay-big {
@@ -918,7 +918,7 @@
             position: absolute;
             top: 0;
             left: 0;
-            z-index: -1;
+            z-index: 0;
             background-size: cover;
             background-position: center;
         }
@@ -1444,6 +1444,16 @@
                 // Set panel event type
                 mainPanel.setAttribute('data-event-type', 'panel');
 
+                // Set thumbnail background image - always set to clear any existing images
+                const thumbnailEl = mainPanel.querySelector('.nzgdc-session-thumbnail-main');
+                if (thumbnailEl) {
+                    if (eventData.thumbnail) {
+                        thumbnailEl.style.backgroundImage = `url('${eventData.thumbnail}')`;
+                    } else {
+                        thumbnailEl.style.backgroundImage = 'none';
+                    }
+                }
+
                 return mainPanel;
             }
 
@@ -1461,10 +1471,14 @@
                     titleEl.textContent = eventData.title;
                 }
 
-                // Update thumbnail
+                // Update thumbnail - always set to clear any existing images
                 const thumbnailEl = clone.querySelector('.nzgdc-session-thumbnail-big');
-                if (thumbnailEl && eventData.thumbnail) {
-                    thumbnailEl.style.backgroundImage = `url('${eventData.thumbnail}')`;
+                if (thumbnailEl) {
+                    if (eventData.thumbnail) {
+                        thumbnailEl.style.backgroundImage = `url('${eventData.thumbnail}')`;
+                    } else {
+                        thumbnailEl.style.backgroundImage = 'none';
+                    }
                 }
 
                 // Update timeframe

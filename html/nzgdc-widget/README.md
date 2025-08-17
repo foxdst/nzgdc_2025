@@ -15,6 +15,15 @@ nzgdc-widget/
 ├── js/
 │   ├── unified-event-loader.js                  # ⭐ CRITICAL: Event panel generator & content
 │   ├── expanded-event-details-manager.js       # Expanded event details overlay system
+│   ├── data-manager.js                         # Centralized data loading and management
+│   ├── data-transformer.js                      # Data transformation layer for API standardization
+│   ├── event-api.js                             # Event data access API
+│   ├── schedule-api.js                          # Schedule data access API
+│   ├── speaker-api.js                           # Speaker data access API
+│   ├── category-api.js                          # Category data access API
+│   ├── room-api.js                              # Room data access API
+│   ├── stream-api.js                            # Stream data access API
+│   ├── session-type-api.js                      # Session type data access API
 │   ├── widget-core.js                          # Thursday widget controller & logic
 │   ├── friday-saturday-widget-core.js          # Fri/Sat unified widget controller
 │   ├── schedule-generator.js                   # Thursday DOM structure generator
@@ -29,6 +38,9 @@ nzgdc-widget/
 │   ├── workshop-events-original.js             # Backup: Original Thursday events
 │   ├── morning-events-original.js              # Backup: Original morning events
 │   └── afternoon-events-original.js            # Backup: Original afternoon events
+│   ├── data-transformer.js                      # Data transformation layer for API standardization
+│   ├── data-transformer-usage-example.js       # Example usage of the DataTransformer
+│   └── data-transformer.test.js                # Test file for the DataTransformer
 ├── templates/
 │   ├── unified-event-panel.html                # Event panel HTML template (all widgets)
 │   └── expanded-event-details-overlay.html     # Expanded event details overlay template
@@ -219,6 +231,42 @@ nzgdc-widget/
 
 ### Unified Event Panel System
 The heart of all widgets is the **unified event panel architecture** that provides consistent 620x300px event panels across all widget types:
+ 
+### Data Management Architecture
+The widget system now includes a comprehensive data management layer that handles loading, transformation, and standardized access to all event data:
+
+#### `DataManager` (js/data-manager.js)
+**Primary Responsibilities:**
+- Loading data from the Entegy API endpoint
+- Coordinating data transformation through the DataTransformer
+- Managing internal data stores for all entity types
+- Providing getter methods for accessing standardized data
+- Validating data integrity after loading
+
+#### `DataTransformer` (js/data-transformer.js)
+**Primary Responsibilities:**
+- Transforming raw API data to standardized formats
+- Handling speaker duplication resolution between top-level and embedded speakers
+- Standardizing category information with enhanced properties
+- Extracting and standardizing Room, Stream, and Session Type entities
+- Converting schedule days to standardized Schedule objects
+- Converting sessions to standardized Event objects
+- Implementing comprehensive error handling and validation
+
+#### API Modules (js/*-api.js)
+**Primary Responsibilities:**
+- Providing standardized access patterns to different data types
+- Abstracting the underlying data storage implementation
+- Enabling consistent data access across all components
+- Supporting future extensibility and enhancements
+
+The data management architecture provides several key benefits:
+- **Centralized Data Access**: All data is loaded and managed through a single point
+- **Standardized Formats**: All entities are transformed to consistent formats
+- **Data Integrity**: Comprehensive validation ensures data quality
+- **Extensibility**: API modules allow for easy addition of new features
+- **Performance**: Efficient data loading and caching strategies
+- **Maintainability**: Clear separation of concerns between data and presentation
 
 #### `UnifiedEventLoader` (js/unified-event-loader.js)
 **Primary Responsibilities:**
@@ -1127,6 +1175,58 @@ python -m http.server 8000
 npx serve .
 # Navigate to: http://localhost:5000/widget-demo.html
 ```
+
+#### DataTransformer Testing
+The DataTransformer can be tested independently using the provided test files:
+
+```bash
+# Test the DataTransformer with sample data
+node js/data-transformer-usage-example.js
+
+# Run the comprehensive test suite
+node js/data-transformer.test.js
+```
+
+These test files demonstrate how to use the DataTransformer to convert raw API data
+into standardized formats used by the widget system.
+
+#### Integration Test Suite (new)
+A comprehensive integration test suite has been created to validate all components work together correctly:
+
+- **Integration Test Page**: `integration-test.html` - Complete integration test page that loads all API modules, initializes the DataManager, tests all API modules with real data, and displays results in a user-friendly format
+- **Integration Test Script**: `js/integration-test.js` - JavaScript file that tests DataManager initialization, all API module methods, data transformation, error handling, and performance
+- **Features**:
+  - Tests all API modules with real data from the API endpoint
+  - Validates data conformity to standardized formats
+  - Handles errors gracefully
+  - Displays results in a user-friendly format
+  - Validates data transformation
+  - Checks error handling
+  - Verifies performance
+  - Tests edge cases
+
+#### Running the Integration Tests
+```bash
+# Serve the integration-test.html file (required due to CORS restrictions)
+cd nzgdc-widget
+python -m http.server 8000
+# Navigate to: http://localhost:8000/integration-test.html
+
+# Or using Node.js
+npx serve .
+# Navigate to: http://localhost:5000/integration-test.html
+```
+
+
+#### API Modules Testing
+The API modules can be tested to verify they're working correctly with the data management system:
+
+```bash
+# Test all API modules
+node js/api-modules-test.js
+```
+
+This test file demonstrates how to use all the API modules to access the transformed data.
 
 ### Testing Workflow
 

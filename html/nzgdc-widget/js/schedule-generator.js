@@ -73,21 +73,56 @@ class ScheduleGenerator {
         `;
   }
 
-  async renderSchedule(data) {
+  async renderSchedule(scheduleData, eventData) {
     try {
       if (this.isDestroyed) {
         console.warn("Cannot render schedule - generator is destroyed");
         return;
       }
 
+      // Enhanced debugging to inspect received data
+      this.debug("=== Schedule Generator Data Inspection ===");
+      this.debug("Received scheduleData:", scheduleData);
+      this.debug("Received eventData:", eventData);
+      this.debug("scheduleData type:", typeof scheduleData);
+      this.debug("eventData type:", typeof eventData);
+
+      if (scheduleData) {
+        this.debug("scheduleData has timeSlots?", "timeSlots" in scheduleData);
+        this.debug("scheduleData.timeSlots:", scheduleData.timeSlots);
+        if (scheduleData.timeSlots) {
+          this.debug("timeSlots length:", scheduleData.timeSlots.length);
+          if (scheduleData.timeSlots.length > 0) {
+            this.debug("First timeSlot:", scheduleData.timeSlots[0]);
+            if (scheduleData.timeSlots[0].workshops) {
+              this.debug(
+                "First timeSlot workshops:",
+                scheduleData.timeSlots[0].workshops,
+              );
+            }
+          }
+        }
+      }
+
+      if (eventData) {
+        this.debug("eventData keys:", Object.keys(eventData));
+        this.debug("eventData length:", Object.keys(eventData).length);
+        const firstKey = Object.keys(eventData)[0];
+        if (firstKey) {
+          this.debug("Sample event data:", eventData[firstKey]);
+        }
+      }
+
       this.debug(
         "Starting schedule rendering with",
-        data.timeSlots.length,
+        scheduleData.timeSlots.length,
         "time slots",
       );
 
       // Store original data for filtering
-      this.originalData = data;
+      this.originalData = scheduleData;
+      this.eventData = eventData; // Store eventData as a class property
+      this.scheduleData = scheduleData; // Store scheduleData as a class property
 
       // Clear existing content and tracking
       this.container.innerHTML = "";
@@ -97,7 +132,7 @@ class ScheduleGenerator {
       const fragment = document.createDocumentFragment();
 
       // Generate time slots in fragment first
-      data.timeSlots.forEach((timeSlot) => {
+      this.scheduleData.timeSlots.forEach((timeSlot) => {
         const timeSlotEl = this.generateTimeSlot(timeSlot);
         fragment.appendChild(timeSlotEl);
       });
@@ -166,6 +201,139 @@ class ScheduleGenerator {
     }
   }
 
+  /**
+   * Refresh all workshop content with new data
+   * @param {Object} newData - Optional new data to use for refresh
+   */
+  async refreshWorkshopContent(newData) {
+    try {
+      if (this.isDestroyed) {
+        console.warn(
+          "[NZGDC Widget] Cannot refresh workshop content - generator is destroyed",
+        );
+        return;
+      }
+
+      this.debug("Refreshing workshop content with new data");
+
+      // If new data provided, update the global WORKSHOP_EVENTS
+      if (newData) {
+        this.eventData = newData;
+        this.debug("Updated WORKSHOP_EVENTS with new data");
+      }
+
+      // Find all workshop containers
+      const containers = this.container.querySelectorAll(
+        ".nzgdc-event-panel-container[data-event-id]",
+      );
+      this.debug(
+        "Refreshing content for",
+        containers.length,
+        "workshop containers",
+      );
+
+      // Batch DOM operations for better performance
+      const refreshPromises = Array.from(containers).map((container) =>
+        this.refreshSingleWorkshop(container),
+      );
+
+      const results = await Promise.allSettled(refreshPromises);
+
+      // Track successful refreshes
+      results.forEach((result, index) => {
+        if (result.status === "fulfilled" && !this.isDestroyed) {
+          const container = containers[index];
+          const eventId = container.dataset.eventId;
+          if (eventId) {
+            this.loadedWorkshops.add(eventId);
+          }
+        }
+      });
+
+      this.debug("All workshop content refreshed successfully");
+    } catch (error) {
+      console.error(
+        "[NZGDC Widget] Failed to refresh workshop content:",
+        error,
+      );
+      this.showWorkshopLoadError(error);
+    }
+  }
+
+  /**
+   * Refresh a single workshop with new data
+   * @param {HTMLElement} container - The container element for the workshop
+   */
+  async refreshSingleWorkshop(container) {
+    if (this.isDestroyed) {
+      return;
+    }
+
+    const eventId = container.dataset.eventId;
+    this.debug("Refreshing workshop:", eventId);
+
+    const eventData = this.eventData ? this.eventData[eventId] : null;
+
+    // Verify workshop data availability - critical for debugging data issues
+    if (!this.eventData) {
+      console.error(
+        "[NZGDC Widget] WORKSHOP_EVENTS not loaded - check data file loading",
+      );
+      return;
+    }
+
+    try {
+      if (!eventData) {
+        console.warn(
+          `[NZGDC Widget] No data found for workshop: ${eventId} - check workshop-events.js`,
+        );
+        throw new Error(`No data found for workshop: ${eventId}`);
+      }
+
+      this.debug("Updating event panel for workshop:", eventId);
+      // Use the updateEventPanel method from UnifiedEventLoader
+      const eventPanel =
+        container.querySelector(".nzgdc-event-panel-big") ||
+        container.querySelector(".nzgdc-event-panel-main");
+
+      if (eventPanel) {
+        // Update existing panel
+        this.eventLoader.updateEventPanel(eventPanel, eventData, "thursday");
+      } else {
+        // Create new panel if none exists - Thursday workshops are always big panels
+        console.log(
+          `[Thursday] Creating BIG panel for workshop: ${eventId}`,
+          eventData,
+        );
+        const newEventPanel = this.eventLoader.createEventPanel(
+          eventData,
+          "big",
+          "thursday",
+        );
+        console.log(
+          `[Thursday] Created panel type:`,
+          newEventPanel.querySelector(".nzgdc-event-panel-big")
+            ? "BIG"
+            : "MAIN",
+        );
+        container.innerHTML = "";
+        container.appendChild(newEventPanel);
+      }
+
+      this.debug("Successfully refreshed workshop:", eventId);
+    } catch (error) {
+      console.error(
+        `[NZGDC Widget] Failed to refresh workshop ${eventId}:`,
+        error,
+      );
+
+      if (!this.isDestroyed && container.parentNode) {
+        container.innerHTML = "";
+        container.appendChild(this.eventLoader.createErrorPanel(error.message));
+      }
+    }
+  }
+
   async loadSingleWorkshop(container) {
     if (this.isDestroyed) {
       return;
@@ -174,12 +342,10 @@ class ScheduleGenerator {
     const eventId = container.dataset.eventId;
     this.debug("Loading workshop:", eventId);
 
-    const eventData = window.WORKSHOP_EVENTS
-      ? window.WORKSHOP_EVENTS[eventId]
-      : null;
+    const eventData = this.eventData ? this.eventData[eventId] : null;
 
     // Verify workshop data availability - critical for debugging data issues
-    if (!window.WORKSHOP_EVENTS) {
+    if (!this.eventData) {
       console.error(
         "[NZGDC Widget] WORKSHOP_EVENTS not loaded - check data file loading",
       );
@@ -197,7 +363,7 @@ class ScheduleGenerator {
       this.debug("Creating event panel for workshop:", eventId);
       const eventPanel = this.eventLoader.createEventPanel(
         eventData,
-        "big",
+        "auto",
         "thursday",
       );
 
@@ -315,9 +481,7 @@ class ScheduleGenerator {
       const eventId =
         panel.getAttribute("data-event-id") ||
         panel.closest("[data-event-id]")?.getAttribute("data-event-id");
-      const eventData = window.WORKSHOP_EVENTS
-        ? window.WORKSHOP_EVENTS[eventId]
-        : null;
+      const eventData = this.eventData ? this.eventData[eventId] : null;
 
       if (!eventData) {
         this.debug(`No event data found for panel ${eventId}`);
