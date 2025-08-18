@@ -341,21 +341,23 @@
                 });
                 try {
                     await dataManagerInstance.initialize();
-                    console.log('DataManager initialized successfully with local data.');
+                    if (debugEnabled) {
+                        console.log('DataManager initialized successfully with local data.');
 
-                    // Debug: Check if we have schedule data
-                    const schedules = dataManagerInstance.getScheduleData();
-                    console.log(`DataManager loaded ${schedules.length} schedules:`,
-                        schedules.map(s => `${s.title} (${s.date})`));
+                        // Debug: Check if we have schedule data
+                        const schedules = dataManagerInstance.getScheduleData();
+                        console.log(`DataManager loaded ${schedules.length} schedules:`,
+                            schedules.map(s => `${s.title} (${s.date})`));
 
-                    // Check for Friday/Saturday schedules specifically
-                    const fridaySat = schedules.filter(s => {
-                        const date = new Date(s.date);
-                        const day = date.getDay();
-                        return day === 5 || day === 6;
-                    });
-                    console.log(`Found ${fridaySat.length} Friday/Saturday schedules with sessions:`,
-                        fridaySat.map(s => `${s.title}: ${s.sessions?.length || 0} sessions`));
+                        // Check for Friday/Saturday schedules specifically
+                        const fridaySat = schedules.filter(s => {
+                            const date = new Date(s.date);
+                            const day = date.getDay();
+                            return day === 5 || day === 6;
+                        });
+                        console.log(`Found ${fridaySat.length} Friday/Saturday schedules with sessions:`,
+                            fridaySat.map(s => `${s.title}: ${s.sessions?.length || 0} sessions`));
+                    }
 
                 } catch (error) {
                     console.error('Failed to initialize DataManager:', error);
@@ -467,7 +469,6 @@
                         dataManagerInstance
                     );
                     container.style.display = 'block';
-                    updateBackgroundMessage();
                     return widget;
                 } catch (error) {
                     console.error('Thursday widget creation failed:', error);
@@ -541,6 +542,7 @@
                                 currentWidgetType = "thursday";
                                 updateStatus('Thursday widget loaded successfully!', 'success');
                                 updateButtonStates();
+                                updateBackgroundMessage();
                             } else {
                                 updateStatus('Failed to create Thursday widget', 'error');
                             }

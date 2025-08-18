@@ -271,46 +271,26 @@ class MorningScheduleGenerator {
       }
 
       // Enhanced debugging to inspect received data
-      console.log(
-        "[NZGDC Morning Widget] === Schedule Generator Data Inspection ===",
-      );
-      console.log(
-        "[NZGDC Morning Widget] Received scheduleData:",
-        scheduleData,
-      );
-      console.log("[NZGDC Morning Widget] Received eventData:", eventData);
-      console.log(
-        "[NZGDC Morning Widget] scheduleData type:",
-        typeof scheduleData,
-      );
-      console.log("[NZGDC Morning Widget] eventData type:", typeof eventData);
+      this.debug("=== Schedule Generator Data Inspection ===");
+      this.debug("Received scheduleData:", scheduleData);
+      this.debug("Received eventData:", eventData);
+      this.debug("scheduleData type:", typeof scheduleData);
+      this.debug("eventData type:", typeof eventData);
 
       if (scheduleData) {
-        console.log(
-          "[NZGDC Morning Widget] scheduleData has timeSlots?",
-          "timeSlots" in scheduleData,
-        );
-        console.log(
-          "[NZGDC Morning Widget] scheduleData.timeSlots:",
-          scheduleData.timeSlots,
-        );
+        this.debug("scheduleData has timeSlots?", "timeSlots" in scheduleData);
+        this.debug("scheduleData.timeSlots:", scheduleData.timeSlots);
         if (scheduleData.timeSlots) {
-          console.log(
-            "[NZGDC Morning Widget] timeSlots length:",
-            scheduleData.timeSlots.length,
-          );
+          this.debug("timeSlots length:", scheduleData.timeSlots.length);
           if (scheduleData.timeSlots.length > 0) {
-            console.log(
-              "[NZGDC Morning Widget] First timeSlot:",
-              scheduleData.timeSlots[0],
-            );
+            this.debug("First timeSlot:", scheduleData.timeSlots[0]);
             if (scheduleData.timeSlots[0].events) {
-              console.log(
-                "[NZGDC Morning Widget] First timeSlot events:",
+              this.debug(
+                "First timeSlot events:",
                 scheduleData.timeSlots[0].events,
               );
-              console.log(
-                "[NZGDC Morning Widget] First timeSlot events length:",
+              this.debug(
+                "First timeSlot events length:",
                 scheduleData.timeSlots[0].events.length,
               );
             }
@@ -319,20 +299,11 @@ class MorningScheduleGenerator {
       }
 
       if (eventData) {
-        console.log(
-          "[NZGDC Morning Widget] eventData keys:",
-          Object.keys(eventData),
-        );
-        console.log(
-          "[NZGDC Morning Widget] eventData length:",
-          Object.keys(eventData).length,
-        );
+        this.debug("eventData keys:", Object.keys(eventData));
+        this.debug("eventData length:", Object.keys(eventData).length);
         const firstKey = Object.keys(eventData)[0];
         if (firstKey) {
-          console.log(
-            "[NZGDC Morning Widget] Sample event data:",
-            eventData[firstKey],
-          );
+          this.debug("Sample event data:", eventData[firstKey]);
         }
       }
 
