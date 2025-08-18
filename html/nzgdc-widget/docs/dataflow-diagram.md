@@ -2,55 +2,81 @@
 
 ```mermaid
 flowchart TD
-    A[n8n-entegyapi.json<br/>Raw Data Source] --> B[js/data-manager.js<br/>Centralized Management]
-    A1[Webhook] --> A
-    A2[Local File] --> A
+    %% Data Sources
+    A1[Webhook URL] --> A[n8n-entegyapi.json<br/>Raw API Data]
+    A2[Local File Path] --> A
     
-    B --> C[js/data-transformer.js<br/>Data Standardization]
-    C --> C1[Resolve Duplicates]
-    C --> C2[Clean Text]
-    C --> C3[Consistent Format]
+    %% Core Data Pipeline
+    A --> B[js/data-manager.js<br/>Data Coordinator]
+    B --> |loadApiData<br/>transformApiData| C[js/data-transformer.js<br/>Data Standardization]
     
-    C3 --> D[API Layer]
-    D --> D1[js/speaker-api.js]
-    D --> D2[js/event-api.js]
-    D --> D3[Other API modules]
+    %% Data Transformation Process
+    C --> C1[transformSpeakers]
+    C --> C2[transformEvents]
+    C --> C3[transformCategories]
+    C --> C4[transformRooms/Streams/SessionTypes]
+    C --> C5[transformSchedules]
     
-    D --> E[Widget Orchestration]
-    E --> E1[js/widget-core.js]
-    E --> E2[js/friday-saturday-widget-core.js]
+    C1 --> D[Standardized Data Maps]
+    C2 --> D
+    C3 --> D
+    C4 --> D
+    C5 --> D
     
-    E1 --> F[Schedule Rendering]
-    E2 --> F
-    F --> F1[js/schedule-generator.js]
-    F --> F2[js/morning-schedule-generator.js]
-    F --> F3[js/afternoon-schedule-generator.js]
+    %% Data Storage & Population
+    D --> |populateDataStores| B
     
-    F1 --> G[js/unified-event-loader.js<br/>Panel Creation]
-    F2 --> G
-    F3 --> G
+    %% API Access Layer
+    B --> |getDataManager| E[API Access Layer]
+    E --> E1[js/speaker-api.js]
+    E --> E2[js/event-api.js]
+    E --> E3[js/category-api.js]
+    E --> E4[js/room-api.js]
+    E --> E5[js/stream-api.js]
+    E --> E6[js/session-type-api.js]
+    E --> E7[js/schedule-api.js]
     
-    G --> G1[Render Event Panels]
-    G --> G2[Add Event Listeners]
-    G --> G3[Populate Titles/Speakers/Thumbnails]
+    %% Widget Orchestration
+    B --> |scheduleData<br/>eventData| F[Widget Orchestration]
+    F --> F1[js/widget-core.js]
+    F --> F2[js/friday-saturday-widget-core.js]
     
-    G2 --> H[js/expanded-event-details-manager.js<br/>Detailed Modal Display]
+    %% Schedule Generation
+    F1 --> |renderSchedule| G[Schedule Generators]
+    F2 --> |renderSchedule| G
+    G --> G1[js/schedule-generator.js]
+    G --> G2[js/morning-schedule-generator.js]
+    G --> G3[js/afternoon-schedule-generator.js]
     
-    B -.->|Retrieves scheduleData<br/>and eventData| E1
-    B -.->|Retrieves scheduleData<br/>and eventData| E2
-    F1 -.->|Requests detailed<br/>eventData for panels| G
-    F2 -.->|Requests detailed<br/>eventData for panels| G
-    F3 -.->|Requests detailed<br/>eventData for panels| G
-    G -.->|Passes full standardized<br/>eventData object| H
+    %% Event Panel Creation
+    G1 --> |loadSingleEvent<br/>eventData| H[js/unified-event-loader.js<br/>Panel Creation & Rendering]
+    G2 --> |loadSingleEvent<br/>eventData| H
+    G3 --> |loadSingleEvent<br/>eventData| H
     
+    %% Panel Content Population
+    H --> H1[createEventPanel]
+    H --> H2[updateEventContent]
+    H --> H3[setupSpeakerDetailsHover]
+    
+    %% Modal Display
+    H3 --> |showEventDetails<br/>standardized eventData| I[js/expanded-event-details-manager.js<br/>Modal Display Manager]
+    
+    %% Modal Content Population
+    I --> I1[populateEventContent]
+    I --> I2[populateSpeakerBios]
+    I --> I3[populateDescription]
+    I --> I4[populateAudienceTags]
+    
+    %% Styling
     style A fill:#e1f5fe
     style B fill:#f3e5f5
     style C fill:#e8f5e8
     style D fill:#fff3e0
-    style E fill:#fce4ec
-    style F fill:#e0f2f1
-    style G fill:#f1f8e9
-    style H fill:#fff8e1
+    style E fill:#fff8e1
+    style F fill:#fce4ec
+    style G fill:#e0f2f1
+    style H fill:#f1f8e9
+    style I fill:#fff3e0
 ```
 
 ## Data Flow Summary
