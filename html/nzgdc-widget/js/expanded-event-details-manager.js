@@ -10,6 +10,7 @@ class ExpandedEventDetailsManager {
     this.templateLoaded = false;
     this.isDestroyed = false;
     this.debugMode = false;
+    this.templateLoading = false;
 
     // Event listeners for cleanup
     this.boundKeyDownHandler = this.handleKeyDown.bind(this);
@@ -21,7 +22,6 @@ class ExpandedEventDetailsManager {
     this.debugMode =
       localStorage.getItem("nzgdc-expanded-details-debug") === "true" ||
       window.NZGDC_DEBUG === true;
-
     this.debug("ExpandedEventDetailsManager initialized");
   }
 
@@ -39,7 +39,21 @@ class ExpandedEventDetailsManager {
       return;
     }
 
+    if (this.templateLoading) {
+      this.debug("Template already loading, waiting...");
+      // Wait for the current loading operation to complete
+      while (
+        this.templateLoading &&
+        !this.templateLoaded &&
+        !this.isDestroyed
+      ) {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+      }
+      return;
+    }
+
     try {
+      this.templateLoading = true;
       this.debug("Loading expanded event details template...");
 
       // Try to load template from templates directory
@@ -85,6 +99,11 @@ class ExpandedEventDetailsManager {
       document.body.appendChild(overlayElement);
       this.overlayContainer = overlayElement;
 
+      this.debug(
+        "Overlay element appended to body, overlayContainer set:",
+        this.overlayContainer,
+      );
+
       // Setup event listeners
       this.setupEventListeners();
 
@@ -96,7 +115,10 @@ class ExpandedEventDetailsManager {
         error,
       );
       this.templateLoaded = false;
+      this.overlayContainer = null;
       throw error;
+    } finally {
+      this.templateLoading = false;
     }
   }
 
@@ -203,7 +225,12 @@ class ExpandedEventDetailsManager {
 
       // Ensure template is loaded
       if (!this.templateLoaded) {
+        this.debug("Template not loaded, calling loadTemplate()");
         await this.loadTemplate();
+        this.debug(
+          "loadTemplate() completed, overlayContainer:",
+          this.overlayContainer,
+        );
       }
 
       // Recreate overlay if it was removed from DOM
@@ -211,7 +238,19 @@ class ExpandedEventDetailsManager {
         !this.overlayContainer ||
         !document.body.contains(this.overlayContainer)
       ) {
+        this.debug("Overlay container missing from DOM, recreating...");
         await this.loadTemplate();
+        this.debug(
+          "Overlay recreated, overlayContainer:",
+          this.overlayContainer,
+        );
+      }
+
+      // Final safety check to ensure overlay container is ready
+      if (!this.overlayContainer) {
+        throw new Error(
+          "Failed to initialize overlay container after template loading",
+        );
       }
 
       // Validate event data
@@ -627,6 +666,8 @@ class ExpandedEventDetailsManager {
         }
 
         this.overlayContainer = null;
+        this.templateLoaded = false; // Reset flag so template gets reloaded next time
+        this.templateLoading = false;
       }
 
       // Restore body scroll
@@ -690,6 +731,7 @@ class ExpandedEventDetailsManager {
     this.currentEventData = null;
     this.isOverlayVisible = false;
     this.templateLoaded = false;
+    this.templateLoading = false;
     this.isDestroyed = true;
 
     this.debug("ExpandedEventDetailsManager destroyed");
