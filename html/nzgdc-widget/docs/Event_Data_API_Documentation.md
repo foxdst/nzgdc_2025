@@ -185,12 +185,13 @@ The data flows through several JavaScript files, each responsible for a specific
 This systemic approach ensures data consistency, modularity, and maintainability across the NZGDC widget.
 
 ---
+---
 
-### Understanding the Widget's Data Functions
+# Understanding the Widget's Data Functions
 
 The NZGDC widget processes a lot of event data, and it uses many specialized functions to handle everything from fetching raw information to displaying it beautifully. Think of these functions as little workers, each with a specific job in the data factory.
 
-#### 1. Functions in `js/data-manager.js` (The Data Coordinator)
+### 1. Functions in `js/data-manager.js` (The Data Coordinator)
 
 This file is like the central hub for all event data. It's responsible for getting the data, making sure it's in the right format, and storing it so other parts of the widget can use it.
 
@@ -230,7 +231,7 @@ This file is like the central hub for all event data. It's responsible for getti
     *   **Input:** None.
     *   **Output:** A confirmation that the data has been refreshed.
 
-#### 2. Functions in `js/data-transformer.js` (The Data Cleaner & Standardizer)
+### 2. Functions in `js/data-transformer.js` (The Data Cleaner & Standardizer)
 
 This file is the "data processing plant." It takes the raw, sometimes inconsistent, data from the source and transforms it into a uniform format that the rest of the widget expects.
 
@@ -258,7 +259,7 @@ This file is the "data processing plant." It takes the raw, sometimes inconsiste
     *   **Input:** A string that might contain HTML.
     *   **Output:** The same string, but with all HTML tags removed.
 
-#### 3. Functions in `js/speaker-api.js`, `js/event-api.js`, `js/category-api.js`, etc. (The Data Accessors)
+### 3. Functions in `js/speaker-api.js`, `js/event-api.js`, `js/category-api.js`, etc. (The Data Accessors)
 
 These files provide simple, direct ways for other parts of the widget to ask for specific pieces of data without needing to know how that data is stored or processed internally.
 
@@ -280,7 +281,7 @@ These files provide simple, direct ways for other parts of the widget to ask for
     *   **Input:** A category key (e.g., "GAME_DESIGN").
     *   **Output:** An array of standardized event objects matching that category.
 
-#### 4. Functions in `js/widget-core.js` (The Main Conductor)
+### 4. Functions in `js/widget-core.js` (The Main Conductor)
 
 This is the main brain of the widget that brings everything together. It sets up the display, tells other parts what to do, and responds to user interactions.
 
@@ -314,7 +315,7 @@ This is the main brain of the widget that brings everything together. It sets up
     *   **Input:** The selected category's key and display name, and which view (morning/afternoon) it applies to.
     *   **Output:** The displayed schedule is filtered.
 
-#### 5. Functions in `js/schedule-generator.js` (The Schedule Builder)
+### 5. Functions in `js/schedule-generator.js` (The Schedule Builder)
 
 This file (and its morning/afternoon specific versions) is the "layout artist." It takes the standardized event data and arranges it into the visual schedule that users see.
 
@@ -360,7 +361,7 @@ This file (and its morning/afternoon specific versions) is the "layout artist." 
     *   **Input:** None.
     *   **Output:** All event panels are fully visible.
 
-#### 6. Functions in `js/unified-event-loader.js` (The Panel Renderer)
+### 6. Functions in `js/unified-event-loader.js` (The Panel Renderer)
 
 This file is the "detail painter." It's responsible for creating the actual visual appearance of each individual event panel, whether it's a large "big" panel or a smaller "main" panel.
 
@@ -388,7 +389,7 @@ This file is the "detail painter." It's responsible for creating the actual visu
     *   **Input:** An event panel HTML element and its corresponding event data.
     *   **Output:** The event panel becomes interactive.
 
-#### 7. Functions in `js/expanded-event-details-manager.js` (The Modal Display)
+### 7. Functions in `js/expanded-event-details-manager.js` (The Modal Display)
 
 This file is dedicated to handling the large pop-up window that shows all the detailed information about an event when you click on its panel.
 
