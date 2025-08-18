@@ -628,8 +628,9 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
           try {
             // Initialize manager if not already done
             if (!window.expandedEventDetailsManager) {
+              const config = window.NZGDC_CONFIG || {};
               window.expandedEventDetailsManager =
-                new window.ExpandedEventDetailsManager();
+                new window.ExpandedEventDetailsManager(config);
             }
 
             // Show expanded event details
@@ -695,8 +696,9 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
           try {
             // Initialize manager if not already done
             if (!window.expandedEventDetailsManager) {
+              const config = window.NZGDC_CONFIG || {};
               window.expandedEventDetailsManager =
-                new window.ExpandedEventDetailsManager();
+                new window.ExpandedEventDetailsManager(config);
             }
 
             // Show expanded event details

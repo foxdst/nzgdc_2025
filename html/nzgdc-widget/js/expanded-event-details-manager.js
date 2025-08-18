@@ -3,7 +3,7 @@
 /* Handles showing/hiding expanded event details with proper data mapping */
 
 class ExpandedEventDetailsManager {
-  constructor() {
+  constructor(config = {}) {
     this.overlayContainer = null;
     this.currentEventData = null;
     this.isOverlayVisible = false;
@@ -11,6 +11,15 @@ class ExpandedEventDetailsManager {
     this.isDestroyed = false;
     this.debugMode = false;
     this.templateLoading = false;
+
+    // Configuration with defaults - use global config if available
+    this.config = {
+      basePath:
+        config.basePath ||
+        (window.NZGDC_CONFIG && window.NZGDC_CONFIG.basePath) ||
+        this.detectBasePath(),
+      ...config,
+    };
 
     // Event listeners for cleanup
     this.boundKeyDownHandler = this.handleKeyDown.bind(this);
@@ -22,7 +31,16 @@ class ExpandedEventDetailsManager {
     this.debugMode =
       localStorage.getItem("nzgdc-expanded-details-debug") === "true" ||
       window.NZGDC_DEBUG === true;
-    this.debug("ExpandedEventDetailsManager initialized");
+    this.debug(
+      "ExpandedEventDetailsManager initialized with config:",
+      this.config,
+    );
+  }
+
+  // Detect base path using same logic as widget loaders
+  detectBasePath() {
+    const currentPath = window.location.pathname;
+    return currentPath.includes("/.widget-tests/") ? "../" : "";
   }
 
   // Debug logging
@@ -66,9 +84,11 @@ class ExpandedEventDetailsManager {
       } else {
         // Try to fetch template
         try {
-          const response = await fetch(
-            "templates/expanded-event-details-overlay.html",
-          );
+          const templatePath =
+            this.config.basePath +
+            "templates/expanded-event-details-overlay.html";
+          this.debug("Loading template from:", templatePath);
+          const response = await fetch(templatePath);
           if (response.ok) {
             templateHTML = await response.text();
             window.EXPANDED_EVENT_DETAILS_TEMPLATE = templateHTML; // Cache it

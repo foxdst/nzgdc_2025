@@ -15,6 +15,16 @@
     (typeof window !== "undefined" &&
       window.location.search.includes("debug=true"));
 
+  // Make configuration globally available for components
+  if (!window.NZGDC_CONFIG) {
+    window.NZGDC_CONFIG = {
+      basePath: WIDGET_BASE_PATH,
+      timeout: REQUEST_TIMEOUT,
+      debug: DEBUG_MODE,
+    };
+    debugLog("Global NZGDC configuration set:", window.NZGDC_CONFIG);
+  }
+
   function debugLog(message, ...args) {
     if (DEBUG_MODE) {
       console.log("[NZGDC Widget Loader]", message, ...args);
