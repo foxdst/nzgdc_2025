@@ -28,12 +28,12 @@ flowchart TD
         D --> |populateDataStores| B
         
         %% DIRECT DataManager Access (What Actually Happens)
-        B --> |DIRECT ACCESS<br/>this.dataManager.getAllEvents()| F[Widget Orchestration]
+        B --> |DIRECT ACCESS<br/>this.dataManager methods| F[Widget Orchestration]
         F --> F1[js/widget-core.js]
         F --> F2[js/friday-saturday-widget-core.js]
         
         %% Static Data Files (Legacy/Fallback)
-        STATIC[js/schedule-data.js<br/>js/workshop-events.js<br/>Static JSON Files] -.-> |FALLBACK if no DataManager| F
+        STATIC[js/schedule-data.js<br/>js/workshop-events.js<br/>Static JSON Files] -.-> |FALLBACK fallback| F
         
         %% Schedule Generation
         F1 --> |renderSchedule| G[Schedule Generators]
@@ -57,15 +57,15 @@ flowchart TD
     end
     
     %% UNUSED API LAYER (Documentation vs Reality)
-    subgraph UNUSED ["🔴 UNUSED API FILES (Not Loaded by Widget)"]
-        E[API Access Layer<br/>❌ DEAD CODE]
-        E --> E1[js/speaker-api.js<br/>❌ Not Loaded]
-        E --> E2[js/event-api.js<br/>❌ Not Loaded]
-        E --> E3[js/category-api.js<br/>❌ Not Loaded]
-        E --> E4[js/room-api.js<br/>❌ Not Loaded]
-        E --> E5[js/stream-api.js<br/>❌ Not Loaded]
-        E --> E6[js/session-type-api.js<br/>❌ Not Loaded]
-        E --> E7[js/schedule-api.js<br/>❌ Not Loaded]
+    subgraph UNUSED ["UNUSED API FILES"]
+        E[API Access Layer<br/>DEAD CODE]
+        E --> E1[js/speaker-api.js<br/>Not Loaded]
+        E --> E2[js/event-api.js<br/>Not Loaded]
+        E --> E3[js/category-api.js<br/>Not Loaded]
+        E --> E4[js/room-api.js<br/>Not Loaded]
+        E --> E5[js/stream-api.js<br/>Not Loaded]
+        E --> E6[js/session-type-api.js<br/>Not Loaded]
+        E --> E7[js/schedule-api.js<br/>Not Loaded]
     end
     
     %% Show the disconnect
