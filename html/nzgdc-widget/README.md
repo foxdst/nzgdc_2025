@@ -1502,7 +1502,23 @@ WRONG ORDER = BROKEN WIDGETS
 
 ## 🔄 Version History & Recent Changes
 
-### Current Version: v1.3 (August 2025)
+### Current Version: v1.4 (January 2025)
+**Major Achievement: Separation of Concerns Architecture Refactoring**
+
+#### Key Changes:
+- **🏗️ Architectural Consistency**: Unified ID + Class pattern across all Event Panel designs (Big/Main)
+- **🎯 Separation of Concerns**: IDs for JavaScript targeting, Classes for CSS styling throughout system
+- **🔧 Enhanced Maintainability**: Consistent element targeting eliminates technical debt from mixed approaches
+- **🔄 Backward Compatibility**: Full fallback support for legacy panels without breaking changes
+- **📊 Future-Proof Updates**: Individual panel targeting enables advanced features and state management
+- **🆔 Unique Element Targeting**: Dynamic ID generation ensures precise JavaScript control
+
+#### Files Modified:
+- `templates/unified-event-panel.html` (Added ID attributes)
+- `js/unified-event-loader.js` (Major refactoring for ID-based targeting)
+- `docs/separation-of-concerns-refactoring.md` (New documentation)
+
+### Previous Version: v1.3 (August 2025)
 **Major Achievement: Friday/Saturday Schedule Consolidation**
 
 #### Key Changes:
@@ -1567,6 +1583,7 @@ If the unified Friday/Saturday widget causes issues, the deprecated separate wid
 ### 🤖 AI/LLM Assistant Resources (MANDATORY READING)
 - **`docs/tasks/AI_ASSISTANT_QUICK_REFERENCE_GUIDE.md`** - Complete development guide for AI assistants
 - **`docs/tasks/CRITICAL_OVERLAY_BUTTON_WARNING.md`** - Critical warning about existing clickable functionality
+- **`docs/separation-of-concerns-refactoring.md`** - Architecture refactoring and ID + Class separation documentation
 - **Architectural Safety Guidelines** - Prevent common AI coding mistakes and duplicated functionality
 
 ### Additional Documentation

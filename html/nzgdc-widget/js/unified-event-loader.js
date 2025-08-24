@@ -14,6 +14,7 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       this.loadError = null;
       this.REQUEST_TIMEOUT = 10000; // 10 seconds timeout
       this.isDestroyed = false;
+      this.eventCounter = 0; // Counter for generating unique IDs
 
       // Category definitions with display names and brightness
       this.categoryDefinitions = new Map([
@@ -250,6 +251,33 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       return mapping[categoryString] || "PROGRAMMING";
     }
 
+    // Generate unique ID for event panel elements
+    generateUniqueId() {
+      return `${Date.now()}-${++this.eventCounter}`;
+    }
+
+    // Replace template placeholders with actual unique ID
+    processTemplate(template, uniqueId) {
+      let templateHTML = template.innerHTML;
+      templateHTML = templateHTML.replace(/{uniqueId}/g, uniqueId);
+      template.innerHTML = templateHTML;
+      return template;
+    }
+
+    // Extract uniqueId from existing panel elements
+    extractUniqueIdFromPanel(panel) {
+      // Try to find any element with an ID that contains our pattern
+      const elementWithId = panel.querySelector('[id*="event-"]');
+      if (elementWithId && elementWithId.id) {
+        // Extract the unique ID from patterns like "event-category-{uniqueId}" or "event-category-main-{uniqueId}"
+        const matches = elementWithId.id.match(
+          /event-(?:category|title|thumbnail|speaker-name|cta-text)(?:-main)?-(.+)$/,
+        );
+        return matches ? matches[1] : null;
+      }
+      return null;
+    }
+
     createEventPanel(eventData, eventType = "auto", widgetType = "schedule") {
       if (this.isDestroyed) {
         throw new Error("UnifiedEventLoader has been destroyed");
@@ -302,6 +330,10 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       this.debug(`Creating big event panel for ${widgetType} widget`);
       const clone = this.template.cloneNode(true);
 
+      // Generate unique ID for this panel and process template
+      const uniqueId = this.generateUniqueId();
+      this.processTemplate(clone, uniqueId);
+
       // Only add category data attributes if event data has valid category information
       if (eventData.categoryKey || eventData.category) {
         const categoryData = this.validateCategoryData(eventData);
@@ -311,7 +343,7 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
         this.debug("No category data found, skipping category attributes");
       }
 
-      this.updateBigEventContent(clone, eventData, widgetType);
+      this.updateBigEventContent(clone, eventData, widgetType, uniqueId);
       return clone;
     }
 
@@ -320,6 +352,9 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       this.debug(`Creating main event panel for ${widgetType} widget`);
       const mainPanel = document.createElement("div");
       mainPanel.className = "nzgdc-event-panel-main";
+
+      // Generate unique ID for this panel
+      const uniqueId = this.generateUniqueId();
 
       // Only add category data attributes if event data has valid category information
       let categoryData = null;
@@ -349,31 +384,31 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       mainPanel.innerHTML = `
       <!-- Event Category (Top) -->
       <div class="nzgdc-event-category-main">
-        <div class="nzgdc-category-text-main">${categoryData ? categoryData.displayName : eventData.category || "Event"}</div>
+        <div class="nzgdc-category-text-main" id="event-category-main-${uniqueId}">${categoryData ? categoryData.displayName : eventData.category || "Event"}</div>
       </div>
 
       <!-- Event Panel Title (Middle) -->
       <div class="nzgdc-event-panel-title-main">
-        <div class="nzgdc-title-text-main">${eventData.title || "Event Title"}</div>
+        <div class="nzgdc-title-text-main" id="event-title-main-${uniqueId}">${eventData.title || "Event Title"}</div>
       </div>
 
       <!-- Event Panel Thumbnail (Bottom) -->
       <div class="nzgdc-event-panel-thumbnail-main">
         <!-- Session Thumbnail (Background) -->
-        <div class="nzgdc-session-thumbnail-main" style="${eventData.thumbnail ? `background-image: url('${eventData.thumbnail}')` : eventData.speakers?.[0]?.headshot ? `background-image: url('${eventData.speakers[0].headshot}')` : "background-image: none"}"></div>
+        <div class="nzgdc-session-thumbnail-main" id="event-thumbnail-main-${uniqueId}" style="${eventData.thumbnail ? `background-image: url('${eventData.thumbnail}')` : eventData.speakers?.[0]?.headshot ? `background-image: url('${eventData.speakers[0].headshot}')` : "background-image: none"}"></div>
 
         <!-- Event Panel Overlay -->
         <div class="nzgdc-event-panel-overlay-main">
           <!-- Speaker Details -->
           <div class="nzgdc-speaker-details-main">
-            <div class="nzgdc-speaker-name-main">Presented by ${eventData.speakers?.[0]?.displayName || eventData.speakers?.[0]?.name || "Speaker Name"}</div>
-            <div class="nzgdc-speaker-position-company-main">${eventData.speakers?.[0]?.position || "Position + Company"}</div>
+            <div class="nzgdc-speaker-name-main" id="event-speaker-name-main-${uniqueId}">Presented by ${eventData.speakers?.[0]?.displayName || eventData.speakers?.[0]?.name || "Speaker Name"}</div>
+            <div class="nzgdc-speaker-position-company-main" id="event-speaker-position-main-${uniqueId}">${eventData.speakers?.[0]?.position || "Position + Company"}</div>
           </div>
 
           <!-- Call To Action -->
           <div class="nzgdc-call-to-action-main">
             <div class="nzgdc-open-marker-main"></div>
-            <div class="nzgdc-cta-text-main">Click for More Event Details</div>
+            <div class="nzgdc-cta-text-main" id="event-cta-text-main-${uniqueId}">Click for More Event Details</div>
           </div>
         </div>
       </div>
@@ -387,21 +422,88 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       return mainPanel;
     }
 
-    updateBigEventContent(clone, eventData, widgetType = "schedule") {
+    updateBigEventContent(clone, eventData, widgetType = "schedule", uniqueId) {
       this.debug(
         "Updating unified event content for:",
         eventData?.title || "Unknown",
       );
 
-      // Direct element queries - more reliable than caching
-      const categoryEl = clone.querySelector(".nzgdc-category-text-big");
-      const titleEl = clone.querySelector(".nzgdc-title-text-big");
-      const thumbnailEl = clone.querySelector(".nzgdc-session-thumbnail-big");
-      const timeframeEl = clone.querySelector(".nzgdc-timeframe-text-big");
-      const introEl = clone.querySelector(".nzgdc-introduction-text-big");
-      const speakerContainers = clone.querySelectorAll(
-        ".nzgdc-speaker-biolines-big",
-      );
+      // Element queries - use IDs if available, fallback to classes for legacy panels
+      let categoryEl, titleEl, thumbnailEl, timeframeEl, introEl;
+      let speakerNameEl1,
+        speakerPositionEl1,
+        speakerNameEl2,
+        speakerPositionEl2,
+        speakerNameEl3,
+        speakerPositionEl3;
+
+      if (uniqueId) {
+        // ID-based element queries for precise targeting
+        categoryEl = clone.querySelector(`#event-category-${uniqueId}`);
+        titleEl = clone.querySelector(`#event-title-${uniqueId}`);
+        thumbnailEl = clone.querySelector(`#event-thumbnail-${uniqueId}`);
+        timeframeEl = clone.querySelector(`#event-timeframe-${uniqueId}`);
+        introEl = clone.querySelector(`#event-intro-${uniqueId}`);
+
+        // For speakers, we need to get individual elements by their numbered IDs
+        speakerNameEl1 = clone.querySelector(
+          `#event-speaker-name-1-${uniqueId}`,
+        );
+        speakerPositionEl1 = clone.querySelector(
+          `#event-speaker-position-1-${uniqueId}`,
+        );
+        speakerNameEl2 = clone.querySelector(
+          `#event-speaker-name-2-${uniqueId}`,
+        );
+        speakerPositionEl2 = clone.querySelector(
+          `#event-speaker-position-2-${uniqueId}`,
+        );
+        speakerNameEl3 = clone.querySelector(
+          `#event-speaker-name-3-${uniqueId}`,
+        );
+        speakerPositionEl3 = clone.querySelector(
+          `#event-speaker-position-3-${uniqueId}`,
+        );
+      } else {
+        // Fallback to class-based queries for legacy panels
+        this.debug(
+          "No uniqueId provided, falling back to class-based targeting",
+        );
+        categoryEl = clone.querySelector(".nzgdc-category-text-big");
+        titleEl = clone.querySelector(".nzgdc-title-text-big");
+        thumbnailEl = clone.querySelector(".nzgdc-session-thumbnail-big");
+        timeframeEl = clone.querySelector(".nzgdc-timeframe-text-big");
+        introEl = clone.querySelector(".nzgdc-introduction-text-big");
+
+        const speakerContainers = clone.querySelectorAll(
+          ".nzgdc-speaker-biolines-big",
+        );
+        speakerNameEl1 = speakerContainers[0]?.querySelector(
+          ".nzgdc-speaker-bioName-big",
+        );
+        speakerPositionEl1 = speakerContainers[0]?.querySelector(
+          ".nzgdc-speaker-bioPosition-big",
+        );
+        speakerNameEl2 = speakerContainers[1]?.querySelector(
+          ".nzgdc-speaker-bioName-big",
+        );
+        speakerPositionEl2 = speakerContainers[1]?.querySelector(
+          ".nzgdc-speaker-bioPosition-big",
+        );
+        speakerNameEl3 = speakerContainers[2]?.querySelector(
+          ".nzgdc-speaker-bioName-big",
+        );
+        speakerPositionEl3 = speakerContainers[2]?.querySelector(
+          ".nzgdc-speaker-bioPosition-big",
+        );
+      }
+
+      // Group speaker elements for easier iteration
+      const speakerElements = [
+        { name: speakerNameEl1, position: speakerPositionEl1 },
+        { name: speakerNameEl2, position: speakerPositionEl2 },
+        { name: speakerNameEl3, position: speakerPositionEl3 },
+      ];
 
       // Verify elements found - critical for debugging data population issues
       const elementsFound = {
@@ -410,7 +512,7 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
         thumbnail: !!thumbnailEl,
         timeframe: !!timeframeEl,
         intro: !!introEl,
-        speakers: speakerContainers.length,
+        speakers: speakerElements.filter((s) => s.name && s.position).length,
       };
 
       this.debug("Unified element query results:", elementsFound);
@@ -420,7 +522,7 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
         !categoryEl ||
         !titleEl ||
         !timeframeEl ||
-        speakerContainers.length === 0
+        speakerElements.filter((s) => s.name && s.position).length === 0
       ) {
         console.warn(
           "[NZGDC Unified Widget] Missing critical template elements:",
@@ -535,12 +637,10 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       );
 
       speakers.forEach((speaker, index) => {
-        if (index < speakerContainers.length) {
-          const container = speakerContainers[index];
-          const nameEl = container.querySelector(".nzgdc-speaker-bioName-big");
-          const positionEl = container.querySelector(
-            ".nzgdc-speaker-bioPosition-big",
-          );
+        if (index < speakerElements.length) {
+          const speakerElement = speakerElements[index];
+          const nameEl = speakerElement.name;
+          const positionEl = speakerElement.position;
 
           if (nameEl) {
             const speakerName =
@@ -569,9 +669,12 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       });
 
       // Hide unused speaker containers
-      for (let i = speakers.length; i < speakerContainers.length; i++) {
-        speakerContainers[i].style.display = "none";
-        this.debug(`Hiding unused unified speaker container ${i + 1}`);
+      for (let i = speakers.length; i < speakerElements.length; i++) {
+        const speakerElement = speakerElements[i];
+        if (speakerElement.name && speakerElement.name.parentElement) {
+          speakerElement.name.parentElement.style.display = "none";
+          this.debug(`Hiding unused unified speaker container ${i + 1}`);
+        }
       }
 
       // NEW: Add speaker details hover functionality
@@ -795,18 +898,26 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
           panelElement.querySelector(".nzgdc-event-panel-main");
 
         if (isBigPanel) {
-          this.updateBigEventContent(
+          const bigPanelEl =
             panelElement.querySelector(".nzgdc-event-panel-big") ||
-              panelElement,
+            panelElement;
+          const uniqueId = this.extractUniqueIdFromPanel(bigPanelEl);
+          this.updateBigEventContent(
+            bigPanelEl,
             eventData,
             widgetType,
+            uniqueId,
           );
         } else if (isMainPanel) {
-          this.updateMainEventContent(
+          const mainPanelEl =
             panelElement.querySelector(".nzgdc-event-panel-main") ||
-              panelElement,
+            panelElement;
+          const uniqueId = this.extractUniqueIdFromPanel(mainPanelEl);
+          this.updateMainEventContent(
+            mainPanelEl,
             eventData,
             widgetType,
+            uniqueId,
           );
         } else {
           console.warn("[NZGDC Unified Widget] Unknown panel type for update");
@@ -827,191 +938,17 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
     }
 
     /**
-     * Update content of a big event panel
-     * @param {HTMLElement} clone - The panel element to update
-     * @param {Object} eventData - New event data
-     * @param {string} widgetType - Type of widget
-     */
-    updateBigEventContent(clone, eventData, widgetType = "schedule") {
-      this.debug(
-        "Updating unified event content for:",
-        eventData?.title || "Unknown",
-      );
-
-      // Direct element queries - more reliable than caching
-      const categoryEl = clone.querySelector(".nzgdc-category-text-big");
-      const titleEl = clone.querySelector(".nzgdc-title-text-big");
-      const thumbnailEl = clone.querySelector(".nzgdc-session-thumbnail-big");
-      const timeframeEl = clone.querySelector(".nzgdc-timeframe-text-big");
-      const introEl = clone.querySelector(".nzgdc-introduction-text-big");
-      const speakerContainers = clone.querySelectorAll(
-        ".nzgdc-speaker-biolines-big",
-      );
-
-      // Verify elements found - critical for debugging data population issues
-      const elementsFound = {
-        category: !!categoryEl,
-        title: !!titleEl,
-        thumbnail: !!thumbnailEl,
-        timeframe: !!timeframeEl,
-        intro: !!introEl,
-        speakers: speakerContainers.length,
-      };
-
-      this.debug("Unified element query results:", elementsFound);
-
-      // Alert if critical elements are missing
-      if (
-        !categoryEl ||
-        !titleEl ||
-        !timeframeEl ||
-        speakerContainers.length === 0
-      ) {
-        console.warn(
-          "[NZGDC Unified Widget] Missing critical template elements:",
-          elementsFound,
-        );
-      }
-
-      // Update category display - only validate if category data exists
-      if (categoryEl) {
-        if (eventData.categoryKey || eventData.category) {
-          const categoryData = this.validateCategoryData(eventData);
-          categoryEl.textContent = categoryData.displayName;
-          // Update data-category attribute if it exists
-          clone.setAttribute("data-category", categoryData.categoryKey);
-          this.debug(
-            "Set unified category:",
-            categoryData.displayName,
-            `(${categoryData.categoryKey})`,
-          );
-        } else {
-          categoryEl.textContent = eventData.category || "Event";
-          this.debug(
-            "Set category without validation:",
-            eventData.category || "Event",
-          );
-        }
-      } else {
-        console.warn(
-          "[NZGDC Unified Widget] Category element not found - check template structure",
-        );
-      }
-
-      // Update title
-      if (titleEl) {
-        const titleText = eventData.title || "Event Title";
-        titleEl.textContent = titleText;
-        this.debug("Set unified title:", titleText);
-      } else {
-        console.warn(
-          "[NZGDC Unified Widget] Title element not found - check template structure",
-        );
-      }
-
-      // Update introduction text based on widget type
-      if (introEl) {
-        let introText = "NZGDC 2025 Event by";
-        switch (widgetType) {
-          case "schedule":
-          case "thursday":
-            introText = "NZGDC 2025 Workshop by";
-            break;
-          case "morning":
-            introText = "NZGDC 2025 Morning Event by";
-            break;
-          case "afternoon":
-            introText = "NZGDC 2025 Afternoon Event by";
-            break;
-        }
-        introEl.textContent = introText;
-        this.debug("Set unified intro text:", introText);
-      }
-
-      // Update thumbnail (only if provided)
-      if (thumbnailEl) {
-        if (eventData.thumbnail) {
-          thumbnailEl.style.backgroundImage = `url('${eventData.thumbnail}')`;
-          this.debug("Set unified thumbnail:", eventData.thumbnail);
-        } else {
-          thumbnailEl.style.backgroundImage = "none";
-          this.debug("Cleared unified thumbnail - no thumbnail available");
-        }
-      }
-
-      // Update timeframe
-      if (timeframeEl) {
-        const timeframeText = eventData.timeframe || "TBA";
-        timeframeEl.textContent = timeframeText;
-        this.debug("Set unified timeframe:", timeframeText);
-      } else {
-        console.warn(
-          "[NZGDC Unified Widget] Timeframe element not found - check template structure",
-        );
-      }
-
-      // Update speakers
-      const speakers = eventData.speakers || [
-        { name: "TBA", position: "Speaker details coming soon" },
-      ];
-
-      this.debug(
-        "Processing unified speakers:",
-        speakers.length,
-        "speakers found",
-      );
-
-      speakers.forEach((speaker, index) => {
-        if (index < speakerContainers.length) {
-          const container = speakerContainers[index];
-          const nameEl = container.querySelector(".nzgdc-speaker-bioName-big");
-          const positionEl = container.querySelector(
-            ".nzgdc-speaker-bioPosition-big",
-          );
-
-          if (nameEl) {
-            const speakerName =
-              speaker.displayName || speaker.name || "Speaker TBA";
-            nameEl.textContent = speakerName;
-            this.debug(`Unified speaker ${index + 1} name:`, speakerName);
-          } else {
-            console.warn(
-              `[NZGDC Unified Widget] Speaker ${index + 1} name element not found`,
-            );
-          }
-
-          if (positionEl) {
-            const speakerPosition = speaker.position || "Details coming soon";
-            positionEl.textContent = speakerPosition;
-            this.debug(
-              `Unified speaker ${index + 1} position:`,
-              speakerPosition,
-            );
-          } else {
-            console.warn(
-              `[NZGDC Unified Widget] Speaker ${index + 1} position element not found`,
-            );
-          }
-        }
-      });
-
-      // Hide unused speaker containers
-      for (let i = speakers.length; i < speakerContainers.length; i++) {
-        speakerContainers[i].style.display = "none";
-        this.debug(`Hiding unused unified speaker container ${i + 1}`);
-      }
-
-      // Update speaker details hover functionality
-      this.setupSpeakerDetailsHover(clone, eventData);
-    }
-
-    /**
      * Update content of a main event panel
      * @param {HTMLElement} mainPanel - The main panel element to update
      * @param {Object} eventData - New event data
      * @param {string} widgetType - Type of widget
      */
-    updateMainEventContent(mainPanel, eventData, widgetType = "schedule") {
+    updateMainEventContent(
+      mainPanel,
+      eventData,
+      widgetType = "schedule",
+      uniqueId,
+    ) {
       this.debug(
         "Updating main event panel with new data:",
         eventData?.title || "Unknown",
@@ -1029,8 +966,39 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
         );
       }
 
+      // Element queries - use IDs if available, fallback to classes for legacy panels
+      let categoryEl, titleEl, thumbnailEl, speakerNameEl, speakerPositionEl;
+
+      if (uniqueId) {
+        // ID-based targeting for panels with unique IDs
+        categoryEl = mainPanel.querySelector(
+          `#event-category-main-${uniqueId}`,
+        );
+        titleEl = mainPanel.querySelector(`#event-title-main-${uniqueId}`);
+        thumbnailEl = mainPanel.querySelector(
+          `#event-thumbnail-main-${uniqueId}`,
+        );
+        speakerNameEl = mainPanel.querySelector(
+          `#event-speaker-name-main-${uniqueId}`,
+        );
+        speakerPositionEl = mainPanel.querySelector(
+          `#event-speaker-position-main-${uniqueId}`,
+        );
+      } else {
+        // Fallback to class-based targeting for legacy panels
+        this.debug(
+          "No uniqueId provided, falling back to class-based targeting",
+        );
+        categoryEl = mainPanel.querySelector(".nzgdc-category-text-main");
+        titleEl = mainPanel.querySelector(".nzgdc-title-text-main");
+        thumbnailEl = mainPanel.querySelector(".nzgdc-session-thumbnail-main");
+        speakerNameEl = mainPanel.querySelector(".nzgdc-speaker-name-main");
+        speakerPositionEl = mainPanel.querySelector(
+          ".nzgdc-speaker-position-company-main",
+        );
+      }
+
       // Update category display
-      const categoryEl = mainPanel.querySelector(".nzgdc-category-text-main");
       if (categoryEl) {
         categoryEl.textContent = categoryData
           ? categoryData.displayName
@@ -1038,15 +1006,11 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       }
 
       // Update title
-      const titleEl = mainPanel.querySelector(".nzgdc-title-text-main");
       if (titleEl) {
         titleEl.textContent = eventData.title || "Event Title";
       }
 
       // Update thumbnail (with speaker headshot fallback)
-      const thumbnailEl = mainPanel.querySelector(
-        ".nzgdc-session-thumbnail-main",
-      );
       if (thumbnailEl) {
         if (eventData.thumbnail) {
           thumbnailEl.style.backgroundImage = `url('${eventData.thumbnail}')`;
@@ -1058,16 +1022,13 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       }
 
       // Update speaker details
-      const speakerNameEl = mainPanel.querySelector(".nzgdc-speaker-name-main");
-      const speakerPositionEl = mainPanel.querySelector(
-        ".nzgdc-speaker-position-company-main",
-      );
 
       if (speakerNameEl) {
-        speakerNameEl.textContent =
+        const displayText =
           eventData.speakers?.[0]?.displayName ||
           eventData.speakers?.[0]?.name ||
           "Speaker Name";
+        speakerNameEl.textContent = `Presented by ${displayText}`;
       }
 
       if (speakerPositionEl) {

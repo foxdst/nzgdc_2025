@@ -1,17 +1,18 @@
 <!-- NZGDC Unified Event Panel Template -->
 <!-- Used by all widget types: Thursday, Morning, and Afternoon -->
+<!-- Updated to include both IDs and classes for separation of concerns -->
 <div class="nzgdc-event-panel-big">
     <!-- Event Panel Thumbnail (Left Side) -->
     <div class="nzgdc-event-panel-big-thumbnail">
         <!-- Session Thumbnail (Background) -->
-        <div class="nzgdc-session-thumbnail-big"></div>
+        <div class="nzgdc-session-thumbnail-big" id="event-thumbnail-{uniqueId}"></div>
 
         <!-- Event Detail Overlay -->
         <div class="nzgdc-event-detail-overlay-big">
             <!-- Call To Action -->
             <div class="nzgdc-call-to-action-big">
                 <div class="nzgdc-open-marker-big"></div>
-                <div class="nzgdc-cta-text-big">Click for More Event Details</div>
+                <div class="nzgdc-cta-text-big" id="event-cta-text-{uniqueId}">Click for More Event Details</div>
             </div>
         </div>
     </div>
@@ -20,43 +21,43 @@
     <div class="nzgdc-event-panel-big-details">
         <!-- Event Category (Top) -->
         <div class="nzgdc-event-category-big">
-            <div class="nzgdc-category-text-big"></div>
+            <div class="nzgdc-category-text-big" id="event-category-{uniqueId}"></div>
         </div>
 
         <!-- Event Title (Middle) -->
         <div class="nzgdc-event-title-big">
-            <div class="nzgdc-title-text-big"></div>
+            <div class="nzgdc-title-text-big" id="event-title-{uniqueId}"></div>
         </div>
 
         <!-- Event Speaker Details (Bottom) -->
         <div class="nzgdc-event-speaker-details-big">
             <!-- Introduction text (dynamically set based on widget type) -->
-            <div class="nzgdc-introduction-text-big">NZGDC 2025 Event by</div>
+            <div class="nzgdc-introduction-text-big" id="event-intro-{uniqueId}">NZGDC 2025 Event by</div>
 
             <!-- Speaker Details -->
             <div class="nzgdc-speaker-details-big">
                 <!-- Speaker 1 -->
                 <div class="nzgdc-speaker-biolines-big">
-                    <div class="nzgdc-speaker-bioName-big"></div>
-                    <div class="nzgdc-speaker-bioPosition-big"></div>
+                    <div class="nzgdc-speaker-bioName-big" id="event-speaker-name-1-{uniqueId}"></div>
+                    <div class="nzgdc-speaker-bioPosition-big" id="event-speaker-position-1-{uniqueId}"></div>
                 </div>
 
                 <!-- Speaker 2 -->
                 <div class="nzgdc-speaker-biolines-big">
-                    <div class="nzgdc-speaker-bioName-big"></div>
-                    <div class="nzgdc-speaker-bioPosition-big"></div>
+                    <div class="nzgdc-speaker-bioName-big" id="event-speaker-name-2-{uniqueId}"></div>
+                    <div class="nzgdc-speaker-bioPosition-big" id="event-speaker-position-2-{uniqueId}"></div>
                 </div>
 
                 <!-- Speaker 3 -->
                 <div class="nzgdc-speaker-biolines-big">
-                    <div class="nzgdc-speaker-bioName-big"></div>
-                    <div class="nzgdc-speaker-bioPosition-big"></div>
+                    <div class="nzgdc-speaker-bioName-big" id="event-speaker-name-3-{uniqueId}"></div>
+                    <div class="nzgdc-speaker-bioPosition-big" id="event-speaker-position-3-{uniqueId}"></div>
                 </div>
             </div>
 
             <!-- Timeframe -->
             <div class="nzgdc-timeframe-big">
-                <div class="nzgdc-timeframe-text-big"></div>
+                <div class="nzgdc-timeframe-text-big" id="event-timeframe-{uniqueId}"></div>
             </div>
         </div>
     </div>
