@@ -374,7 +374,7 @@ class ExpandedEventDetailsManager {
     }
 
     return speakers.map((speaker) => ({
-      name: speaker.name || speaker.displayName || "Speaker Name",
+      name: speaker.displayName || speaker.name || "Speaker Name",
       position: speaker.position || speaker.title || "Position",
       bio:
         speaker.bio ||
@@ -444,7 +444,7 @@ class ExpandedEventDetailsManager {
       const speakerItem = document.createElement("div");
       speakerItem.className = "nzgdc-speaker-name-item";
       speakerItem.textContent =
-        speaker.name || speaker.displayName || "Speaker TBA";
+        speaker.displayName || speaker.name || "Speaker TBA";
       speakersListElement.appendChild(speakerItem);
     });
   }
@@ -560,7 +560,7 @@ class ExpandedEventDetailsManager {
     if (speaker.headshot) {
       const img = document.createElement("img");
       img.src = speaker.headshot;
-      img.alt = speaker.name || speaker.displayName || "Speaker";
+      img.alt = speaker.displayName || speaker.name || "Speaker";
       headshotDiv.appendChild(img);
     } else {
       const placeholder = document.createElement("div");
@@ -595,7 +595,7 @@ class ExpandedEventDetailsManager {
     // Speaker name
     const nameDiv = document.createElement("div");
     nameDiv.className = "nzgdc-expanded-speaker-name";
-    nameDiv.textContent = speaker.name || speaker.displayName || "Speaker Name";
+    nameDiv.textContent = speaker.displayName || speaker.name || "Speaker Name";
 
     // Speaker position
     const positionDiv = document.createElement("div");

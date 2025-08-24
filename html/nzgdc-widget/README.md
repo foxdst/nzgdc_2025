@@ -265,8 +265,9 @@ The data management architecture provides several key benefits:
 - **Standardized Formats**: All entities are transformed to consistent formats
 - **Data Integrity**: Comprehensive validation ensures data quality
 - **Extensibility**: API modules allow for easy addition of new features
-- **Performance**: Efficient data loading and caching strategies
+- **Performance**: Efficient data loading and caching strategies with enhanced thumbnail fallback
 - **Maintainability**: Clear separation of concerns between data and presentation
+- **Data Consistency**: Corrected speaker field mapping ensures reliable data display
 
 #### `UnifiedEventLoader` (js/unified-event-loader.js)
 **Primary Responsibilities:**
@@ -698,7 +699,7 @@ eventPanel.addEventListener('click', () => {
 - **Seamless Integration**: Works with existing overlay click system without breaking functionality
 - **Data Compatibility**: Supports event data from all widget types (Thursday, Morning, Afternoon)
 - **Responsive Design**: Mobile-optimized layout with touch-friendly interactions
-- **Performance Optimized**: Lazy loading and efficient memory management
+- **Performance Optimized**: Lazy loading, efficient memory management, and smart thumbnail fallback
 
 ### Accessibility Features
 - **Keyboard Navigation**: Full keyboard support including ESC to close
@@ -746,6 +747,8 @@ console.log('Testing existing functionality...');
 - **"Panels need hover effects"** → Hover overlays already implemented
 
 **If something appears broken, debug the existing system before rebuilding it!**
+
+**✅ Recent Improvements**: Speaker data field mapping has been corrected for consistent display across all widget components. Thumbnail fallback now uses speaker headshots when event thumbnails are unavailable.
 
 ### Debug Mode Activation
 ```javascript
@@ -910,6 +913,56 @@ if (window.expandedEventDetailsManager) {
 - **Template loading failure**: Check `templates/expanded-event-details-overlay.html` is accessible
 - **Click handler integration failure**: Verify unified-event-loader.js has manager integration
 - **Event data validation failure**: Check event data has required fields (title, speakers array)
+
+#### 6. Speaker Data Mapping Verification
+
+**Symptoms**: Speaker names, positions, or contact info not displaying correctly, thumbnails missing
+**Debugging Steps**:
+```javascript
+// Check speaker data transformation
+const dataManager = window.dataManagerInstance;
+if (dataManager) {
+    const speakers = dataManager.getSpeakerData();
+    console.log('Speaker data available:', speakers.size);
+    
+    // Check first speaker's field mapping
+    const firstSpeaker = Array.from(speakers.values())[0];
+    console.log('Sample speaker data mapping:', {
+        displayName: firstSpeaker?.displayName,
+        name: firstSpeaker?.name,
+        position: firstSpeaker?.position,
+        headshot: firstSpeaker?.headshot,
+        email: firstSpeaker?.email,
+        website: firstSpeaker?.website
+    });
+}
+
+// Verify HTML element mapping
+const speakerElements = {
+    bioNameBig: document.querySelectorAll('.nzgdc-speaker-bioName-big'),
+    nameMain: document.querySelectorAll('.nzgdc-speaker-name-main'),
+    expandedName: document.querySelectorAll('.nzgdc-expanded-speaker-name'),
+    nameItem: document.querySelectorAll('.nzgdc-speaker-name-item'),
+    headshots: document.querySelectorAll('.nzgdc-speaker-headshot'),
+    contactEmail: document.querySelectorAll('.nzgdc-contact-email'),
+    contactWebsite: document.querySelectorAll('.nzgdc-contact-website')
+};
+console.log('Speaker HTML elements found:', speakerElements);
+
+// Check thumbnail fallback behavior
+const thumbnails = document.querySelectorAll('.nzgdc-session-thumbnail-big, .nzgdc-session-thumbnail-main');
+thumbnails.forEach((thumb, i) => {
+    const bgImage = window.getComputedStyle(thumb).backgroundImage;
+    console.log(`Thumbnail ${i}:`, bgImage !== 'none' ? 'Has image' : 'No image');
+});
+```
+
+**Common Issues & Solutions**:
+- **Name field priority**: Ensure `displayName` is checked before `name` fallback
+- **Missing headshots**: Verify `speakerImage` is properly mapped to `headshot` field
+- **Contact links broken**: Check `web` field is properly mapped to `website` field
+- **Position formatting**: Ensure `position` + `company` combination is properly formatted
+- **Thumbnail fallback**: Verify speaker headshots are used when event thumbnails unavailable
 
 ### Debug API Methods
 
@@ -1458,11 +1511,22 @@ WRONG ORDER = BROKEN WIDGETS
 - **Simplified File Structure**: 50% reduction in duplicate widget files
 - **Preserved User Experience**: Zero visual or functional changes to end-user experience
 - **Improved Maintainability**: Single codebase for Friday/Saturday functionality
+- **✅ Speaker Field Mapping Fixes**: Corrected consistent field prioritization and thumbnail fallback behavior
 
 #### Files Added:
 - `nzgdc-friday-saturday-schedule-widget-modular.js` (unified entry point)
 - `css/friday-saturday-schedule-bundle.css` (consolidated CSS)
 - `js/friday-saturday-widget-core.js` (unified controller)
+
+#### Recent Fixes (Speaker Data Mapping):
+- **Field Prioritization**: Fixed `displayName` field prioritization across all components
+- **Thumbnail Fallback**: Enhanced thumbnail logic to use speaker headshots when event thumbnails unavailable
+- **HTML Element Mapping**: Ensured consistent mapping of API fields to HTML elements:
+  - `displayName` → `.nzgdc-speaker-bioName-big`, `.nzgdc-speaker-name-main`, `.nzgdc-expanded-speaker-name`, `.nzgdc-speaker-name-item`
+  - `position` (combined) → `.nzgdc-speaker-bioPosition-big`, `.nzgdc-speaker-position-company-main`, `.nzgdc-expanded-speaker-position`
+  - `headshot` → `.nzgdc-speaker-headshot` and thumbnail fallbacks
+  - `email` → `.nzgdc-contact-email`
+  - `website` → `.nzgdc-contact-website`
 
 #### Files Deprecated:
 - `nzgdc-morning-schedule-widget-modular.js` (moved to `.deprecated/`)

@@ -360,13 +360,13 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
       <!-- Event Panel Thumbnail (Bottom) -->
       <div class="nzgdc-event-panel-thumbnail-main">
         <!-- Session Thumbnail (Background) -->
-        <div class="nzgdc-session-thumbnail-main" style="${eventData.thumbnail ? `background-image: url('${eventData.thumbnail}')` : "background-image: none"}"></div>
+        <div class="nzgdc-session-thumbnail-main" style="${eventData.thumbnail ? `background-image: url('${eventData.thumbnail}')` : eventData.speakers?.[0]?.headshot ? `background-image: url('${eventData.speakers[0].headshot}')` : "background-image: none"}"></div>
 
         <!-- Event Panel Overlay -->
         <div class="nzgdc-event-panel-overlay-main">
           <!-- Speaker Details -->
           <div class="nzgdc-speaker-details-main">
-            <div class="nzgdc-speaker-name-main">Presented by ${eventData.speakers?.[0]?.name || eventData.speakers?.[0]?.displayName || "Speaker Name"}</div>
+            <div class="nzgdc-speaker-name-main">Presented by ${eventData.speakers?.[0]?.displayName || eventData.speakers?.[0]?.name || "Speaker Name"}</div>
             <div class="nzgdc-speaker-position-company-main">${eventData.speakers?.[0]?.position || "Position + Company"}</div>
           </div>
 
@@ -481,14 +481,22 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
         this.debug("Set unified intro text:", introText);
       }
 
-      // Update thumbnail (only if provided)
+      // Update thumbnail (with speaker headshot fallback)
       if (thumbnailEl) {
         if (eventData.thumbnail) {
           thumbnailEl.style.backgroundImage = `url('${eventData.thumbnail}')`;
           this.debug("Set unified thumbnail:", eventData.thumbnail);
+        } else if (eventData.speakers?.[0]?.headshot) {
+          thumbnailEl.style.backgroundImage = `url('${eventData.speakers[0].headshot}')`;
+          this.debug(
+            "Set unified thumbnail from speaker headshot:",
+            eventData.speakers[0].headshot,
+          );
         } else {
           thumbnailEl.style.backgroundImage = "none";
-          this.debug("Cleared unified thumbnail - no thumbnail available");
+          this.debug(
+            "Cleared unified thumbnail - no thumbnail or headshot available",
+          );
         }
       }
 
@@ -536,7 +544,7 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
 
           if (nameEl) {
             const speakerName =
-              speaker.name || speaker.displayName || "Speaker TBA";
+              speaker.displayName || speaker.name || "Speaker TBA";
             nameEl.textContent = speakerName;
             this.debug(`Unified speaker ${index + 1} name:`, speakerName);
           } else {
@@ -963,7 +971,7 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
 
           if (nameEl) {
             const speakerName =
-              speaker.name || speaker.displayName || "Speaker TBA";
+              speaker.displayName || speaker.name || "Speaker TBA";
             nameEl.textContent = speakerName;
             this.debug(`Unified speaker ${index + 1} name:`, speakerName);
           } else {
@@ -1035,13 +1043,15 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
         titleEl.textContent = eventData.title || "Event Title";
       }
 
-      // Update thumbnail
+      // Update thumbnail (with speaker headshot fallback)
       const thumbnailEl = mainPanel.querySelector(
         ".nzgdc-session-thumbnail-main",
       );
       if (thumbnailEl) {
         if (eventData.thumbnail) {
           thumbnailEl.style.backgroundImage = `url('${eventData.thumbnail}')`;
+        } else if (eventData.speakers?.[0]?.headshot) {
+          thumbnailEl.style.backgroundImage = `url('${eventData.speakers[0].headshot}')`;
         } else {
           thumbnailEl.style.backgroundImage = "none";
         }
@@ -1055,8 +1065,8 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
 
       if (speakerNameEl) {
         speakerNameEl.textContent =
-          eventData.speakers?.[0]?.name ||
           eventData.speakers?.[0]?.displayName ||
+          eventData.speakers?.[0]?.name ||
           "Speaker Name";
       }
 

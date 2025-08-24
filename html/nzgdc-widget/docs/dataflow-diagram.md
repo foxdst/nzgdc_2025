@@ -9,16 +9,16 @@ flowchart TD
     %% ACTUAL IMPLEMENTATION (Used by Widget)
     subgraph ACTIVE ["🟢 ACTIVE DATA FLOW"]
         A --> B[js/data-manager.js<br/>Data Coordinator]
-        B --> |loadApiData<br/>transformApiData| C[js/data-transformer.js<br/>Data Standardization]
+        B --> |loadApiData<br/>transformApiData| C[js/data-transformer.js<br/>Data Standardization<br/>✅ Speaker Field Mapping<br/>displayName → displayName<br/>speakerImage → headshot<br/>web → website]
         
         %% Data Transformation Process
-        C --> C1[transformSpeakers]
+        C --> C1[transformSpeakers<br/>✅ Field prioritization fixed]
         C --> C2[transformEvents]
         C --> C3[transformCategories]
         C --> C4[transformRooms/Streams/SessionTypes]
         C --> C5[transformSchedules]
         
-        C1 --> D[Standardized Data Maps]
+        C1 --> D[Standardized Data Maps<br/>✅ Consistent field mapping]
         C2 --> D
         C3 --> D
         C4 --> D
@@ -43,17 +43,17 @@ flowchart TD
         G --> G3[js/afternoon-schedule-generator.js]
         
         %% Event Panel Creation
-        G1 --> |loadSingleEvent<br/>eventData| H[js/unified-event-loader.js<br/>Panel Creation & Rendering]
+        G1 --> |loadSingleEvent<br/>eventData| H[js/unified-event-loader.js<br/>Panel Creation & Rendering<br/>✅ Speaker field mapping:<br/>displayName → .nzgdc-speaker-bioName-big<br/>displayName → .nzgdc-speaker-name-main<br/>✅ Thumbnail fallback to headshot]
         G2 --> |loadSingleEvent<br/>eventData| H
         G3 --> |loadSingleEvent<br/>eventData| H
         
         %% Panel Content Population
-        H --> H1[createEventPanel]
-        H --> H2[updateEventContent]
+        H --> H1[createEventPanel<br/>✅ Enhanced thumbnail logic]
+        H --> H2[updateEventContent<br/>✅ Corrected field priority]
         H --> H3[setupSpeakerDetailsHover]
         
         %% Modal Display
-        H3 --> |showEventDetails<br/>standardized eventData| I[js/expanded-event-details-manager.js<br/>Modal Display Manager]
+        H3 --> |showEventDetails<br/>standardized eventData| I[js/expanded-event-details-manager.js<br/>Modal Display Manager<br/>✅ Complete speaker mapping:<br/>displayName → .nzgdc-expanded-speaker-name<br/>headshot → .nzgdc-speaker-headshot<br/>email → .nzgdc-contact-email<br/>website → .nzgdc-contact-website]
     end
     
     %% UNUSED API LAYER (Documentation vs Reality)
@@ -73,7 +73,7 @@ flowchart TD
     
     %% Modal Content Population
     I --> I1[populateEventContent]
-    I --> I2[populateSpeakerBios]
+    I --> I2[populateSpeakerBios<br/>✅ Contact info integration]
     I --> I3[populateDescription]
     I --> I4[populateAudienceTags]
     
@@ -108,12 +108,17 @@ This diagram reveals the **actual data flow** in the NZGDC widget system versus 
 1. **Raw Data Ingestion**: Data enters through `n8n-entegyapi.json` via webhook or local file ✅
 2. **Centralized Management**: `data-manager.js` serves as the single source of truth ✅
 3. **Data Standardization**: `data-transformer.js` processes and cleans the raw data ✅
+   - **✅ Speaker Field Mapping**: Correctly maps `displayName`, `speakerImage` → `headshot`, `web` → `website`
+   - **✅ Combined Position Field**: Merges `position` + `company` into display-ready format
 4. **~~API Layer~~**: **❌ UNUSED - These files exist but are NOT loaded by the widget loader**
 5. **Direct DataManager Access**: Widget cores directly call `this.dataManager.getAllEvents()` etc. ✅
 6. **Widget Orchestration**: Core widget modules initialize the rendering process ✅
 7. **Schedule Rendering**: Generator modules build the HTML layout structure ✅
 8. **Panel Creation**: Unified loader creates individual event panels with full details ✅
+   - **✅ Speaker Data Mapping**: `displayName` correctly prioritized over `name` fallback
+   - **✅ Thumbnail Fallback**: Uses speaker `headshot` when event thumbnail unavailable
 9. **User Interaction**: Expanded details manager handles click events for detailed modals ✅
+   - **✅ Complete Contact Integration**: Email and website links with proper protocol handling
 
 ### 🔴 **DOCUMENTATION vs REALITY GAP**
 
@@ -136,3 +141,15 @@ The actual implementation is **more direct and efficient** than documented:
 - Direct DataManager access reduces complexity
 - Static files provide reliable fallback mechanism
 - The transformation pipeline (DataManager → DataTransformer) works as documented
+
+### 🔧 **Recent Improvements (Field Mapping Fixes)**
+
+**✅ Speaker Data Consistency**:
+- Fixed `displayName` field prioritization across all components
+- Enhanced thumbnail fallback to use speaker headshots
+- Proper mapping of API fields to HTML elements:
+  - `displayName` → `.nzgdc-speaker-bioName-big`, `.nzgdc-speaker-name-main`, `.nzgdc-expanded-speaker-name`, `.nzgdc-speaker-name-item`
+  - `position` (combined) → `.nzgdc-speaker-bioPosition-big`, `.nzgdc-speaker-position-company-main`, `.nzgdc-expanded-speaker-position`
+  - `headshot` → `.nzgdc-speaker-headshot` and thumbnail fallbacks
+  - `email` → `.nzgdc-contact-email`
+  - `website` → `.nzgdc-contact-website`

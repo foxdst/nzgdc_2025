@@ -78,7 +78,14 @@ The data flows through several JavaScript files, each responsible for a specific
 - **Output**: Arrays and Maps of standardized data objects (e.g., `_standardizeSpeaker`, `_standardizeEvent`).
 - **Connections**:
     - **`transformSpeakers(apiData)`**: Extracts and standardizes speaker data from `apiData.data.speakers` and `apiData.data.schedule[].sessions[].speakers`.
-        - **`_standardizeSpeaker(speaker)`**: Maps raw speaker fields (e.g., `displayName`, `copy`, `speakerImage`) to standardized properties (`name`, `bio`, `headshot`). It also combines `position` and `company` into a single `position` field for display.
+        - **`_standardizeSpeaker(speaker)`**: Maps raw speaker fields to standardized properties with proper field prioritization:
+            - `displayName` → `displayName` (preserved primary field)
+            - `displayName` → `name` (for widget compatibility)
+            - `position` + `company` → `position` (combined as "Position at Company")
+            - `speakerImage` → `headshot`
+            - `web` → `website`
+            - `email` → `email` (preserved)
+            - `copy` → `bio` (HTML stripped)
     - **`transformCategories(apiData)`**: Extracts and standardizes category data from `apiData.data.categories`.
         - **`_standardizeCategory(category)`**: Maps `name` to `name` and generates a `key` (e.g., "Game Design" -> "GAME_DESIGN").
     - **`transformRooms(apiData)`**: Extracts and standardizes room data from `apiData.data.rooms` and `apiData.data.schedule[].sessions[].room`.
@@ -179,7 +186,7 @@ The data flows through several JavaScript files, each responsible for a specific
 4. **API Access**: `js/speaker-api.js`, `js/event-api.js`, etc., provide structured access to this standardized data for other modules.
 5. **Widget Orchestration**: `js/widget-core.js` (and `js/friday-saturday-widget-core.js`) initializes the schedule rendering process. It retrieves `scheduleData` and `eventData` from the `DataManager`.
 6. **Schedule Rendering**: `js/schedule-generator.js` (and `js/morning-schedule-generator.js`, `js/afternoon-schedule-generator.js`) uses the `scheduleData` to build the overall HTML layout and then requests detailed `eventData` for each panel.
-7. **Panel Creation**: `js/unified-event-loader.js` takes individual `eventData` objects and renders the specific "big" or "main" event panel HTML, populating it with titles, speakers, thumbnails, and category information. It also attaches event listeners for interaction.
+7. **Panel Creation**: `js/unified-event-loader.js` takes individual `eventData` objects and renders the specific "big" or "main" event panel HTML, populating it with titles, speakers, thumbnails (with speaker headshot fallback), and category information. It correctly maps speaker fields (`displayName`, `position`, `headshot`) to their corresponding HTML elements and attaches event listeners for interaction.
 8. **Expanded Details**: When an event panel is clicked, `js/expanded-event-details-manager.js` is invoked by `unified-event-loader.js`, receiving the full standardized `eventData` object to display a detailed modal.
 
 This systemic approach ensures data consistency, modularity, and maintainability across the NZGDC widget.
@@ -378,10 +385,13 @@ This file is the "detail painter." It's responsible for creating the actual visu
     *   **Output:** A fully constructed HTML element for an event panel.
 
 *   **`updateBigEventContent(...)` / `updateMainEventContent(...)`**
-    *   **What they do:** These functions take an existing event panel HTML element and fill it with the specific details from an `eventData` object. They put the title in the title spot, the speaker's name in the speaker spot, set the background image for the thumbnail, and so on.
-    *   **Why they're important:** They dynamically update the visual content of each event panel.
+    *   **What they do:** These functions take an existing event panel HTML element and fill it with the specific details from an `eventData` object. They correctly map speaker data to HTML elements:
+        - `displayName` → `.nzgdc-speaker-bioName-big` and `.nzgdc-speaker-name-main`
+        - `position` → `.nzgdc-speaker-bioPosition-big` and `.nzgdc-speaker-position-company-main`
+        - `headshot` → Used as thumbnail fallback when `eventData.thumbnail` is unavailable
+    *   **Why they're important:** They ensure consistent speaker data display and provide fallback behavior.
     *   **Input:** An HTML element representing an event panel, and the standardized event data.
-    *   **Output:** The HTML element is updated with event details.
+    *   **Output:** The HTML element is updated with event details and proper field mappings.
 
 *   **`setupSpeakerDetailsHover(eventPanel, eventData)`**
     *   **What it does:** This function makes the event panels interactive. It adds special behaviors so that when you hover over a panel, an overlay appears, and when you click it, a larger "expanded details" modal pops up.
@@ -406,10 +416,15 @@ This file is dedicated to handling the large pop-up window that shows all the de
     *   **Output:** The modal's content is updated.
 
 *   **`populateSpeakerBios(speakers)`**
-    *   **What it does:** This function specifically focuses on the speaker section within the modal. It creates individual "bio cards" for each speaker associated with the event, including their headshot, name, position, and biography.
-    *   **Why it's important:** It provides detailed information about each speaker.
+    *   **What it does:** This function creates detailed speaker bio cards in the expanded modal, correctly mapping speaker fields to HTML elements:
+        - `displayName` → `.nzgdc-expanded-speaker-name` and `.nzgdc-speaker-name-item`
+        - `position` → `.nzgdc-expanded-speaker-position`
+        - `headshot` → `.nzgdc-speaker-headshot` (with placeholder fallback)
+        - `email` → `.nzgdc-contact-email` (mailto link)
+        - `website` → `.nzgdc-contact-website` (external link with proper protocol handling)
+    *   **Why it's important:** It provides comprehensive speaker information with proper contact integration.
     *   **Input:** An array of standardized speaker objects.
-    *   **Output:** Speaker bio cards are added to the modal.
+    *   **Output:** Complete speaker bio cards with contact information are added to the modal.
 
 *   **`hideEventDetails()`**
     *   **What it does:** This function closes the detailed event modal. It hides the modal and cleans up the webpage (like restoring scrolling).
