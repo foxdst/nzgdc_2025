@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NZGDC Dynamic Time Management Test</title>
+
+    <!-- CSS Files (in correct loading order) -->
+    <link rel="stylesheet" href="../css/unified-event-panel.css">
+    <link rel="stylesheet" href="../css/category-filter-overlay.css">
+    <link rel="stylesheet" href="../css/expanded-event-details-overlay.css">
+    <link rel="stylesheet" href="../css/thursday-schedule-bundle.css">
+    <link rel="stylesheet" href="../css/friday-saturday-schedule-bundle.css">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .test-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .test-section {
+            margin-bottom: 40px;
+        }
+
+        .test-controls {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            background: #007cba;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #005a87;
+        }
+
+        .debug-info {
+            margin: 20px 0;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .schedule-container {
+            border: 2px dashed #ddd;
+            min-height: 200px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .error {
+            color: red;
+            background: #ffe6e6;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .success {
+            color: green;
+            background: #e6ffe6;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+
+        .test-log {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        /* Panel Type Hierarchy Visual Indicators */
+        .nzgdc-big-panel-row {
+            border: 2px solid #007cba;
+            border-radius: 8px;
+            margin: 10px 0;
+            padding: 5px;
+            background: linear-gradient(to right, #e3f2fd, #ffffff);
+        }
+
+        .nzgdc-big-panel-row::before {
+            content: "BIG PANELS";
+            display: block;
+            font-size: 10px;
+            font-weight: bold;
+            color: #007cba;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .nzgdc-main-panel-row {
+            border: 2px solid #28a745;
+            border-radius: 8px;
+            margin: 10px 0;
+            padding: 5px;
+            background: linear-gradient(to right, #e8f5e8, #ffffff);
+        }
+
+        .nzgdc-main-panel-row::before {
+            content: "MAIN PANELS";
+            display: block;
+            font-size: 10px;
+            font-weight: bold;
+            color: #28a745;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .nzgdc-big-event {
+            border-left: 4px solid #007cba;
+        }
+
+        .nzgdc-main-event {
+            border-left: 4px solid #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>NZGDC Dynamic Time Management Test</h1>
+            <p>This page tests the new dynamic Event Times Container functionality that organizes events by actual start/end times from the API.</p>
+        </div>
+
+        <div class="test-section">
+            <h2>Test Controls</h2>
+            <div class="test-controls">
+                <button onclick="initializeTest()">Initialize Test</button>
+                <button onclick="testBasicTimeBlocks()">Test Basic Time Blocks</button>
+                <button onclick="testEventSorting()">Test Event Sorting</button>
+                <button onclick="testPanelTypeHierarchy()">Test Panel Type Hierarchy</button>
+                <button onclick="testDynamicUpdates()">Test Dynamic Updates</button>
+                <button onclick="testFilterIntegration()">Test Filter Integration</button>
+                <button onclick="clearSchedule()">Clear Schedule</button>
+                <button onclick="toggleDebug()">Toggle Debug</button>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Schedule Container (Thursday Widget)</h2>
+            <div id="thursday-schedule" class="schedule-container nzgdc-schedule-widget">
+                <p>Schedule will appear here...</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Schedule Container (Morning Widget)</h2>
+            <div id="morning-schedule" class="schedule-container nzgdc-friday-saturday-schedule-widget morning-view">
+                <p>Morning schedule will appear here...</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Schedule Container (Afternoon Widget)</h2>
+            <div id="afternoon-schedule" class="schedule-container nzgdc-friday-saturday-schedule-widget afternoon-view">
+                <p>Afternoon schedule will appear here...</p>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Debug Information</h2>
+            <div id="debug-info" class="debug-info">
+                Debug info will appear here...
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>Test Log</h2>
+            <div id="test-log" class="test-log">
+                Waiting for test initialization...
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Files (in correct loading order) -->
+    <script src="../js/schedule-time-manager.js"></script>
+    <script src="../js/unified-event-loader.js"></script>
+    <script src="../js/expanded-event-details-manager.js"></script>
+    <script src="../js/data-manager.js"></script>
+    <script src="../js/data-transformer.js"></script>
+    <script src="../js/schedule-generator.js"></script>
+    <script src="../js/morning-schedule-generator.js"></script>
+    <script src="../js/afternoon-schedule-generator.js"></script>
+
+    <script>
+        // Test variables
+        let timeManager = null;
+        let debugEnabled = false;
+        let testLog = [];
+
+        // Sample test data with realistic event times
+        const sampleEventData = {
+            "event-001": {
+                id: "event-001",
+                title: "Advanced Unity Optimization Techniques",
+                startTime: "09:00",
+                endTime: "10:30",
+                category: "Programming",
+                categoryKey: "PROGRAMMING",
+                speakers: [
+                    {
+                        id: "speaker-001",
+                        displayName: "Sarah Johnson",
+                        position: "Senior Developer @ Unity Technologies",
+                        headshot: "https://via.placeholder.com/150x150?text=SJ"
+                    },
+                    {
+                        id: "speaker-002",
+                        displayName: "Alex Chen",
+                        position: "Performance Engineer @ Unity Technologies",
+                        headshot: "https://via.placeholder.com/150x150?text=AC"
+                    }
+                ],
+                description: "Learn advanced optimization techniques for Unity games..."
+            },
+            "event-002": {
+                id: "event-002",
+                title: "Indie Game Marketing Strategies",
+                startTime: "09:00",
+                endTime: "10:00",
+                category: "Business & Marketing",
+                categoryKey: "BUSINESS_MARKETING",
+                speakers: [
+                    {
+                        id: "speaker-003",
+                        displayName: "Mike Chen",
+                        position: "Marketing Director @ Indie Studios",
+                        headshot: "https://via.placeholder.com/150x150?text=MC"
+                    }
+                ],
+                description: "Effective marketing strategies for independent game developers..."
+            },
+            "event-003": {
+                id: "event-003",
+                title: "Character Design Workshop",
+                startTime: "10:30",
+                endTime: "12:00",
+                category: "Art",
+                categoryKey: "ART",
+                speakers: [
+                    {
+                        id: "speaker-004",
+                        displayName: "Emma Rodriguez",
+                        position: "Lead Artist @ Creative Games",
+                        headshot: "https://via.placeholder.com/150x150?text=ER"
+                    },
+                    {
+                        id: "speaker-005",
+                        displayName: "Jordan Park",
+                        position: "Character Artist @ Creative Games",
+                        headshot: "https://via.placeholder.com/150x150?text=JP"
+                    }
+                ],
+                description: "Hands-on workshop for creating memorable game characters..."
+            },
+            "event-004": {
+                id: "event-004",
+                title: "Game Audio Fundamentals",
+                startTime: "10:30",
+                endTime: "11:30",
+                category: "Audio",
+                categoryKey: "AUDIO",
+                speakers: [
+                    {
+                        id: "speaker-006",
+                        displayName: "David Park",
+                        position: "Audio Engineer @ Sound Studios",
+                        headshot: "https://via.placeholder.com/150x150?text=DP"
+                    }
+                ],
+                description: "Introduction to game audio design and implementation..."
+            },
+            "event-005": {
+                id: "event-005",
+                title: "The Psychology of Player Engagement",
+                startTime: "13:00",
+                endTime: "14:30",
+                category: "Game Design",
+                categoryKey: "GAME_DESIGN",
+                speakers: [
+                    {
+                        id: "speaker-007",
+                        displayName: "Dr. Lisa Thompson",
+                        position: "Game Psychology Researcher @ University",
+                        headshot: "https://via.placeholder.com/150x150?text=LT"
+                    },
+                    {
+                        id: "speaker-008",
+                        displayName: "Prof. Michael Garcia",
+                        position: "Behavioral Psychology @ University",
+                        headshot: "https://via.placeholder.com/150x150?text=MG"
+                    }
+                ],
+                description: "Understanding what keeps players engaged in your games..."
+            },
+            "event-006": {
+                id: "event-006",
+                title: "Building Sustainable Game Communities",
+                startTime: "13:00",
+                endTime: "14:00",
+                category: "Culture",
+                categoryKey: "CULTURE",
+                speakers: [
+                    {
+                        id: "speaker-009",
+                        displayName: "Alex Kim",
+                        position: "Community Manager @ Big Games",
+                        headshot: "https://via.placeholder.com/150x150?text=AK"
+                    }
+                ],
+                description: "Best practices for building and maintaining game communities..."
+            },
+            "event-007": {
+                id: "event-007",
+                title: "VR Game Development Challenges",
+                startTime: "15:00",
+                endTime: "16:30",
+                category: "Realities (VR, AR, MR)",
+                categoryKey: "REALITIES_VR_AR_MR",
+                speakers: [
+                    {
+                        id: "speaker-010",
+                        displayName: "Jordan Miller",
+                        position: "VR Developer @ Future Games",
+                        headshot: "https://via.placeholder.com/150x150?text=JM"
+                    },
+                    {
+                        id: "speaker-011",
+                        displayName: "Casey Wong",
+                        position: "VR UX Designer @ Future Games",
+                        headshot: "https://via.placeholder.com/150x150?text=CW"
+                    }
+                ],
+                description: "Unique challenges and solutions in VR game development..."
+            },
+            "event-008": {
+                id: "event-008",
+                title: "Quality Assurance Best Practices",
+                startTime: "15:00",
+                endTime: "16:00",
+                category: "Production & QA",
+                categoryKey: "PRODUCTION_QA",
+                speakers: [
+                    {
+                        id: "speaker-012",
+                        displayName: "Taylor Wilson",
+                        position: "QA Lead @ Quality Studios",
+                        headshot: "https://via.placeholder.com/150x150?text=TW"
+                    }
+                ],
+                description: "Essential QA practices for game development teams..."
+            }
+        };
+
+        // Utility functions
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+
+            // Ensure testLog is initialized
+            if (!testLog) {
+                testLog = [];
+            }
+            testLog.push(logEntry);
+
+            // Update the log container
+            const logContainer = document.getElementById('test-log');
+            if (logContainer) {
+                logContainer.textContent = testLog.join('\n');
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+
+            console.log(`[Dynamic Time Test] ${logEntry}`);
+        }
+
+        function showError(message) {
+            log(message, 'error');
+            const debugInfo = document.getElementById('debug-info');
+            if (debugInfo) {
+                debugInfo.innerHTML = `<div class="error">ERROR: ${message}</div>`;
+            }
+        }
+
+        function showSuccess(message) {
+            log(message, 'success');
+            const debugInfo = document.getElementById('debug-info');
+            if (debugInfo) {
+                debugInfo.innerHTML = `<div class="success">SUCCESS: ${message}</div>`;
+            }
+        }
+
+        function updateDebugInfo(info) {
+            const debugContainer = document.getElementById('debug-info');
+            if (debugContainer) {
+                debugContainer.innerHTML = `<pre>${JSON.stringify(info, null, 2)}</pre>`;
+            }
+        }
+
+        // Test functions
+        function initializeTest() {
+            // Clear previous test log
+            testLog = [];
+            log('Initializing dynamic time management test...');
+
+            try {
+                // Check if we're still loading scripts
+                if (document.readyState !== 'complete') {
+                    log('Page not fully loaded, waiting...');
+                    setTimeout(initializeTest, 100);
+                    return;
+                }
+
+                log('Page fully loaded, checking for required scripts...');
+
+                // Check for required global objects with detailed logging
+                const scriptStatus = {
+                    ScheduleTimeManager: typeof window.ScheduleTimeManager !== 'undefined',
+                    UnifiedEventLoader: typeof window.UnifiedEventLoader !== 'undefined',
+                    ScheduleGenerator: typeof window.ScheduleGenerator !== 'undefined',
+                    DataManager: typeof window.DataManager !== 'undefined'
+                };
+
+                log(`Script status: ${JSON.stringify(scriptStatus, null, 2)}`);
+
+                if (!scriptStatus.ScheduleTimeManager) {
+                    throw new Error('ScheduleTimeManager not loaded - check script path: ../js/schedule-time-manager.js');
+                }
+
+                if (!scriptStatus.UnifiedEventLoader) {
+                    throw new Error('UnifiedEventLoader not loaded - check script path: ../js/unified-event-loader.js');
+                }
+
+                log('All required scripts loaded successfully');
+
+                // Initialize time manager
+                timeManager = new window.ScheduleTimeManager();
+                timeManager.enableDebug(debugEnabled);
+                log('ScheduleTimeManager instance created');
+
+                // Test basic functionality with sample data
+                const testEvents = [sampleEventData["event-001"], sampleEventData["event-002"]];
+                log(`Testing with ${testEvents.length} sample events`);
+
+                // Log sample event details
+                testEvents.forEach((event, index) => {
+                    log(`Event ${index + 1}: ${event.title} (${event.startTime}-${event.endTime})`);
+                });
+
+                const timeBlocks = timeManager.groupEventsByTimeBlocks(testEvents);
+                log(`Generated ${timeBlocks.length} time blocks`);
+
+                if (timeBlocks.length > 0) {
+                    // Display time blocks in the schedule containers
+                    displayTimeBlocksInContainers(timeBlocks);
+
+                    log(`Successfully created ${timeBlocks.length} time blocks from test data`);
+                    showSuccess('Test initialization completed successfully! Check the schedule containers above.');
+                } else {
+                    throw new Error('Failed to create time blocks from test data - no time blocks generated');
+                }
+
+                // Display detailed debug info
+                updateDebugInfo({
+                    status: 'initialized',
+                    timestamp: new Date().toLocaleString(),
+                    timeManagerAvailable: !!timeManager,
+                    sampleEventsCount: Object.keys(sampleEventData).length,
+                    debugEnabled: debugEnabled,
+                    testTimeBlocks: timeBlocks.length,
+                    scriptLoadStatus: scriptStatus,
+                    timeBlockDetails: timeBlocks.map(block => ({
+                        title: block.title,
+                        eventCount: block.events ? block.events.length : 0,
+                        timeRange: `${block.startTime}-${block.endTime}`
+                    }))
+                });
+
+            } catch (error) {
+                showError(`Initialization failed: ${error.message}`);
+                console.error('[Test] Full error details:', error);
+                console.error('[Test] Stack trace:', error.stack);
+
+                // Also display error in debug info
+                updateDebugInfo({
+                    status: 'error',
+                    timestamp: new Date().toLocaleString(),
+                    errorMessage: error.message,
+                    errorStack: error.stack,
+                    availableGlobalObjects: Object.keys(window).filter(key =>
+                        key.includes('Schedule') || key.includes('Event') || key.includes('Data')
+                    )
+                });
+            }
+        }
+
+        // Helper function to display time blocks in the containers
+        function displayTimeBlocksInContainers(timeBlocks) {
+            const thursdayContainer = document.getElementById('thursday-schedule');
+            const morningContainer = document.getElementById('morning-schedule');
+            const afternoonContainer = document.getElementById('afternoon-schedule');
+
+            if (!thursdayContainer || !morningContainer || !afternoonContainer) {
+                log('Warning: Could not find all schedule containers');
+                return;
+            }
+
+            // Clear containers
+            thursdayContainer.innerHTML = '';
+            morningContainer.innerHTML = '';
+            afternoonContainer.innerHTML = '';
+
+            if (timeBlocks.length === 0) {
+                thursdayContainer.innerHTML = '<p>No time blocks generated</p>';
+                morningContainer.innerHTML = '<p>No time blocks generated</p>';
+                afternoonContainer.innerHTML = '<p>No time blocks generated</p>';
+                return;
+            }
+
+            // Display time blocks in all containers for testing
+            timeBlocks.forEach((timeBlock, index) => {
+                const blockHtml = createTimeBlockDisplayHtml(timeBlock, index);
+                thursdayContainer.innerHTML += blockHtml;
+                morningContainer.innerHTML += blockHtml;
+                afternoonContainer.innerHTML += blockHtml;
+            });
+
+            log(`Displayed ${timeBlocks.length} time blocks in all schedule containers`);
+        }
+
+        // Helper function to create HTML for displaying time blocks
+        function createTimeBlockDisplayHtml(timeBlock, index) {
+            const eventCount = timeBlock.events ? timeBlock.events.length : 0;
+            const events = timeBlock.events || [];
+
+            const eventsHtml = events.map(event =>
+                `<li>${event.title} (${event.startTime}-${event.endTime})</li>`
+            ).join('');
+
+            return `
+                <div class="nzgdc-event-time-container" style="margin: 10px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px;">
+                    <h3>${timeBlock.title || `Time Block ${index + 1}`}</h3>
+                    <p><strong>Time Range:</strong> ${timeBlock.startTime || 'N/A'} - ${timeBlock.endTime || 'N/A'}</p>
+                    <p><strong>Events:</strong> ${eventCount}</p>
+                    ${eventCount > 0 ? `<ul>${eventsHtml}</ul>` : '<p>No events in this time block</p>'}
+                </div>
+            `;
+        }
+
+        function testBasicTimeBlocks() {
+            log('Testing basic time block generation...');
+
+            if (!timeManager) {
+                showError('Time manager not initialized. Run Initialize Test first.');
+                return;
+            }
+
+            try {
+                const events = Object.values(sampleEventData);
+
+                // Test grouping events by time blocks
+                const timeBlocks = timeManager.groupEventsByTimeBlocks(events);
+
+                log(`Generated ${timeBlocks.length} time blocks`);
+
+                // Display time blocks in Thursday schedule
+                const thursdayContainer = document.getElementById('thursday-schedule');
+                const timeBlockElements = timeManager.processEventsIntoTimeBlocks(events, 'schedule');
+
+                thursdayContainer.innerHTML = '';
+                timeBlockElements.forEach(element => {
+                    thursdayContainer.appendChild(element);
+                });
+
+                showSuccess(`Created ${timeBlocks.length} dynamic time blocks`);
+
+                updateDebugInfo({
+                    test: 'basicTimeBlocks',
+                    timeBlocksGenerated: timeBlocks.length,
+                    timeBlocks: timeBlocks.map(tb => ({
+                        id: tb.id,
+                        title: tb.title,
+                        timeRange: tb.timeRange,
+                        eventCount: tb.events.length,
+                        events: tb.events.map(e => e.title)
+                    }))
+                });
+
+            } catch (error) {
+                showError(`Basic time blocks test failed: ${error.message}`);
+            }
+        }
+
+        function testEventSorting() {
+            log('Testing event sorting within time blocks...');
+
+            if (!timeManager) {
+                showError('Time manager not initialized. Run Initialize Test first.');
+                return;
+            }
+
+            try {
+                // Test events in the same time slot (9:00 AM)
+                const morningEvents = [
+                    sampleEventData["event-001"], // 90 minutes (09:00-10:30)
+                    sampleEventData["event-002"]  // 60 minutes (09:00-10:00)
+                ];
+
+                const sortedEvents = timeManager.sortEventsWithinTimeBlock(morningEvents);
+
+                log(`Sorted ${sortedEvents.length} events by duration`);
+
+                // Verify sorting: longest first, then alphabetical
+                const sortingResults = {
+                    originalOrder: morningEvents.map(e => ({
+                        title: e.title,
+                        duration: timeManager.calculateDuration(e.startTime, e.endTime)
+                    })),
+                    sortedOrder: sortedEvents.map(e => ({
+                        title: e.title,
+                        duration: timeManager.calculateDuration(e.startTime, e.endTime)
+                    }))
+                };
+
+                // Check if sorting is correct (longest duration first)
+                const isCorrectlySorted = sortedEvents[0].title === "Advanced Unity Optimization Techniques";
+
+                if (isCorrectlySorted) {
+                    showSuccess('Event sorting test passed: Events sorted by duration correctly');
+                } else {
+                    showError('Event sorting test failed: Incorrect sorting order');
+                }
+
+                updateDebugInfo({
+                    test: 'eventSorting',
+                    sortingResults: sortingResults,
+                    isCorrectlySorted: isCorrectlySorted
+                });
+
+            } catch (error) {
+                showError(`Event sorting test failed: ${error.message}`);
+            }
+        }
+
+        function testPanelTypeHierarchy() {
+            log('Testing panel type hierarchy (Big panels first, then Main panels)...');
+
+            if (!timeManager) {
+                showError('Time manager not initialized. Run Initialize Test first.');
+                return;
+            }
+
+            try {
+                // Test with mixed panel types in same time slot
+                const mixedEvents = [
+                    sampleEventData["event-002"], // Main panel (1 speaker)
+                    sampleEventData["event-001"], // Big panel (2 speakers)
+                    sampleEventData["event-004"], // Main panel (1 speaker)
+                ];
+
+                // Sort events - should prioritize Big panels first
+                const sortedEvents = timeManager.sortEventsWithinTimeBlock(mixedEvents);
+
+                log(`Sorted ${sortedEvents.length} events by panel type hierarchy`);
+
+                // Verify panel type hierarchy
+                const panelTypes = sortedEvents.map(event => ({
+                    title: event.title,
+                    panelType: timeManager.determinePanelType(event),
+                    speakerCount: event.speakers ? event.speakers.length : 0
+                }));
+
+                // Check if Big panels come first
+                const bigPanelsFirst = panelTypes.every((event, index) => {
+                    if (event.panelType === 'big') {
+                        // All subsequent events should either be big or we should be at the end of big panels
+                        return !panelTypes.slice(index + 1).some(e => e.panelType === 'main' &&
+                               panelTypes.slice(0, index + 1).some(prev => prev.panelType === 'main'));
+                    }
+                    return true;
+                });
+
+                // Create visual demonstration
+                const thursdayContainer = document.getElementById('thursday-schedule');
+                const timeBlockElements = timeManager.processEventsIntoTimeBlocks(mixedEvents, 'schedule');
+
+                thursdayContainer.innerHTML = '';
+                timeBlockElements.forEach(element => {
+                    thursdayContainer.appendChild(element);
+                });
+
+                if (bigPanelsFirst && sortedEvents[0].title === "Advanced Unity Optimization Techniques") {
+                    showSuccess('Panel type hierarchy test passed: Big panels appear before Main panels');
+                } else {
+                    showError('Panel type hierarchy test failed: Incorrect panel ordering');
+                }
+
+                updateDebugInfo({
+                    test: 'panelTypeHierarchy',
+                    sortedOrder: panelTypes,
+                    bigPanelsFirst: bigPanelsFirst,
+                    expectedFirstEvent: "Advanced Unity Optimization Techniques (Big panel)",
+                    actualFirstEvent: `${sortedEvents[0].title} (${timeManager.determinePanelType(sortedEvents[0])} panel)`
+                });
+
+            } catch (error) {
+                showError(`Panel type hierarchy test failed: ${error.message}`);
+            }
+        }
+
+        function testDynamicUpdates() {
+            log('Testing dynamic time block updates...');
+
+            if (!timeManager) {
+                showError('Time manager not initialized. Run Initialize Test first.');
+                return;
+            }
+
+            try {
+                const thursdayContainer = document.getElementById('thursday-schedule');
+
+                // First, create initial time blocks
+                const initialEvents = [
+                    sampleEventData["event-001"],
+                    sampleEventData["event-003"]
+                ];
+
+                let timeBlockElements = timeManager.processEventsIntoTimeBlocks(initialEvents, 'schedule');
+                thursdayContainer.innerHTML = '';
+                timeBlockElements.forEach(element => {
+                    thursdayContainer.appendChild(element);
+                });
+
+                log(`Created initial schedule with ${initialEvents.length} events`);
+
+                // Wait a moment, then update with more events
+                setTimeout(() => {
+                    const updatedEvents = Object.values(sampleEventData);
+
+                    const success = timeManager.refreshTimeBlocks(
+                        thursdayContainer,
+                        updatedEvents,
+                        'schedule'
+                    );
+
+                    if (success) {
+                        showSuccess('Dynamic update test passed: Time blocks refreshed successfully');
+
+                        const debugInfo = timeManager.getDebugInfo(thursdayContainer);
+                        updateDebugInfo({
+                            test: 'dynamicUpdates',
+                            initialEventCount: initialEvents.length,
+                            updatedEventCount: updatedEvents.length,
+                            debugInfo: debugInfo
+                        });
+
+                    } else {
+                        showError('Dynamic update test failed: Could not refresh time blocks');
+                    }
+
+                }, 1000);
+
+            } catch (error) {
+                showError(`Dynamic updates test failed: ${error.message}`);
+            }
+        }
+
+        function testFilterIntegration() {
+            log('Testing filter integration with dynamic time blocks...');
+
+            if (!timeManager) {
+                showError('Time manager not initialized. Run Initialize Test first.');
+                return;
+            }
+
+            try {
+                // Test filtering by morning vs afternoon
+                const allEvents = Object.values(sampleEventData);
+
+                // Morning events (before 12:00)
+                const morningEvents = allEvents.filter(event => {
+                    const hour = parseInt(event.startTime.split(':')[0], 10);
+                    return hour < 12;
+                });
+
+                // Afternoon events (12:00 and after)
+                const afternoonEvents = allEvents.filter(event => {
+                    const hour = parseInt(event.startTime.split(':')[0], 10);
+                    return hour >= 12;
+                });
+
+                // Display morning events
+                const morningContainer = document.getElementById('morning-schedule');
+                const morningTimeBlocks = timeManager.processEventsIntoTimeBlocks(morningEvents, 'morning');
+                morningContainer.innerHTML = '';
+                morningTimeBlocks.forEach(element => {
+                    morningContainer.appendChild(element);
+                });
+
+                // Display afternoon events
+                const afternoonContainer = document.getElementById('afternoon-schedule');
+                const afternoonTimeBlocks = timeManager.processEventsIntoTimeBlocks(afternoonEvents, 'afternoon');
+                afternoonContainer.innerHTML = '';
+                afternoonTimeBlocks.forEach(element => {
+                    afternoonContainer.appendChild(element);
+                });
+
+                log(`Morning events: ${morningEvents.length}, Afternoon events: ${afternoonEvents.length}`);
+
+                showSuccess('Filter integration test passed: Events separated by time periods');
+
+                updateDebugInfo({
+                    test: 'filterIntegration',
+                    totalEvents: allEvents.length,
+                    morningEvents: morningEvents.length,
+                    afternoonEvents: afternoonEvents.length,
+                    morningTimeBlocks: morningTimeBlocks.length,
+                    afternoonTimeBlocks: afternoonTimeBlocks.length
+                });
+
+            } catch (error) {
+                showError(`Filter integration test failed: ${error.message}`);
+            }
+        }
+
+        function clearSchedule() {
+            log('Clearing all schedules...');
+
+            document.getElementById('thursday-schedule').innerHTML = '<p>Schedule cleared...</p>';
+            document.getElementById('morning-schedule').innerHTML = '<p>Morning schedule cleared...</p>';
+            document.getElementById('afternoon-schedule').innerHTML = '<p>Afternoon schedule cleared...</p>';
+
+            updateDebugInfo({ status: 'cleared' });
+            showSuccess('All schedules cleared');
+        }
+
+        function toggleDebug() {
+            debugEnabled = !debugEnabled;
+            log(`Debug mode ${debugEnabled ? 'enabled' : 'disabled'}`);
+
+            if (timeManager) {
+                timeManager.enableDebug(debugEnabled);
+            }
+
+            // Update global debug flag for compatibility
+            window.NZGDC_DEBUG = debugEnabled;
+
+            showSuccess(`Debug mode ${debugEnabled ? 'enabled' : 'disabled'}`);
+        }
+
+        // Initialize page
+        window.addEventListener('load', function() {
+            log('Dynamic Time Management Test page loaded');
+            log('Ready to run tests. Click "Initialize Test" to begin.');
+
+            // Auto-check script availability
+            const scriptStatus = {
+                ScheduleTimeManager: typeof window.ScheduleTimeManager !== 'undefined',
+                UnifiedEventLoader: typeof window.UnifiedEventLoader !== 'undefined',
+                ScheduleGenerator: typeof window.ScheduleGenerator !== 'undefined',
+                MorningScheduleGenerator: typeof window.MorningScheduleGenerator !== 'undefined',
+                AfternoonScheduleGenerator: typeof window.AfternoonScheduleGenerator !== 'undefined'
+            };
+
+            log('Script loading status:', JSON.stringify(scriptStatus, null, 2));
+
+            const missingScripts = Object.entries(scriptStatus)
+                .filter(([name, loaded]) => !loaded)
+                .map(([name]) => name);
+
+            if (missingScripts.length > 0) {
+                showError(`Missing required scripts: ${missingScripts.join(', ')}`);
+            } else {
+                log('All required scripts loaded successfully');
+            }
+        });
+
+        // Page load verification and auto-initialization
+        document.addEventListener('DOMContentLoaded', function() {
+            log('DOM loaded, checking page state...');
+
+            // Verify essential elements exist
+            const requiredElements = [
+                'thursday-schedule',
+                'morning-schedule',
+                'afternoon-schedule',
+                'debug-info',
+                'test-log'
+            ];
+
+            const missingElements = requiredElements.filter(id => !document.getElementById(id));
+            if (missingElements.length > 0) {
+                log(`Warning: Missing page elements: ${missingElements.join(', ')}`, 'error');
+            } else {
+                log('All required page elements found');
+            }
+
+            // Auto-initialize after a short delay to let scripts load
+            setTimeout(() => {
+                log('Auto-initializing test...');
+                initializeTest();
+            }, 500);
+        });
+
+        // Also try initialization when window fully loads (fallback)
+        window.addEventListener('load', function() {
+            if (!timeManager) {
+                log('Window loaded, attempting initialization as fallback...');
+                setTimeout(initializeTest, 100);
+            }
+        });
+
+        // Immediate verification that JavaScript is running
+        log('Dynamic Time Management Test script loaded and ready');
+    </script>
+</body>
+</html>

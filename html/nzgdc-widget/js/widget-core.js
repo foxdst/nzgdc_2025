@@ -110,7 +110,7 @@ class NZGDCScheduleWidget {
     this.element.className = "nzgdc-schedule-widget";
     this.element.innerHTML = `
             ${this.options.showFilters ? this.renderFiltersInline() : ""}
-            <div id="schedule-content-${this.uniqueId}"></div>
+            <div id="schedule-content-${this.uniqueId}" class="nzgdc-thursday-schedule-widget"></div>
             ${this.options.showFooter ? this.renderFooter() : ""}
         `;
   }

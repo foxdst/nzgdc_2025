@@ -3,28 +3,59 @@
 class AfternoonScheduleGenerator {
   constructor(container) {
     this.container = container;
-    this.eventLoader = new UnifiedEventLoader();
+    this.eventLoader = null; // Initialize as null, will be created when needed
     this.loadedEvents = new Set(); // Track loaded events for cleanup
     this.isDestroyed = false;
+    this.debugEnabled = false; // Initialize debug flag
     this.originalData = null; // Store original unfiltered data
     this.currentFilterCategory = null;
   }
 
-  // Debug logging helper - checks global debug flag
+  // Debug logging helper - checks debug flag
   debug(...args) {
-    if (window.NZGDC_DEBUG === true) {
+    if (this.debugEnabled || window.NZGDC_DEBUG) {
       console.log("[NZGDC Afternoon Schedule Generator]", ...args);
     }
   }
 
+  // Enable/disable debug logging
+  enableDebug(enabled = true) {
+    this.debugEnabled = enabled;
+  }
+
+  /**
+   * Initialize UnifiedEventLoader if not already done
+   */
+  initializeEventLoader() {
+    if (!this.eventLoader && window.UnifiedEventLoader) {
+      this.eventLoader = new window.UnifiedEventLoader();
+      this.debug("UnifiedEventLoader initialized");
+    }
+  }
+
+  /**
+   * Initialize ScheduleTimeManager if not already done
+   */
+  initializeTimeManager() {
+    if (!this.timeManager && window.ScheduleTimeManager) {
+      this.timeManager = new window.ScheduleTimeManager();
+      this.timeManager.enableDebug(this.debugEnabled);
+      this.debug("ScheduleTimeManager initialized");
+    }
+  }
+
   generateTimeSlot(timeSlot) {
-    // Handle break blocks differently
+    console.warn(
+      "[NZGDC Afternoon Schedule Generator] generateTimeSlot() is deprecated. Use dynamic time blocks instead.",
+    );
+
+    // Special handling for breaks
     if (timeSlot.type === "break") {
       return this.generateBreakBlock(timeSlot);
     }
 
     const timeSlotEl = document.createElement("div");
-    timeSlotEl.className = `nzgdc-afternoon-time-category nzgdc-afternoon-time-category-${timeSlot.theme}`;
+    timeSlotEl.className = `nzgdc-time-category nzgdc-time-category-${timeSlot.theme}`;
     timeSlotEl.setAttribute("data-time-slot", timeSlot.id);
 
     timeSlotEl.innerHTML = `
@@ -38,12 +69,185 @@ class AfternoonScheduleGenerator {
       </div>
 
       <!-- Scheduled Afternoon Events -->
-      <div class="nzgdc-scheduled-afternoon-events">
+      <div class="nzgdc-scheduled-events">
         ${this.generateEventRows(timeSlot.events)}
       </div>
     `;
 
     return timeSlotEl;
+  }
+
+  /**
+   * Generate dynamic time blocks from actual event data
+   * @param {Array} events - Array of event objects with startTime/endTime
+   * @returns {Array} Array of time block container elements
+   */
+  generateDynamicTimeBlocks(events) {
+    this.initializeTimeManager();
+
+    if (!this.timeManager) {
+      console.error(
+        "[NZGDC Afternoon Schedule Generator] ScheduleTimeManager not available, falling back to legacy method",
+      );
+      return [];
+    }
+
+    this.debug(
+      "Generating dynamic time blocks from",
+      events.length,
+      "afternoon events",
+    );
+    return this.timeManager.processEventsIntoTimeBlocks(events, "afternoon");
+  }
+
+  /**
+   * Determine panel type based on speaker count
+   * @param {Object} event - Event object with speakers array
+   * @returns {string} Panel type ("big" or "main")
+   */
+  determinePanelType(event) {
+    const speakerCount =
+      event.speakers && Array.isArray(event.speakers)
+        ? event.speakers.length
+        : 0;
+    return speakerCount >= 2 ? "big" : "main";
+  }
+
+  /**
+   * Generate HTML for event panels with panel type hierarchy
+   * @param {Array} events - Events already sorted by panel type
+   * @returns {string} HTML for event panels
+   */
+  generateEventPanelsForTimeBlock(events) {
+    this.debug(`Generating afternoon event panels for ${events.length} events`);
+
+    // Separate events by panel type
+    const bigEvents = events.filter(
+      (event) => this.determinePanelType(event) === "big",
+    );
+    const mainEvents = events.filter(
+      (event) => this.determinePanelType(event) === "main",
+    );
+
+    this.debug(
+      `Afternoon panel breakdown: ${bigEvents.length} big panels, ${mainEvents.length} main panels`,
+    );
+
+    const rows = [];
+    const bigEventsPerRow = 2;
+    const mainEventsPerRow = 5;
+
+    // Generate Big event panel rows first
+    if (bigEvents.length > 0) {
+      this.debug("Generating afternoon big event panel rows");
+      for (let i = 0; i < bigEvents.length; i += bigEventsPerRow) {
+        const rowEvents = bigEvents.slice(i, i + bigEventsPerRow);
+        const rowHTML = `
+          <div class="nzgdc-afternoon-event-row nzgdc-big-panel-row">
+            ${rowEvents
+              .map(
+                (event) => `
+              <div class="nzgdc-afternoon-event" data-panel-type="big">
+                <div class="nzgdc-loading-placeholder">Loading ${event.title}...</div>
+              </div>
+            `,
+              )
+              .join("")}
+          </div>
+        `;
+        rows.push(rowHTML);
+      }
+    }
+
+    // Generate Main event panel rows after Big panels
+    if (mainEvents.length > 0) {
+      this.debug("Generating afternoon main event panel rows");
+      for (let i = 0; i < mainEvents.length; i += mainEventsPerRow) {
+        const rowEvents = mainEvents.slice(i, i + mainEventsPerRow);
+        const rowHTML = `
+          <div class="nzgdc-afternoon-event-row nzgdc-main-panel-row">
+            ${rowEvents
+              .map(
+                (event) => `
+              <div class="nzgdc-afternoon-event-main" data-panel-type="main">
+                <div class="nzgdc-loading-placeholder">Loading ${event.title}...</div>
+              </div>
+            `,
+              )
+              .join("")}
+          </div>
+        `;
+        rows.push(rowHTML);
+      }
+    }
+
+    this.debug(
+      `Generated ${rows.length} afternoon rows (big panels first, then main panels)`,
+    );
+    return rows.join("");
+  }
+
+  /**
+   * Load a single afternoon event in its container element
+   * @param {HTMLElement} eventElement - Container element for the event
+   * @param {Object} event - Event data
+   * @param {string} expectedPanelType - Expected panel type for validation
+   */
+  async loadSingleAfternoonEvent(eventElement, event, expectedPanelType) {
+    this.debug(
+      `Loading single afternoon event: ${event.id} as ${expectedPanelType} panel`,
+    );
+
+    try {
+      // Validate panel type matches expectation
+      const actualPanelType = this.determinePanelType(event);
+      if (actualPanelType !== expectedPanelType) {
+        this.debug(
+          `Afternoon panel type mismatch for ${event.id}: expected ${expectedPanelType}, got ${actualPanelType}`,
+        );
+      }
+
+      // Initialize event loader if not already done
+      this.initializeEventLoader();
+      if (!this.eventLoader) {
+        throw new Error("UnifiedEventLoader not available");
+      }
+
+      // Load template and create event panel
+      await this.eventLoader.loadTemplate();
+
+      const eventPanel = this.eventLoader.createEventPanel(
+        event,
+        expectedPanelType,
+        "afternoon",
+      );
+
+      // Replace loading placeholder with actual event panel
+      eventElement.innerHTML = "";
+      eventElement.appendChild(eventPanel);
+
+      this.debug(
+        `Successfully loaded afternoon ${expectedPanelType} event: ${event.id}`,
+      );
+    } catch (error) {
+      console.error(`Failed to load afternoon event ${event.id}:`, error);
+      this.showAfternoonEventError(eventElement, event.title);
+    }
+  }
+
+  /**
+   * Show error state for individual afternoon event
+   * @param {HTMLElement} eventElement - Event container element
+   * @param {string} eventTitle - Event title for error message
+   */
+  showAfternoonEventError(eventElement, eventTitle) {
+    eventElement.innerHTML = `
+      <div class="nzgdc-afternoon-event-error">
+        <div class="nzgdc-error-title">Unable to load afternoon event</div>
+        <div class="nzgdc-error-subtitle">${eventTitle}</div>
+        <div class="nzgdc-error-details">Please try refreshing the page</div>
+      </div>
+    `;
   }
 
   generateBreakBlock(breakSlot) {
@@ -272,41 +476,31 @@ class AfternoonScheduleGenerator {
         return;
       }
 
-      // Store received data
-      this.scheduleData = scheduleData;
+      this.debug("=== Afternoon Schedule Rendering ===");
+      this.debug("Received scheduleData:", scheduleData);
+      this.debug("Received eventData:", eventData);
+
+      // Store original data for filtering
+      this.originalData = scheduleData;
       this.eventData = eventData;
+      this.scheduleData = scheduleData;
 
-      // Preserve original data for filter reset
-      this.preserveOriginalData(this.scheduleData);
+      // Check if we have real-time event data (events with startTime/endTime)
+      const hasRealTimeData =
+        eventData &&
+        Object.values(eventData).some(
+          (event) => event.startTime && event.endTime,
+        );
 
-      this.debug(
-        "Starting afternoon schedule rendering with",
-        this.scheduleData.timeSlots.length,
-        "time slots",
-      );
-
-      // Clear existing content and tracking
-      this.container.innerHTML = "";
-      this.loadedEvents.clear();
-
-      // Use document fragment for better performance
-      const fragment = document.createDocumentFragment();
-
-      // Generate time slots in fragment first
-      this.scheduleData.timeSlots.forEach((timeSlot) => {
-        const timeSlotEl = this.generateTimeSlot(timeSlot);
-        fragment.appendChild(timeSlotEl);
-      });
-
-      // Single DOM update
-      this.container.appendChild(fragment);
-
-      // Load event content after DOM is stable
-      requestAnimationFrame(() => {
-        if (!this.isDestroyed) {
-          this.loadEventContent();
-        }
-      });
+      if (hasRealTimeData) {
+        this.debug("Using dynamic time-based rendering for afternoon events");
+        await this.renderDynamicSchedule(eventData);
+      } else {
+        this.debug(
+          "Falling back to legacy time slot rendering for afternoon events",
+        );
+        await this.renderLegacySchedule(scheduleData, eventData);
+      }
 
       this.debug("Afternoon schedule rendering completed successfully");
     } catch (error) {
@@ -314,7 +508,226 @@ class AfternoonScheduleGenerator {
         "[NZGDC Afternoon Widget] Failed to render schedule:",
         error,
       );
-      this.showScheduleError(error);
+    }
+  }
+
+  async renderDynamicSchedule(eventData) {
+    this.debug("Starting dynamic afternoon schedule rendering");
+
+    // Convert eventData object to array and filter for events with time data
+    const allEvents = Object.values(eventData).filter(
+      (event) => event.startTime && event.endTime,
+    );
+
+    // Filter events for Friday/Saturday schedules first, then by afternoon time
+    const fridaySaturdayEvents = allEvents.filter((event) => {
+      if (event.scheduleTitle) {
+        const scheduleTitle = event.scheduleTitle.toLowerCase();
+        return scheduleTitle === "friday" || scheduleTitle === "saturday";
+      }
+      // Fallback: if no scheduleTitle, check if it's not Thursday
+      return (
+        !event.scheduleTitle || event.scheduleTitle.toLowerCase() !== "thursday"
+      );
+    });
+
+    const afternoonEvents = fridaySaturdayEvents.filter((event) => {
+      const hour = parseInt(event.startTime.split(":")[0], 10);
+      return hour >= 12; // Afternoon events (noon and later)
+    });
+
+    this.debug(
+      `Processing ${afternoonEvents.length} afternoon events (filtered from ${allEvents.length} total events, ${fridaySaturdayEvents.length} Friday/Saturday events)`,
+    );
+
+    // Generate dynamic time blocks
+    const timeBlockElements = this.generateDynamicTimeBlocks(afternoonEvents);
+
+    // Clear existing content
+    this.container.innerHTML = "";
+
+    // Use document fragment for better performance
+    const fragment = document.createDocumentFragment();
+
+    // Add time blocks to fragment
+    timeBlockElements.forEach((timeBlockEl) => {
+      fragment.appendChild(timeBlockEl);
+    });
+
+    // Single DOM update
+    this.container.appendChild(fragment);
+
+    // Load dynamic event content after DOM is stable
+    requestAnimationFrame(() => {
+      if (!this.isDestroyed) {
+        this.loadDynamicEventContent();
+      }
+    });
+
+    this.debug("Dynamic afternoon schedule rendering completed");
+  }
+
+  async renderLegacySchedule(scheduleData, eventData) {
+    this.debug("Using legacy afternoon schedule rendering");
+
+    if (!scheduleData.timeSlots || scheduleData.timeSlots.length === 0) {
+      this.debug("No time slots available, creating default structure");
+      return;
+    }
+
+    // Clear existing content and tracking
+    this.container.innerHTML = "";
+    this.loadedEvents.clear();
+
+    // Use document fragment for better performance
+    const fragment = document.createDocumentFragment();
+
+    // Generate time slots in fragment first
+    scheduleData.timeSlots.forEach((timeSlot) => {
+      const timeSlotEl = this.generateTimeSlot(timeSlot);
+      fragment.appendChild(timeSlotEl);
+    });
+
+    // Single DOM update
+    this.container.appendChild(fragment);
+
+    // Load event content after DOM is stable
+    requestAnimationFrame(() => {
+      if (!this.isDestroyed) {
+        this.loadEventContent();
+      }
+    });
+
+    this.debug("Legacy afternoon schedule rendering completed");
+  }
+
+  generateDynamicTimeBlocks(events) {
+    this.initializeTimeManager();
+
+    if (!this.timeManager) {
+      console.error(
+        "[NZGDC Afternoon Schedule Generator] ScheduleTimeManager not available, falling back to legacy method",
+      );
+      return [];
+    }
+
+    this.debug(
+      "Generating dynamic time blocks from",
+      events.length,
+      "afternoon events",
+    );
+    return this.timeManager.processEventsIntoTimeBlocks(events, "afternoon");
+  }
+
+  async loadDynamicEventContent() {
+    const timeBlockElements = this.container.querySelectorAll(
+      ".nzgdc-time-category",
+    );
+
+    try {
+      this.debug(
+        `Loading event content for ${timeBlockElements.length} afternoon time blocks`,
+      );
+
+      for (const timeBlockEl of timeBlockElements) {
+        if (this.isDestroyed) {
+          this.debug("Generator destroyed during loading, stopping");
+          return;
+        }
+
+        const timeBlockData =
+          timeBlockEl.timeBlockData || timeBlockEl._timeBlockData;
+        if (!timeBlockData || !timeBlockData.events) {
+          this.debug("No time block data or events, skipping");
+          continue;
+        }
+
+        this.debug(
+          `Loading content for afternoon time block: ${timeBlockData.title} (${timeBlockData.events.length} events)`,
+        );
+
+        // Get events container within this time block
+        const eventsContainer =
+          this.timeManager.getEventsContainer(timeBlockEl);
+        if (eventsContainer) {
+          // Generate event panels for this time block
+          const eventPanelsHTML = await this.generateEventPanelsForTimeBlock(
+            timeBlockData.events,
+          );
+          eventsContainer.innerHTML = eventPanelsHTML;
+
+          // Load individual event content
+          await this.loadEventsInTimeBlock(
+            eventsContainer,
+            timeBlockData.events,
+          );
+        }
+      }
+
+      this.debug("Dynamic afternoon event content loading completed");
+    } catch (error) {
+      console.error(
+        "[NZGDC Afternoon Widget] Failed to load dynamic event content:",
+        error,
+      );
+    }
+  }
+
+  async loadEventsInTimeBlock(eventsContainer, events) {
+    // Separate events by panel type
+    const bigEvents = events.filter(
+      (event) => this.determinePanelType(event) === "big",
+    );
+    const mainEvents = events.filter(
+      (event) => this.determinePanelType(event) === "main",
+    );
+
+    this.debug(
+      `Loading afternoon events: ${bigEvents.length} big events, ${mainEvents.length} main events`,
+    );
+
+    // Find event elements in the container
+    const bigEventElements = eventsContainer.querySelectorAll(
+      ".nzgdc-afternoon-event",
+    );
+    const mainEventElements = eventsContainer.querySelectorAll(
+      ".nzgdc-afternoon-event-main",
+    );
+
+    // Load big events
+    for (
+      let i = 0;
+      i < Math.min(bigEvents.length, bigEventElements.length);
+      i++
+    ) {
+      const eventElement = bigEventElements[i];
+      const event = bigEvents[i];
+
+      try {
+        await this.loadSingleAfternoonEvent(eventElement, event, "big");
+        this.debug(`Loaded afternoon big event: ${event.title}`);
+      } catch (error) {
+        console.error(`Error loading afternoon big event ${event.id}:`, error);
+        this.showAfternoonEventError(eventElement, event.title);
+      }
+    }
+
+    // Load main events
+    for (
+      let i = 0;
+      i < Math.min(mainEvents.length, mainEventElements.length);
+      i++
+    ) {
+      const eventElement = mainEventElements[i];
+      const event = mainEvents[i];
+
+      try {
+        await this.loadSingleAfternoonEvent(eventElement, event, "main");
+        this.debug(`Loaded afternoon main event: ${event.title}`);
+      } catch (error) {
+        console.error(`Error loading afternoon main event ${event.id}:`, error);
+        this.showAfternoonEventError(eventElement, event.title);
+      }
     }
   }
 
@@ -325,6 +738,12 @@ class AfternoonScheduleGenerator {
           "[NZGDC Afternoon Widget] Cannot load event content - generator is destroyed",
         );
         return;
+      }
+
+      // Initialize event loader if not already done
+      this.initializeEventLoader();
+      if (!this.eventLoader) {
+        throw new Error("UnifiedEventLoader not available");
       }
 
       // Load the template once
@@ -397,6 +816,13 @@ class AfternoonScheduleGenerator {
       }
 
       this.debug("Creating afternoon event panel for:", eventId);
+
+      // Initialize event loader if not already done
+      this.initializeEventLoader();
+      if (!this.eventLoader) {
+        throw new Error("UnifiedEventLoader not available");
+      }
+
       const eventPanel = this.eventLoader.createEventPanel(
         eventData,
         "auto",
@@ -417,7 +843,15 @@ class AfternoonScheduleGenerator {
 
       if (!this.isDestroyed && container.parentNode) {
         container.innerHTML = "";
-        container.appendChild(this.eventLoader.createErrorPanel(error.message));
+        // Initialize event loader for error panel
+        this.initializeEventLoader();
+        if (this.eventLoader) {
+          container.appendChild(
+            this.eventLoader.createErrorPanel(error.message),
+          );
+        } else {
+          container.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+        }
       }
     }
   }

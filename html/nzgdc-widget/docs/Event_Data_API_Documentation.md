@@ -10,16 +10,17 @@ Key top-level properties in `n8n-entegyapi.json`:
 
 - `data`: The main data container.
   - `speakers`: Array of raw speaker objects.
-    - `displayName`: Speaker's full name.
-    - `sortName`: Speaker's name for sorting.
-    - `company`: Speaker's company.
-    - `position`: Speaker's job position.
-    - `speakerType`: Object describing the speaker's type.
-    - `copy`: Speaker's biography (can contain HTML).
-    - `speakerImage`: URL to the speaker's headshot.
-    - `id`: Unique speaker ID.
-    - `web`, `email`, `phoneNumber`, `facebook`, `twitterHandle`, `linkedIn`: Contact and social media information.
-    - `speakerSponsor`, `tags`, `documents`, `associatedSessions`, `associatedAbstracts`: Related data.
+      - `displayName`: Speaker's full name (✅ ENHANCED: Primary field with consistent prioritization).
+      - `name`: Speaker's name fallback (used when displayName unavailable).
+      - `sortName`: Speaker's name for sorting.
+      - `company`: Speaker's company.
+      - `position`: Speaker's job position.
+      - `speakerType`: Object describing the speaker's type.
+      - `copy`: Speaker's biography (can contain HTML).
+      - `speakerImage`: URL to the speaker's headshot (✅ ENHANCED: Used for thumbnail fallback).
+      - `id`: Unique speaker ID.
+      - `web`, `email`, `phoneNumber`, `facebook`, `twitterHandle`, `linkedIn`: Contact and social media information (✅ ENHANCED: Proper protocol handling for web links).
+      - `speakerSponsor`, `tags`, `documents`, `associatedSessions`, `associatedAbstracts`: Related data.
   - `schedule`: Array of schedule day objects.
     - `title`: Title of the schedule day (e.g., "Friday", "Saturday").
     - `date`: Date of the schedule day (YYYY-MM-DD format).
@@ -59,9 +60,9 @@ The data flows through several JavaScript files, each responsible for a specific
 
 ### 2.1. `js/data-manager.js`
 
-- **Role**: Centralized data loading, validation, and transformation coordinator. It acts as the single source of truth for all event-related data within the widget.
+- **Role**: Centralized data loading, validation, and transformation coordinator with enhanced error handling. It acts as the single source of truth for all event-related data within the widget.
 - **Input**: Raw JSON data from the API (or local file).
-- **Output**: Standardized data stored in internal `Map` objects (`rawData.events`, `rawData.speakers`, etc.).
+- **Output**: Standardized data stored in internal `Map` objects with comprehensive validation (`rawData.events`, `rawData.speakers`, etc.).
 - **Connections**:
     - **`loadApiData()`**: Fetches data.
         - **`this.config.webhookUrl`**: (Primary) Connects to the N8N webhook URL to fetch the `n8n-entegyapi.json` content.
@@ -77,15 +78,15 @@ The data flows through several JavaScript files, each responsible for a specific
 - **Input**: Raw API data (from `DataManager`).
 - **Output**: Arrays and Maps of standardized data objects (e.g., `_standardizeSpeaker`, `_standardizeEvent`).
 - **Connections**:
-    - **`transformSpeakers(apiData)`**: Extracts and standardizes speaker data from `apiData.data.speakers` and `apiData.data.schedule[].sessions[].speakers`.
-        - **`_standardizeSpeaker(speaker)`**: Maps raw speaker fields to standardized properties with proper field prioritization:
-            - `displayName` → `displayName` (preserved primary field)
-            - `displayName` → `name` (for widget compatibility)
-            - `position` + `company` → `position` (combined as "Position at Company")
-            - `speakerImage` → `headshot`
-            - `web` → `website`
-            - `email` → `email` (preserved)
-            - `copy` → `bio` (HTML stripped)
+    - **`transformSpeakers(apiData)`**: Extracts and standardizes speaker data with enhanced field mapping from `apiData.data.speakers` and `apiData.data.schedule[].sessions[].speakers`.
+        - **`_standardizeSpeaker(speaker)`**: Maps raw speaker fields to standardized properties with corrected field prioritization and validation:
+            - `displayName` → `displayName` (✅ FIXED: Primary field consistently prioritized)
+            - `displayName` → `name` (for widget compatibility, fallback to `name` field if displayName unavailable)
+            - `position` + `company` → `position` (✅ ENHANCED: Combined as "Position at Company" with proper formatting)
+            - `speakerImage` → `headshot` (✅ ENHANCED: Used for event thumbnail fallback when event.thumbnail unavailable)
+            - `web` → `website` (✅ FIXED: Proper protocol handling for external links)
+            - `email` → `email` (preserved with mailto link generation)
+            - `copy` → `bio` (HTML stripped with enhanced cleaning)
     - **`transformCategories(apiData)`**: Extracts and standardizes category data from `apiData.data.categories`.
         - **`_standardizeCategory(category)`**: Maps `name` to `name` and generates a `key` (e.g., "Game Design" -> "GAME_DESIGN").
     - **`transformRooms(apiData)`**: Extracts and standardizes room data from `apiData.data.rooms` and `apiData.data.schedule[].sessions[].room`.
@@ -95,26 +96,27 @@ The data flows through several JavaScript files, each responsible for a specific
     - **`transformSessionTypes(apiData)`**: Extracts and standardizes session type data from `apiData.data.sessionTypes` and `apiData.data.schedule[].sessions[].type`.
         - **`_standardizeSessionType(sessionType)`**: Maps `title`, `colour`, `cellStyle`, `icon`.
     - **`transformEvents(apiData, speakerMap)`**: Processes `apiData.data.schedule` to create standardized event objects.
-        - **`_standardizeEvent(session, speakerMap, scheduleDate)`**: Core transformation for sessions. It links speakers using the `speakerMap`, combines `scheduleDate` with `startTime`/`endTime` to create `Date` objects, and cleans HTML from `copy` into `description`. It also maps `session.stream.title` to `category` and `categoryKey` for visual filtering.
+        - **`_standardizeEvent(session, speakerMap, scheduleDate)`**: Core transformation for sessions with enhanced error handling. It links speakers using the `speakerMap`, combines `scheduleDate` with `startTime`/`endTime` to create `Date` objects (✅ FIXED: Handles missing endTime gracefully), and cleans HTML from `copy` into `description`. It also maps `session.stream.title` to `category` and `categoryKey` for visual filtering with dynamic CSS class generation.
     - **`transformSchedules(apiData)`**: Processes `apiData.data.schedule` to create standardized schedule day objects.
         - **`_standardizeSchedule(scheduleDay)`**: Maps `title`, `date`, and includes raw `sessions` array.
     - **`_stripHtmlTags(htmlString)`**: Utility to remove HTML from text fields (e.g., `copy` in speakers/sessions).
 
 ### 2.3. `js/speaker-api.js`, `js/event-api.js`, `js/category-api.js`, `js/room-api.js`, `js/stream-api.js`, `js/session-type-api.js`, `js/schedule-api.js`
 
-- **Role**: Provide a clean, centralized API for accessing specific types of data. These APIs abstract away the underlying `DataManager` implementation.
+- **Role**: Provide a clean, centralized API for accessing specific types of data with enhanced error handling. These APIs abstract away the underlying `DataManager` implementation.
 - **Input**: Requests for specific data entities (e.g., `getSpeaker(id)`, `getAllEvents()`).
-- **Output**: Standardized data objects or arrays.
+- **Output**: Standardized data objects or arrays with validation and fallbacks.
 - **Connections**:
     - All these API files directly call `getDataManager()` to retrieve the singleton `DataManager` instance.
     - They then use `DataManager`'s getter methods (e.g., `dataManager.getSpeaker(id)`, `dataManager.getAllEvents()`) to fulfill requests.
-    - This layer ensures that all data consumers interact with a consistent data structure, regardless of the raw API format.
+    - ✅ ENHANCED: This layer ensures consistent data structure and provides graceful error handling when data is unavailable.
+    - ✅ NOTE: These API files exist for architectural completeness but are currently not loaded by the widget loaders - the widget cores access DataManager directly for improved performance.
 
 ### 2.4. `js/widget-core.js` (and `js/friday-saturday-widget-core.js`)
 
-- **Role**: Main entry point for the Thursday (and Friday/Saturday) schedule widget. Orchestrates the rendering of the schedule and applies filters.
+- **Role**: Main entry point for the Thursday (and Friday/Saturday) schedule widget with enhanced view switching and filter coordination. Orchestrates the rendering of the schedule and applies filters with support for both legacy and dynamic layouts.
 - **Input**: DOM container ID, options, and optionally a `DataManager` instance.
-- **Output**: Renders the HTML structure of the schedule.
+- **Output**: Renders the HTML structure of the schedule with dynamic time organization and improved error handling.
 - **Connections**:
     - **`initialize()`**:
         - Can receive a `dataManager` instance in its constructor. If not provided, it falls back to global `window.SCHEDULE_DATA` and `window.WORKSHOP_EVENTS` (which are static JSON files, now largely superseded by `DataManager`).
@@ -122,50 +124,57 @@ The data flows through several JavaScript files, each responsible for a specific
     - **`initializeSchedule()`**:
         - Retrieves `scheduleData` and `eventData` from `this.dataManager` (or fallback static data).
         - Passes this data to `scheduleGenerator.renderSchedule()`.
-    - **`applyFilter(categoryKey)`**: Calls `scheduleGenerator.filterEventsByCategory(categoryKey)`.
-    - **`clearFilter()`**: Calls `scheduleGenerator.resetFilter()`.
-    - **`updateFilterValueText(categoryName)`**: Updates the UI based on the selected filter.
+    - **`applyFilter(categoryKey)`**: ✅ ENHANCED: Calls `scheduleGenerator.filterEventsByCategory(categoryKey)` with support for both legacy and dynamic layouts.
+    - **`clearFilter()`**: ✅ ENHANCED: Calls `scheduleGenerator.resetFilter()` with proper state restoration.
+    - **`updateFilterValueText(categoryName)`**: Updates the UI based on the selected filter with improved accessibility.
     - **`getAvailableCategories()`**: Uses `this.dataManager.getEventData()` to determine which categories are present in the data.
+    - **`switchToView(viewName)`** (Friday/Saturday): ✅ ENHANCED: Seamless view switching with filter state preservation and proper DOM management.
 
 ### 2.5. `js/schedule-generator.js` (and `js/morning-schedule-generator.js`, `js/afternoon-schedule-generator.js`)
 
-- **Role**: Renders the schedule HTML based on the provided data and manages event panel loading.
+- **Role**: Renders the schedule HTML with dynamic time organization and enhanced error handling. Manages event panel loading with improved speaker field mapping.
 - **Input**: DOM container, `scheduleData` (time slots structure), and `eventData` (detailed event objects).
-- **Output**: Populated HTML within its container.
+- **Output**: Populated HTML within its container with dynamic time blocks and proper spacing/layout.
 - **Connections**:
     - **`renderSchedule(scheduleData, eventData)`**:
-        - Stores `scheduleData` and `eventData` internally.
-        - Iterates through `scheduleData.timeSlots` to build the schedule structure.
-        - Calls `generateWorkshopEvent(workshop)` (or `generateMorningEvent`/`generateAfternoonEvent`).
-        - Calls `loadWorkshopContent()` (or `loadEventContent`).
+        - ✅ ENHANCED: Stores `scheduleData` and `eventData` internally with validation and error handling.
+        - ✅ ENHANCED: Uses ScheduleTimeManager for dynamic time organization when available, falls back to static timeSlots.
+        - ✅ ENHANCED: Generates semantic CSS classes for time categories based on actual event data.
+        - Calls `generateWorkshopEvent(workshop)` (or `generateMorningEvent`/`generateAfternoonEvent`) with proper ID + Class separation.
+        - Calls `loadWorkshopContent()` (or `loadEventContent`) with enhanced speaker field mapping.
     - **`loadWorkshopContent()` / `loadEventContent()`**:
         - Finds all event panel placeholders in the DOM.
         - Calls `loadSingleWorkshop(container)` / `loadSingleEvent(container)` for each.
     - **`loadSingleWorkshop(container)` / `loadSingleEvent(container)`**:
-        - Retrieves detailed event data using `this.eventData[eventId]`.
-        - Instantiates `UnifiedEventLoader` and calls `createEventPanel()` to build the actual event panel HTML.
-    - **`filterEventsByCategory(categoryKey)`**, **`resetFilter()`**: Applies/resets visual filters by adding/removing CSS classes to event panels based on `eventData.categoryKey` or `eventData.category`.
+        - ✅ ENHANCED: Retrieves detailed event data using `this.eventData[eventId]` with validation and error handling.
+        - ✅ ENHANCED: Instantiates `UnifiedEventLoader` and calls `createEventPanel()` with enhanced speaker mapping and thumbnail fallback behavior.
+    - **`filterEventsByCategory(categoryKey)`**, **`resetFilter()`**: ✅ ENHANCED: Applies/resets visual filters with support for both legacy and dynamic layouts, using appropriate selectors for different time container structures.
 
 ### 2.6. `js/unified-event-loader.js`
 
-- **Role**: Creates and updates the actual HTML structure for individual event panels (both "big" and "main" types).
+- **Role**: Creates and updates the actual HTML structure for individual event panels with enhanced speaker field mapping and thumbnail fallback behavior (both "big" and "main" types).
 - **Input**: `eventData` (a single, detailed event object), `eventType` ("big" or "main"), `widgetType` (e.g., "schedule", "thursday", "morning").
-- **Output**: An HTML `div` element representing an event panel.
+- **Output**: An HTML `div` element representing an event panel with proper ID + Class separation of concerns.
 - **Connections**:
     - **`loadTemplate()`**: Fetches `unified-event-panel.html` (or uses an embedded fallback) which contains the base HTML structure for panels.
     - **`createEventPanel(eventData, eventType, widgetType)`**:
         - Determines if it's a "big" or "main" panel.
         - Calls `createBigEventPanel()` or `createMainEventPanel()`.
         - **`validateCategoryData(eventData)`**: Maps `eventData.category` or `eventData.categoryKey` to a standardized category key and display name (e.g., "Game Design" -> "GAME_DESIGN"). This is crucial for applying category-specific styling and filtering.
-    - **`updateBigEventContent(clone, eventData, widgetType)` / `updateMainEventContent(mainPanel, eventData, widgetType)`**: Populates the panel's HTML elements with `eventData` properties (e.g., `title`, `thumbnail`, `speakers[].name`, `speakers[].position`). It also sets the correct `data-category` attribute on the panel.
+    - **`updateBigEventContent(clone, eventData, widgetType)` / `updateMainEventContent(mainPanel, eventData, widgetType)`**: ✅ ENHANCED: Populates the panel's HTML elements with corrected speaker field mapping:
+        - `displayName` → `.nzgdc-speaker-bioName-big` and `.nzgdc-speaker-name-main` (primary field)
+        - `name` → fallback when displayName unavailable
+        - `position` (combined) → `.nzgdc-speaker-bioPosition-big` and `.nzgdc-speaker-position-company-main`
+        - `headshot` → Used as thumbnail fallback when `eventData.thumbnail` is unavailable
+        - ✅ ENHANCED: Sets correct `data-category` attribute and implements ID + Class pattern for maintainability.
     - **`setupSpeakerDetailsHover(eventPanel, eventData)`**: Attaches event listeners to the panel to show expanded event details on click.
-        - **`window.ExpandedEventDetailsManager.showEventDetails(eventData, source)`**: This is a critical connection where the detailed `eventData` is passed to the `ExpandedEventDetailsManager` for displaying the full event overlay.
+        - **`window.ExpandedEventDetailsManager.showEventDetails(eventData, source)`**: ✅ ENHANCED: This critical connection passes the detailed `eventData` with enhanced speaker mapping to the `ExpandedEventDetailsManager` for displaying the full event overlay with comprehensive contact information.
 
 ### 2.7. `js/expanded-event-details-manager.js`
 
-- **Role**: Manages the lifecycle and content of the expanded event details overlay (modal).
-- **Input**: Detailed `eventData` (from `UnifiedEventLoader`).
-- **Output**: Renders a full-screen modal with event and speaker details.
+- **Role**: Manages the lifecycle and content of the expanded event details overlay (modal) with enhanced speaker contact integration.
+- **Input**: Detailed `eventData` (from `UnifiedEventLoader`) with standardized speaker field mapping.
+- **Output**: Renders a full-screen modal with comprehensive event and speaker details including contact information.
 - **Connections**:
     - **`showEventDetails(eventData, sourceWidget)`**:
         - Receives the `eventData` object (which is already in the standardized format from `DataTransformer`).
@@ -174,22 +183,33 @@ The data flows through several JavaScript files, each responsible for a specific
             - `populateSpeakersList(eventData.speakers)`
             - `populateDescription(eventData.description)`
             - `populateAudienceTags(eventData.audienceTags)`: Uses `eventData.audienceTags` (or `eventData.categories`) to display audience information.
-            - `populateSpeakerBios(eventData.speakers)`: Iterates through `eventData.speakers` to create individual speaker bio cards.
+            - `populateSpeakerBios(eventData.speakers)`: ✅ ENHANCED: Iterates through `eventData.speakers` with corrected field mapping:
+                - `displayName` → `.nzgdc-expanded-speaker-name` and `.nzgdc-speaker-name-item`
+                - `position` → `.nzgdc-expanded-speaker-position`
+                - `headshot` → `.nzgdc-speaker-headshot` (with placeholder fallback)
+                - `email` → `.nzgdc-contact-email` (mailto links)
+                - `website` → `.nzgdc-contact-website` (external links with protocol handling)
         - **`adaptEventData(eventData)`**: Ensures consistency, handling slight variations in `eventData` properties.
-        - **`adaptSpeakerData(speakers)`**: Ensures consistency for speaker sub-objects, mapping various raw speaker properties to standardized ones for display in the modal.
+        - **`adaptSpeakerData(speakers)`**: ✅ ENHANCED: Ensures consistency for speaker sub-objects with corrected field prioritization, mapping various raw speaker properties to standardized ones with proper contact information integration.
 
 ## 3. Data Flow Summary
 
 1. **Raw Data In**: `n8n-entegyapi.json` (via webhook or local file) contains all raw event, speaker, and schedule data.
-2. **Centralized Management**: `js/data-manager.js` loads this raw data.
-3. **Standardization**: `js/data-transformer.js` processes the raw data into a consistent, standardized format, resolving duplicates and cleaning text.
-4. **API Access**: `js/speaker-api.js`, `js/event-api.js`, etc., provide structured access to this standardized data for other modules.
-5. **Widget Orchestration**: `js/widget-core.js` (and `js/friday-saturday-widget-core.js`) initializes the schedule rendering process. It retrieves `scheduleData` and `eventData` from the `DataManager`.
-6. **Schedule Rendering**: `js/schedule-generator.js` (and `js/morning-schedule-generator.js`, `js/afternoon-schedule-generator.js`) uses the `scheduleData` to build the overall HTML layout and then requests detailed `eventData` for each panel.
-7. **Panel Creation**: `js/unified-event-loader.js` takes individual `eventData` objects and renders the specific "big" or "main" event panel HTML, populating it with titles, speakers, thumbnails (with speaker headshot fallback), and category information. It correctly maps speaker fields (`displayName`, `position`, `headshot`) to their corresponding HTML elements and attaches event listeners for interaction.
-8. **Expanded Details**: When an event panel is clicked, `js/expanded-event-details-manager.js` is invoked by `unified-event-loader.js`, receiving the full standardized `eventData` object to display a detailed modal.
+2. **Centralized Management**: `js/data-manager.js` loads this raw data with enhanced validation and error handling.
+3. **Standardization**: `js/data-transformer.js` processes the raw data into a consistent, standardized format with corrected speaker field mapping, resolving duplicates and cleaning text.
+4. **~~API Access~~**: ✅ NOTE: `js/speaker-api.js`, `js/event-api.js`, etc., exist for architectural completeness but are not loaded by widget loaders - widgets directly access DataManager for performance.
+5. **Widget Orchestration**: `js/widget-core.js` (and `js/friday-saturday-widget-core.js`) initializes the schedule rendering process with enhanced view switching and filter coordination. It retrieves `scheduleData` and `eventData` from the `DataManager`.
+6. **Dynamic Time Organization**: ✅ NEW: `js/schedule-time-manager.js` intelligently groups events by actual API `startTime`/`endTime` and generates semantic CSS classes for time categories.
+7. **Schedule Rendering**: `js/schedule-generator.js` (and `js/morning-schedule-generator.js`, `js/afternoon-schedule-generator.js`) uses dynamic time organization to build the overall HTML layout with proper ID + Class separation, then requests detailed `eventData` for each panel.
+8. **Panel Creation**: `js/unified-event-loader.js` takes individual `eventData` objects and renders event panels with ✅ ENHANCED speaker field mapping:
+   - `displayName` prioritized over `name` fallback
+   - `headshot` used for thumbnail fallback when event thumbnails unavailable
+   - `position` properly formatted and displayed
+   - `email` and `website` with proper contact link generation
+   - ID + Class pattern for maintainable architecture
+9. **Expanded Details**: When event panels are clicked, `js/expanded-event-details-manager.js` displays comprehensive modals with ✅ ENHANCED speaker contact integration including mailto links and website links with protocol handling.
 
-This systemic approach ensures data consistency, modularity, and maintainability across the NZGDC widget.
+This enhanced systemic approach ensures data consistency, improved error handling, dynamic time organization, and comprehensive speaker field mapping across the NZGDC widget.
 
 ---
 ---
@@ -243,10 +263,10 @@ This file is like the central hub for all event data. It's responsible for getti
 This file is the "data processing plant." It takes the raw, sometimes inconsistent, data from the source and transforms it into a uniform format that the rest of the widget expects.
 
 *   **`transformSpeakers(apiData)`**
-    *   **What it does:** This function specifically focuses on speaker information. It extracts speaker details from different places in the raw data (like the main speaker list and embedded in session details), cleans them up, and combines relevant fields (like position and company) into a single, easy-to-display format.
-    *   **Why it's important:** Ensures all speaker profiles are consistent, no matter where they appeared in the raw data.
+    *   **What it does:** ✅ ENHANCED: This function specifically focuses on speaker information with corrected field prioritization. It extracts speaker details from different places in the raw data, cleans them up, and combines relevant fields with proper `displayName` → `name` fallback logic and enhanced contact field mapping.
+    *   **Why it's important:** Ensures all speaker profiles are consistent with reliable field mapping, no matter where they appeared in the raw data.
     *   **Input:** The raw event data.
-    *   **Output:** A standardized list of speaker objects.
+    *   **Output:** A standardized list of speaker objects with corrected field prioritization.
 
 *   **`transformEvents(apiData, speakerMap)`**
     *   **What it does:** This is a big one! It goes through all the sessions listed in the raw schedule, extracts their details (like title, time, description), and links them up with the correct speaker information (using the `speakerMap` created earlier). It also cleans up HTML from descriptions.
@@ -385,13 +405,15 @@ This file is the "detail painter." It's responsible for creating the actual visu
     *   **Output:** A fully constructed HTML element for an event panel.
 
 *   **`updateBigEventContent(...)` / `updateMainEventContent(...)`**
-    *   **What they do:** These functions take an existing event panel HTML element and fill it with the specific details from an `eventData` object. They correctly map speaker data to HTML elements:
-        - `displayName` → `.nzgdc-speaker-bioName-big` and `.nzgdc-speaker-name-main`
-        - `position` → `.nzgdc-speaker-bioPosition-big` and `.nzgdc-speaker-position-company-main`
-        - `headshot` → Used as thumbnail fallback when `eventData.thumbnail` is unavailable
-    *   **Why they're important:** They ensure consistent speaker data display and provide fallback behavior.
+    *   **What they do:** ✅ ENHANCED: These functions take an existing event panel HTML element and fill it with the specific details using corrected speaker field mapping:
+        - `displayName` → `.nzgdc-speaker-bioName-big` and `.nzgdc-speaker-name-main` (✅ FIXED: Primary field)
+        - `name` → Fallback when displayName unavailable (✅ FIXED: Proper fallback logic)
+        - `position` (combined) → `.nzgdc-speaker-bioPosition-big` and `.nzgdc-speaker-position-company-main`
+        - `headshot` → ✅ ENHANCED: Used as thumbnail fallback when `eventData.thumbnail` is unavailable
+        - ID + Class separation for maintainable architecture
+    *   **Why they're important:** ✅ ENHANCED: They ensure consistent speaker data display with reliable field prioritization and provide comprehensive fallback behavior.
     *   **Input:** An HTML element representing an event panel, and the standardized event data.
-    *   **Output:** The HTML element is updated with event details and proper field mappings.
+    *   **Output:** The HTML element is updated with enhanced speaker field mappings and proper separation of concerns.
 
 *   **`setupSpeakerDetailsHover(eventPanel, eventData)`**
     *   **What it does:** This function makes the event panels interactive. It adds special behaviors so that when you hover over a panel, an overlay appears, and when you click it, a larger "expanded details" modal pops up.
@@ -416,15 +438,16 @@ This file is dedicated to handling the large pop-up window that shows all the de
     *   **Output:** The modal's content is updated.
 
 *   **`populateSpeakerBios(speakers)`**
-    *   **What it does:** This function creates detailed speaker bio cards in the expanded modal, correctly mapping speaker fields to HTML elements:
-        - `displayName` → `.nzgdc-expanded-speaker-name` and `.nzgdc-speaker-name-item`
-        - `position` → `.nzgdc-expanded-speaker-position`
-        - `headshot` → `.nzgdc-speaker-headshot` (with placeholder fallback)
-        - `email` → `.nzgdc-contact-email` (mailto link)
-        - `website` → `.nzgdc-contact-website` (external link with proper protocol handling)
-    *   **Why it's important:** It provides comprehensive speaker information with proper contact integration.
-    *   **Input:** An array of standardized speaker objects.
-    *   **Output:** Complete speaker bio cards with contact information are added to the modal.
+    *   **What it does:** ✅ ENHANCED: This function creates detailed speaker bio cards in the expanded modal with corrected field mapping and comprehensive contact integration:
+        - `displayName` → `.nzgdc-expanded-speaker-name` and `.nzgdc-speaker-name-item` (✅ FIXED: Primary field prioritized)
+        - `name` → Fallback when displayName unavailable (✅ FIXED: Proper fallback logic)
+        - `position` (combined) → `.nzgdc-expanded-speaker-position` (✅ ENHANCED: Proper formatting)
+        - `headshot` → `.nzgdc-speaker-headshot` (✅ ENHANCED: Enhanced fallback behavior)
+        - `email` → `.nzgdc-contact-email` (✅ ENHANCED: Mailto link generation)
+        - `website` → `.nzgdc-contact-website` (✅ ENHANCED: External link with proper protocol handling)
+    *   **Why it's important:** ✅ ENHANCED: It provides comprehensive speaker information with reliable field mapping and robust contact integration including proper link generation and protocol handling.
+    *   **Input:** An array of standardized speaker objects with corrected field mapping.
+    *   **Output:** Complete speaker bio cards with enhanced contact information and proper field prioritization are added to the modal.
 
 *   **`hideEventDetails()`**
     *   **What it does:** This function closes the detailed event modal. It hides the modal and cleans up the webpage (like restoring scrolling).

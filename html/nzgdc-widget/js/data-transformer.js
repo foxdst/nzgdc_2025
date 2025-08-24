@@ -262,6 +262,7 @@ var DataTransformer = (function () {
                 session,
                 speakerMap,
                 scheduleDay.date,
+                scheduleDay.title,
               );
               events.push(standardizedEvent);
             });
@@ -393,16 +394,18 @@ var DataTransformer = (function () {
   };
 
   /**
-   * Standardize event data
+   * Standardize event/session data
    * @param {Object} session - Raw session data
-   * @param {Map} speakerMap - Map of standardized speakers
+   * @param {Map} speakerMap - Map of speakers by ID
    * @param {string} scheduleDate - Date of the schedule day
+   * @param {string} scheduleTitle - Title of the schedule day (e.g., "Thursday", "Friday", "Saturday")
    * @returns {Object} Standardized event object
    */
   DataTransformer.prototype._standardizeEvent = function (
     session,
     speakerMap,
     scheduleDate,
+    scheduleTitle,
   ) {
     // Process speakers - resolve duplication between top-level and embedded
     const processedSpeakers = [];
@@ -467,6 +470,9 @@ var DataTransformer = (function () {
         : {},
       featuredSpeaker: session.featuredSpeaker || null,
       capacity: session.capacity || 0,
+      // Schedule assignment for proper widget categorization
+      scheduleTitle: scheduleTitle || null, // "Thursday", "Friday", "Saturday"
+      scheduleDate: scheduleDate || null, // ISO date string
       // Additional fields from actual API
       acceptingQuestions: session.acceptingQuestions || false,
       votingAndDiscussion: session.votingAndDiscussion || false,

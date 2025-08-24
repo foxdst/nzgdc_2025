@@ -18,6 +18,7 @@
     <script src="../js/afternoon-events.js"></script>
 
     <!-- Load utility and generator modules -->
+    <script src="../js/schedule-time-manager.js"></script>
     <script src="../js/unified-event-loader.js"></script>
     <script src="../js/schedule-generator.js"></script>
     <script src="../js/morning-schedule-generator.js"></script>
@@ -921,6 +922,8 @@ Use the buttons above to test different widget functionality.`);
 
         // Add comprehensive debug function for Friday/Saturday data flow
         function debugFridaySaturdayDataFlow() {
+            // First run the event distribution debug
+            debugEventDistribution();
             console.log('%c=== FRIDAY/SATURDAY DATA FLOW DEBUG ===', 'color: red; font-weight: bold; font-size: 16px;');
 
             // 1. Check DataManager status
@@ -1045,7 +1048,129 @@ Use the buttons above to test different widget functionality.`);
             console.log('\n🎯 DIAGNOSIS COMPLETE - Check console output above for issues');
         }
 
+        // Debug function to check event distribution by schedule
+        function debugEventDistribution() {
+            console.log('=== Event Distribution Debug ===');
+
+            if (!window.dataManagerInstance) {
+                console.log('DataManager not available');
+                return;
+            }
+
+            try {
+                const schedules = window.dataManagerInstance.getScheduleData();
+                const events = window.dataManagerInstance.getAllEvents();
+
+                console.log(`Total schedules: ${schedules.length}`);
+                console.log(`Total events: ${events.length}`);
+
+                // Group events by schedule title
+                const eventsBySchedule = {};
+                events.forEach(event => {
+                    const scheduleTitle = event.scheduleTitle || 'Unknown';
+                    if (!eventsBySchedule[scheduleTitle]) {
+                        eventsBySchedule[scheduleTitle] = [];
+                    }
+                    eventsBySchedule[scheduleTitle].push(event);
+                });
+
+                console.log('Events by schedule:');
+                Object.keys(eventsBySchedule).forEach(scheduleTitle => {
+                    const scheduleEvents = eventsBySchedule[scheduleTitle];
+                    console.log(`  ${scheduleTitle}: ${scheduleEvents.length} events`);
+
+                    // Show time distribution
+                    const morningEvents = scheduleEvents.filter(e => {
+                        if (!e.startTime) return false;
+                        const hour = parseInt(e.startTime.split(':')[0], 10);
+                        return hour < 12;
+                    });
+                    const afternoonEvents = scheduleEvents.filter(e => {
+                        if (!e.startTime) return false;
+                        const hour = parseInt(e.startTime.split(':')[0], 10);
+                        return hour >= 12;
+                    });
+
+                    console.log(`    Morning (< 12:00): ${morningEvents.length}`);
+                    console.log(`    Afternoon (>= 12:00): ${afternoonEvents.length}`);
+                });
+
+                // List schedule titles
+                console.log('Available schedules:');
+                schedules.forEach(schedule => {
+                    console.log(`  ${schedule.title} (${schedule.date}): ${schedule.sessions?.length || 0} sessions`);
+                });
+
+            } catch (error) {
+                console.error('Error in debugEventDistribution:', error);
+            }
+        }
+
         window.debugFridaySaturdayDataFlow = debugFridaySaturdayDataFlow;
+
+        // Page load verification and initialization check
+        function checkPageInitialization() {
+            console.log('=== Widget Demo Initialization Check ===');
+
+            // Check if essential elements exist
+            const containers = ['thursday-container', 'friday-saturday-container'];
+            containers.forEach(id => {
+                const element = document.getElementById(id);
+                console.log(`Container ${id}:`, element ? 'Found' : 'MISSING');
+            });
+
+            // Check if required widgets are loaded
+            const widgetStatus = {
+                NZGDCWidget: typeof window.NZGDCWidget !== 'undefined',
+                NZGDCMorningWidget: typeof window.NZGDCMorningWidget !== 'undefined',
+                NZGDCAfternoonWidget: typeof window.NZGDCAfternoonWidget !== 'undefined'
+            };
+
+            console.log('Widget availability:', widgetStatus);
+
+            // Check if widget is ready
+            if (widgetStatus.NZGDCWidget) {
+                try {
+                    const isReady = window.NZGDCWidget.isReady ? window.NZGDCWidget.isReady() : false;
+                    console.log('NZGDCWidget ready status:', isReady);
+
+                    if (isReady) {
+                        updateStatus('Widget demo ready - you can now test the widgets!', 'success');
+                    } else {
+                        updateStatus('Widgets loading... please wait', 'info');
+                        // Try again in a moment
+                        setTimeout(checkPageInitialization, 1000);
+                    }
+                } catch (error) {
+                    console.error('Error checking widget ready status:', error);
+                    updateStatus('Widget initialization error - check console', 'error');
+                }
+            } else {
+                updateStatus('Widgets not loaded - check script loading', 'error');
+            }
+
+            // Initialize DataManager if not already done
+            if (!window.dataManagerInstance && typeof DataManager !== 'undefined') {
+                console.log('Initializing DataManager...');
+                initializeDataManager();
+            }
+        }
+
+        // Run initialization check when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', checkPageInitialization);
+        } else {
+            // DOM already loaded
+            setTimeout(checkPageInitialization, 100);
+        }
+
+        // Also run when window fully loads (fallback)
+        window.addEventListener('load', function() {
+            setTimeout(checkPageInitialization, 500);
+        });
+
+        // Make debug function globally available
+        window.debugEventDistribution = debugEventDistribution;
 
         // Update status periodically
         setInterval(updateWidgetStatus, 1000);

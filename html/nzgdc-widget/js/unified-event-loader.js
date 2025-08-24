@@ -18,6 +18,7 @@ if (typeof window !== "undefined" && window.UnifiedEventLoader) {
 
       // Category definitions with display names and brightness
       this.categoryDefinitions = new Map([
+        ["ALL", { name: "All Audiences", brightness: "light" }],
         ["STORY_NARRATIVE", { name: "Story & Narrative", brightness: "light" }],
         ["PRODUCTION_QA", { name: "Production & QA", brightness: "dark" }],
         ["CULTURE", { name: "Culture", brightness: "light" }],

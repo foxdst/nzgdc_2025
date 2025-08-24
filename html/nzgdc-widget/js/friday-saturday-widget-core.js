@@ -212,11 +212,12 @@
         // Get schedule data and filter for Friday/Saturday events
         const schedules = this.dataManager.getScheduleData();
         if (schedules && schedules.length > 0) {
-          // Find Friday and Saturday schedules
+          // Find Friday and Saturday schedules by title
           const fridaySaturdaySchedules = schedules.filter((schedule) => {
-            const scheduleDate = new Date(schedule.date);
-            const dayOfWeek = scheduleDate.getDay();
-            return dayOfWeek === 5 || dayOfWeek === 6; // Friday (5) or Saturday (6)
+            const scheduleTitle = schedule.title
+              ? schedule.title.toLowerCase()
+              : "";
+            return scheduleTitle === "friday" || scheduleTitle === "saturday";
           });
 
           // Extract events from Friday/Saturday sessions and filter by time
@@ -609,18 +610,19 @@
               schedules.length,
             );
             schedules.forEach((schedule) => {
-              const scheduleDate = new Date(schedule.date);
-              const dayOfWeek = scheduleDate.getDay();
-              const dayName = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][
-                dayOfWeek
-              ];
+              const scheduleTitle = schedule.title
+                ? schedule.title.toLowerCase()
+                : "";
 
               this.debugLog(
-                `Processing ${dayName} schedule (${schedule.date}) with ${schedule.sessions?.length || 0} sessions`,
+                `Processing ${schedule.title || "Unknown"} schedule (${schedule.date}) with ${schedule.sessions?.length || 0} sessions`,
               );
 
-              // Only process Friday (5) and Saturday (6) schedules
-              if ((dayOfWeek === 5 || dayOfWeek === 6) && schedule.sessions) {
+              // Only process Friday and Saturday schedules
+              if (
+                (scheduleTitle === "friday" || scheduleTitle === "saturday") &&
+                schedule.sessions
+              ) {
                 schedule.sessions.forEach((session) => {
                   const startTime = session.startTime || "00:00";
                   const hour = parseInt(startTime.split(":")[0], 10);
@@ -776,18 +778,19 @@
               schedules.length,
             );
             schedules.forEach((schedule) => {
-              const scheduleDate = new Date(schedule.date);
-              const dayOfWeek = scheduleDate.getDay();
-              const dayName = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][
-                dayOfWeek
-              ];
+              const scheduleTitle = schedule.title
+                ? schedule.title.toLowerCase()
+                : "";
 
               this.debugLog(
-                `Processing ${dayName} schedule (${schedule.date}) with ${schedule.sessions?.length || 0} sessions`,
+                `Processing ${schedule.title || "Unknown"} schedule (${schedule.date}) with ${schedule.sessions?.length || 0} sessions`,
               );
 
-              // Only process Friday (5) and Saturday (6) schedules
-              if ((dayOfWeek === 5 || dayOfWeek === 6) && schedule.sessions) {
+              // Only process Friday and Saturday schedules
+              if (
+                (scheduleTitle === "friday" || scheduleTitle === "saturday") &&
+                schedule.sessions
+              ) {
                 schedule.sessions.forEach((session) => {
                   const startTime = session.startTime || "00:00";
                   const hour = parseInt(startTime.split(":")[0], 10);

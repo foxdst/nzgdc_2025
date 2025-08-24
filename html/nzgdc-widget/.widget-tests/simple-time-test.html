@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Dynamic Time Management Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .test-results {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
+        }
+        .time-block {
+            margin: 10px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: white;
+        }
+        .time-block h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        .event-list {
+            margin: 10px 0;
+        }
+        .event-list li {
+            margin: 5px 0;
+            padding: 5px;
+            background: #f0f0f0;
+            border-radius: 3px;
+        }
+        button {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+        .log {
+            max-height: 200px;
+            overflow-y: auto;
+            background: #000;
+            color: #00ff00;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Simple Dynamic Time Management Test</h1>
+        <p>This is a minimal test to verify the ScheduleTimeManager functionality.</p>
+
+        <div class="controls">
+            <button onclick="runTest()">Run Test</button>
+            <button onclick="clearResults()">Clear Results</button>
+            <button onclick="toggleDebug()">Toggle Debug</button>
+        </div>
+
+        <div id="status" class="status info">Ready to test...</div>
+
+        <div class="test-results">
+            <h3>Test Results</h3>
+            <div id="results">Click "Run Test" to start testing...</div>
+        </div>
+
+        <div class="test-results">
+            <h3>Generated Time Blocks</h3>
+            <div id="time-blocks">No time blocks generated yet...</div>
+        </div>
+
+        <div class="test-results">
+            <h3>Debug Log</h3>
+            <div id="log" class="log">Waiting for test...</div>
+        </div>
+
+        <div class="test-results">
+            <h3>Debug Info</h3>
+            <div id="debug-info">
+                <pre id="debug-details">Debug info will appear here...</pre>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load only the essential scripts -->
+    <script src="../js/schedule-time-manager.js"></script>
+
+    <script>
+        let timeManager = null;
+        let debugEnabled = false;
+        let testLog = [];
+
+        // Sample test data
+        const sampleEvents = [
+            {
+                id: "event-1",
+                title: "Opening Keynote",
+                startTime: "09:00",
+                endTime: "10:00",
+                category: "Keynote",
+                speakers: [{ displayName: "John Doe" }],
+                description: "Opening keynote speech"
+            },
+            {
+                id: "event-2",
+                title: "Unity Workshop",
+                startTime: "09:30",
+                endTime: "11:00",
+                category: "Programming",
+                speakers: [{ displayName: "Jane Smith" }],
+                description: "Advanced Unity techniques"
+            },
+            {
+                id: "event-3",
+                title: "Game Design Fundamentals",
+                startTime: "11:00",
+                endTime: "12:00",
+                category: "Design",
+                speakers: [{ displayName: "Bob Wilson" }],
+                description: "Basic game design principles"
+            },
+            {
+                id: "event-4",
+                title: "Lunch Break",
+                startTime: "12:00",
+                endTime: "13:00",
+                category: "Break",
+                speakers: [],
+                description: "Networking lunch"
+            },
+            {
+                id: "event-5",
+                title: "Art Pipeline",
+                startTime: "13:00",
+                endTime: "14:30",
+                category: "Art",
+                speakers: [{ displayName: "Alice Johnson" }],
+                description: "Modern art production pipeline"
+            }
+        ];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}`;
+            testLog.push(logEntry);
+
+            const logContainer = document.getElementById('log');
+            if (logContainer) {
+                logContainer.textContent = testLog.join('\n');
+                logContainer.scrollTop = logContainer.scrollHeight;
+            }
+
+            console.log(`[SimpleTest] ${logEntry}`);
+        }
+
+        function updateStatus(message, type = 'info') {
+            const statusElement = document.getElementById('status');
+            if (statusElement) {
+                statusElement.className = `status ${type}`;
+                statusElement.textContent = message;
+            }
+            log(message, type);
+        }
+
+        function updateResults(content) {
+            const resultsElement = document.getElementById('results');
+            if (resultsElement) {
+                resultsElement.innerHTML = content;
+            }
+        }
+
+        function updateTimeBlocks(timeBlocks) {
+            const timeBlocksElement = document.getElementById('time-blocks');
+            if (!timeBlocksElement) return;
+
+            if (!timeBlocks || timeBlocks.length === 0) {
+                timeBlocksElement.innerHTML = '<p>No time blocks generated</p>';
+                return;
+            }
+
+            let html = '';
+            timeBlocks.forEach((block, index) => {
+                const events = block.events || [];
+                const eventsHtml = events.map(event =>
+                    `<li><strong>${event.title}</strong> (${event.startTime}-${event.endTime})</li>`
+                ).join('');
+
+                html += `
+                    <div class="time-block">
+                        <h3>Time Block ${index + 1}: ${block.title || 'Untitled'}</h3>
+                        <p><strong>Time Range:</strong> ${block.startTime || 'N/A'} - ${block.endTime || 'N/A'}</p>
+                        <p><strong>Events Count:</strong> ${events.length}</p>
+                        ${events.length > 0 ? `<ul class="event-list">${eventsHtml}</ul>` : '<p>No events</p>'}
+                    </div>
+                `;
+            });
+
+            timeBlocksElement.innerHTML = html;
+        }
+
+        function updateDebugInfo(info) {
+            const debugDetails = document.getElementById('debug-details');
+            if (debugDetails) {
+                debugDetails.textContent = JSON.stringify(info, null, 2);
+            }
+        }
+
+        function clearResults() {
+            testLog = [];
+            document.getElementById('log').textContent = '';
+            document.getElementById('results').innerHTML = 'Results cleared.';
+            document.getElementById('time-blocks').innerHTML = 'No time blocks generated yet...';
+            document.getElementById('debug-details').textContent = 'Debug info cleared...';
+            updateStatus('Results cleared', 'info');
+        }
+
+        function toggleDebug() {
+            debugEnabled = !debugEnabled;
+            if (timeManager) {
+                timeManager.enableDebug(debugEnabled);
+            }
+            updateStatus(`Debug ${debugEnabled ? 'enabled' : 'disabled'}`, 'info');
+        }
+
+        function runTest() {
+            log('Starting simple time management test...');
+            updateStatus('Running test...', 'info');
+
+            try {
+                // Step 1: Check if ScheduleTimeManager is available
+                log('Step 1: Checking for ScheduleTimeManager...');
+                if (typeof window.ScheduleTimeManager === 'undefined') {
+                    throw new Error('ScheduleTimeManager not found in window object');
+                }
+                log('✓ ScheduleTimeManager found');
+
+                // Step 2: Create instance
+                log('Step 2: Creating ScheduleTimeManager instance...');
+                timeManager = new window.ScheduleTimeManager();
+                timeManager.enableDebug(debugEnabled);
+                log('✓ ScheduleTimeManager instance created');
+
+                // Step 3: Test basic functionality
+                log('Step 3: Testing groupEventsByTimeBlocks...');
+                const timeBlocks = timeManager.groupEventsByTimeBlocks(sampleEvents);
+                log(`✓ Generated ${timeBlocks.length} time blocks`);
+
+                // Step 4: Verify time blocks
+                log('Step 4: Verifying time blocks...');
+                if (timeBlocks.length === 0) {
+                    throw new Error('No time blocks were generated from sample events');
+                }
+
+                let totalEvents = 0;
+                timeBlocks.forEach((block, index) => {
+                    const eventCount = block.events ? block.events.length : 0;
+                    totalEvents += eventCount;
+                    log(`  Block ${index + 1}: ${block.title} (${eventCount} events)`);
+                });
+
+                log(`✓ Total events in blocks: ${totalEvents}`);
+
+                // Step 5: Test time block creation
+                log('Step 5: Testing createTimeBlockContainer...');
+                if (timeBlocks.length > 0) {
+                    const testContainer = timeManager.createTimeBlockContainer(timeBlocks[0]);
+                    if (testContainer && testContainer.element) {
+                        log('✓ Time block container created successfully');
+                    } else {
+                        log('⚠ Time block container creation returned unexpected result');
+                    }
+                }
+
+                // Update UI with results
+                const successMessage = `Test completed successfully! Generated ${timeBlocks.length} time blocks from ${sampleEvents.length} events.`;
+                updateStatus(successMessage, 'success');
+
+                updateResults(`
+                    <div class="success">
+                        <h4>✅ Test Passed!</h4>
+                        <ul>
+                            <li>ScheduleTimeManager loaded: ✓</li>
+                            <li>Instance created: ✓</li>
+                            <li>Time blocks generated: ${timeBlocks.length}</li>
+                            <li>Total events processed: ${totalEvents}</li>
+                            <li>Sample events input: ${sampleEvents.length}</li>
+                        </ul>
+                    </div>
+                `);
+
+                updateTimeBlocks(timeBlocks);
+
+                updateDebugInfo({
+                    testStatus: 'success',
+                    timestamp: new Date().toISOString(),
+                    timeManagerAvailable: true,
+                    debugEnabled: debugEnabled,
+                    inputEvents: sampleEvents.length,
+                    outputTimeBlocks: timeBlocks.length,
+                    totalEventsProcessed: totalEvents,
+                    timeBlockDetails: timeBlocks.map((block, index) => ({
+                        index: index + 1,
+                        title: block.title,
+                        startTime: block.startTime,
+                        endTime: block.endTime,
+                        eventCount: block.events ? block.events.length : 0
+                    }))
+                });
+
+                log('✅ All tests completed successfully!');
+
+            } catch (error) {
+                const errorMessage = `Test failed: ${error.message}`;
+                updateStatus(errorMessage, 'error');
+                log(`❌ Error: ${error.message}`);
+                console.error('Full error:', error);
+
+                updateResults(`
+                    <div class="error">
+                        <h4>❌ Test Failed!</h4>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p>Check the console for more details.</p>
+                    </div>
+                `);
+
+                updateDebugInfo({
+                    testStatus: 'failed',
+                    timestamp: new Date().toISOString(),
+                    errorMessage: error.message,
+                    errorStack: error.stack,
+                    timeManagerAvailable: typeof window.ScheduleTimeManager !== 'undefined',
+                    availableWindowObjects: Object.keys(window).filter(key =>
+                        key.toLowerCase().includes('schedule') ||
+                        key.toLowerCase().includes('time') ||
+                        key.toLowerCase().includes('manager')
+                    )
+                });
+            }
+        }
+
+        // Auto-run basic checks when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            log('Page loaded, running initial checks...');
+
+            updateDebugInfo({
+                pageLoaded: true,
+                timestamp: new Date().toISOString(),
+                readyState: document.readyState,
+                scheduleTimeManagerAvailable: typeof window.ScheduleTimeManager !== 'undefined'
+            });
+
+            updateStatus('Page loaded. Click "Run Test" to start testing.', 'info');
+        });
+
+        // Check when window fully loads
+        window.addEventListener('load', function() {
+            log('Window fully loaded');
+
+            const finalStatus = {
+                windowLoaded: true,
+                scheduleTimeManagerAvailable: typeof window.ScheduleTimeManager !== 'undefined',
+                timestamp: new Date().toISOString()
+            };
+
+            updateDebugInfo(finalStatus);
+
+            if (finalStatus.scheduleTimeManagerAvailable) {
+                updateStatus('Ready! ScheduleTimeManager detected. Click "Run Test" to start.', 'success');
+            } else {
+                updateStatus('Warning: ScheduleTimeManager not detected. Check script loading.', 'error');
+            }
+        });
+
+        log('Simple test script loaded');
+    </script>
+</body>
+</html>

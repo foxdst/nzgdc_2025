@@ -26,9 +26,10 @@ nzgdc-widget/
 │   ├── session-type-api.js                      # Session type data access API
 │   ├── widget-core.js                          # Thursday widget controller & logic
 │   ├── friday-saturday-widget-core.js          # Fri/Sat unified widget controller
-│   ├── schedule-generator.js                   # Thursday DOM structure generator
-│   ├── morning-schedule-generator.js           # Morning events DOM generator
-│   ├── afternoon-schedule-generator.js         # Afternoon events DOM generator
+│   ├── schedule-time-manager.js                # CRITICAL: Dynamic time block organization system
+│   ├── schedule-generator.js                   # Thursday DOM generator with dynamic time blocks
+│   ├── morning-schedule-generator.js           # Morning DOM generator with dynamic time blocks
+│   ├── afternoon-schedule-generator.js         # Afternoon DOM generator with dynamic time blocks
 │   ├── schedule-data.js                        # Thursday workshop configuration
 │   ├── morning-schedule-data.js                # Morning events configuration
 │   ├── afternoon-schedule-data.js              # Afternoon events configuration
@@ -193,10 +194,11 @@ nzgdc-widget/
    - `css/thursday-schedule-bundle.css` (Thursday layout styles)
 
 2. **JavaScript Layer (Loaded Second)**:
+   - `js/schedule-time-manager.js` (CRITICAL - dynamic time organization system)
    - `js/expanded-event-details-manager.js` (expanded details system)
-   - `js/unified-event-loader.js` (CRITICAL - event panel generator)
-   - `js/widget-core.js` (Thursday controller)
-   - `js/schedule-generator.js` (Thursday DOM builder)
+   - `js/unified-event-loader.js` (CRITICAL - event panel generator with enhanced speaker mapping)
+   - `js/widget-core.js` (Thursday controller with improved filter system)
+   - `js/schedule-generator.js` (Thursday DOM builder with dynamic time blocks)
    - `js/schedule-data.js` (Thursday configuration)
    - `js/workshop-events.js` (Thursday event details)
 
@@ -213,11 +215,12 @@ nzgdc-widget/
    - `css/friday-saturday-schedule-bundle.css` (Fri/Sat layout styles)
 
 2. **JavaScript Layer (Loaded Second)**:
+   - `js/schedule-time-manager.js` (CRITICAL - dynamic time organization system)
    - `js/expanded-event-details-manager.js` (expanded details system)
-   - `js/unified-event-loader.js` (CRITICAL - event panel generator)
-   - `js/friday-saturday-widget-core.js` (unified Fri/Sat controller)
-   - `js/morning-schedule-generator.js` (morning DOM builder)
-   - `js/afternoon-schedule-generator.js` (afternoon DOM builder)
+   - `js/unified-event-loader.js` (CRITICAL - event panel generator with enhanced speaker mapping)
+   - `js/friday-saturday-widget-core.js` (unified Fri/Sat controller with improved view switching)
+   - `js/morning-schedule-generator.js` (morning DOM builder with dynamic time blocks)
+   - `js/afternoon-schedule-generator.js` (afternoon DOM builder with dynamic time blocks)
    - `js/morning-schedule-data.js` (morning configuration)
    - `js/afternoon-schedule-data.js` (afternoon configuration)
    - `js/morning-events.js` (morning event details)
@@ -271,12 +274,13 @@ The data management architecture provides several key benefits:
 
 #### `UnifiedEventLoader` (js/unified-event-loader.js)
 **Primary Responsibilities:**
-- Event panel HTML generation from template
-- Category management with predefined definitions
-- Speaker information display and formatting
-- Event thumbnail and background image handling
-- Responsive event panel behavior
+- Event panel HTML generation from template with ID + Class separation of concerns
+- Category management with predefined definitions and enhanced filtering
+- Speaker information display with corrected field mapping prioritization
+- Enhanced event thumbnail and background image handling with speaker headshot fallback
+- Responsive event panel behavior with improved accessibility
 - Category color coding and brightness management
+- Dynamic data-driven CSS class generation for time categories
 
 **Category Definitions:**
 ```javascript
@@ -349,24 +353,27 @@ categoryDefinitions = new Map([
 ### Thursday Widget Data Flow
 1. **Entry Point**: `nzgdc-schedule-widget-modular.js` loads
 2. **CSS Loading**: Unified event panel → category filter → Thursday bundle
-3. **JS Loading**: Unified event loader → widget core → schedule generator → data/events
+3. **JS Loading**: Schedule time manager → unified event loader → widget core → schedule generator → data/events
 4. **Template Loading**: Unified event panel HTML template
-5. **Initialization**: Widget core creates DOM structure using schedule generator
-6. **Event Integration**: Unified event loader generates event panels from workshop-events.js
-7. **Filter Integration**: Category dropdown controller manages workshop filtering
-8. **Rendering**: Complete Thursday schedule with interactive event panels
+5. **Initialization**: Widget core creates DOM structure using schedule generator with dynamic time organization
+6. **Time Management**: ScheduleTimeManager groups events by actual startTime/endTime, generates semantic CSS classes
+7. **Event Integration**: Unified event loader generates event panels with enhanced speaker field mapping
+8. **Filter Integration**: Improved category dropdown controller with legacy and dynamic layout support
+9. **Rendering**: Complete Thursday schedule with dynamic time blocks and interactive event panels
 
 ### Friday/Saturday Widget Data Flow  
 1. **Entry Point**: `nzgdc-friday-saturday-schedule-widget-modular.js` loads
 2. **CSS Loading**: Unified event panel → category filter → Friday/Saturday bundle
-3. **JS Loading**: Unified event loader → Friday/Saturday core → both generators → data/events
+3. **JS Loading**: Schedule time manager → unified event loader → Friday/Saturday core → both generators → data/events
 4. **Template Loading**: Unified event panel HTML template
-5. **Initialization**: Unified core creates dual-view DOM structure
-6. **Generator Coordination**: Both morning and afternoon generators initialize
-7. **Event Integration**: Unified event loader generates panels for both morning/afternoon events
-8. **View Management**: Default morning view loads, afternoon view prepared
-9. **Button Wiring**: Existing Morning/Afternoon Events buttons connected for view switching
-10. **Rendering**: Complete Friday/Saturday schedule with seamless view switching
+5. **Initialization**: Unified core creates dual-view DOM structure with dynamic time organization
+6. **Time Management**: ScheduleTimeManager processes morning/afternoon events separately, creates time-specific containers
+7. **Generator Coordination**: Both generators initialize with dynamic time block support
+8. **Event Integration**: Unified event loader generates panels with enhanced speaker mapping and thumbnail fallback
+9. **View Management**: Default morning view loads with proper padding and spacing, afternoon view prepared
+10. **Filter Integration**: Unified filter system works across both views with appropriate selectors
+11. **Button Wiring**: Existing Morning/Afternoon Events buttons connected for seamless view switching
+12. **Rendering**: Complete Friday/Saturday schedule with dynamic time blocks and consistent styling
 
 ### Critical Data Dependencies
 
@@ -489,7 +496,7 @@ categoryDefinitions = new Map([
 - Widget header, footer, or navigation styling
 - View switching or tab styling (these are widget behaviors, not event panel behaviors)
 
-#### ✅ REQUIRED: Proper CSS Scoping
+#### ✅ REQUIRED: Proper CSS Scoping & Dynamic Class Generation
 **CORRECT approach for styling modifications:**
 
 ```css
@@ -502,6 +509,16 @@ categoryDefinitions = new Map([
 .nzgdc-schedule-widget .widget-grid {
     /* Widget layout styles */
 }
+
+/* ✅ CORRECT: Dynamic time category classes (data-driven) */
+.nzgdc-time-category-early-morning-short {
+    /* Generated from API data: "Early Morning" → semantic class */
+}
+
+/* ✅ CORRECT: Event times containers with proper separation of concerns */
+#nzgdc-event-time-early-morning-short.nzgdc-event-time-category {
+    /* ID for JS targeting, class for CSS styling */
+}
 ```
 
 ```css
@@ -513,6 +530,11 @@ categoryDefinitions = new Map([
 /* ❌ WRONG: Widget layout in unified files */
 .nzgdc-event-panel-big .widget-container {
     /* Event panels don't control widget layouts */
+}
+
+/* ❌ WRONG: Hardcoded time category classes */
+.nzgdc-time-category-a, .nzgdc-time-category-b {
+    /* Not scalable - breaks when API changes */
 }
 ```
 
@@ -726,6 +748,9 @@ eventPanel.addEventListener('click', () => {
 
 // 4. Check browser console for existing debug messages
 console.log('Testing existing functionality...');
+
+// 5. Test dynamic time organization
+// Verify events are grouped by actual startTime/endTime in semantic containers
 ```
 
 #### Filter System Testing
@@ -734,21 +759,33 @@ console.log('Testing existing functionality...');
 // Check if category filter dropdown appears and functions
 
 // 2. Test Friday/Saturday filter coordination
-// Verify filters work across both morning and afternoon views
+// Verify filters work across both morning and afternoon views with proper selectors
 
 // 3. Test filter state persistence
 // Switch views and verify filter state is maintained
+
+// 4. Test dynamic layout filtering
+// Verify filters work with both legacy and dynamic time block layouts
 ```
 
 #### Common "Missing" Features That Actually Exist
 - **"Event panels need click handlers"** → Overlays ARE clickable buttons
 - **"Need to build expanded event details"** → System already exists in expanded-event-details-manager.js
-- **"Category filtering doesn't work"** → Filter system is fully implemented
+- **"Category filtering doesn't work"** → Enhanced filter system supports all layout types
 - **"Panels need hover effects"** → Hover overlays already implemented
+- **"Events not organized by time"** → ScheduleTimeManager handles dynamic time organization
+- **"Speaker data inconsistent"** → Field mapping corrected across all components
+- **"Missing thumbnails"** → Fallback to speaker headshots implemented
 
 **If something appears broken, debug the existing system before rebuilding it!**
 
-**✅ Recent Improvements**: Speaker data field mapping has been corrected for consistent display across all widget components. Thumbnail fallback now uses speaker headshots when event thumbnails are unavailable.
+**✅ Recent Major Improvements**:
+- **Dynamic Time Organization**: Events automatically grouped by API startTime/endTime with semantic CSS classes
+- **Enhanced Speaker Mapping**: Corrected field prioritization (displayName → name fallback) across all components
+- **Improved Thumbnail System**: Fallback to speaker headshots when event thumbnails unavailable
+- **Separation of Concerns**: ID + Class pattern for all interactive elements
+- **Filter System Enhancement**: Supports both legacy and dynamic layouts with appropriate selectors
+- **Layout Consistency**: Proper padding, spacing, and width constraints across all views
 
 ### Debug Mode Activation
 ```javascript
@@ -914,9 +951,9 @@ if (window.expandedEventDetailsManager) {
 - **Click handler integration failure**: Verify unified-event-loader.js has manager integration
 - **Event data validation failure**: Check event data has required fields (title, speakers array)
 
-#### 6. Speaker Data Mapping Verification
+#### 6. Speaker Data Mapping Verification & Dynamic Time Organization
 
-**Symptoms**: Speaker names, positions, or contact info not displaying correctly, thumbnails missing
+**Symptoms**: Speaker names, positions, or contact info not displaying correctly, thumbnails missing, events not properly grouped by time
 **Debugging Steps**:
 ```javascript
 // Check speaker data transformation
@@ -925,19 +962,19 @@ if (dataManager) {
     const speakers = dataManager.getSpeakerData();
     console.log('Speaker data available:', speakers.size);
     
-    // Check first speaker's field mapping
+    // Check first speaker's field mapping (✅ FIXED: Consistent prioritization)
     const firstSpeaker = Array.from(speakers.values())[0];
     console.log('Sample speaker data mapping:', {
-        displayName: firstSpeaker?.displayName,
-        name: firstSpeaker?.name,
+        displayName: firstSpeaker?.displayName, // ✅ Primary field
+        name: firstSpeaker?.name, // ✅ Fallback field
         position: firstSpeaker?.position,
-        headshot: firstSpeaker?.headshot,
+        headshot: firstSpeaker?.headshot, // ✅ Enhanced thumbnail fallback
         email: firstSpeaker?.email,
         website: firstSpeaker?.website
     });
 }
 
-// Verify HTML element mapping
+// Verify HTML element mapping (✅ ENHANCED: ID + Class separation)
 const speakerElements = {
     bioNameBig: document.querySelectorAll('.nzgdc-speaker-bioName-big'),
     nameMain: document.querySelectorAll('.nzgdc-speaker-name-main'),
@@ -949,20 +986,33 @@ const speakerElements = {
 };
 console.log('Speaker HTML elements found:', speakerElements);
 
-// Check thumbnail fallback behavior
+// Check dynamic time organization (✅ NEW: Time block validation)
+const timeContainers = document.querySelectorAll('.nzgdc-event-time-category');
+console.log('Dynamic time containers found:', timeContainers.length);
+timeContainers.forEach((container, i) => {
+    console.log(`Time Container ${i}:`, {
+        id: container.id,
+        class: container.className,
+        events: container.querySelectorAll('.nzgdc-event-panel-big, .nzgdc-event-panel-main').length
+    });
+});
+
+// Check thumbnail fallback behavior (✅ ENHANCED: Speaker headshot fallback)
 const thumbnails = document.querySelectorAll('.nzgdc-session-thumbnail-big, .nzgdc-session-thumbnail-main');
 thumbnails.forEach((thumb, i) => {
     const bgImage = window.getComputedStyle(thumb).backgroundImage;
-    console.log(`Thumbnail ${i}:`, bgImage !== 'none' ? 'Has image' : 'No image');
+    console.log(`Thumbnail ${i}:`, bgImage !== 'none' ? 'Has image' : 'Using fallback');
 });
 ```
 
 **Common Issues & Solutions**:
-- **Name field priority**: Ensure `displayName` is checked before `name` fallback
-- **Missing headshots**: Verify `speakerImage` is properly mapped to `headshot` field
-- **Contact links broken**: Check `web` field is properly mapped to `website` field
-- **Position formatting**: Ensure `position` + `company` combination is properly formatted
-- **Thumbnail fallback**: Verify speaker headshots are used when event thumbnails unavailable
+- **Name field priority**: ✅ FIXED - `displayName` consistently checked before `name` fallback
+- **Missing headshots**: ✅ ENHANCED - `speakerImage` properly mapped to `headshot` with fallback behavior
+- **Contact links broken**: ✅ FIXED - `web` field properly mapped to `website` field with protocol handling
+- **Position formatting**: ✅ IMPROVED - `position` + `company` combination properly formatted and displayed
+- **Thumbnail fallback**: ✅ ENHANCED - Speaker headshots used when event thumbnails unavailable
+- **Time organization**: ✅ NEW - Events dynamically grouped by startTime/endTime with semantic CSS classes
+- **Layout inconsistencies**: ✅ FIXED - Proper padding, width constraints, and spacing across all views
 
 ### Debug API Methods
 
@@ -1086,13 +1136,15 @@ console.log('Active Fri/Sat widgets:', window.activeFridaySaturdayWidgets.size);
 
 #### 2. **Upload Core JavaScript Modules**:
    ```
+   js/schedule-time-manager.js                 # CRITICAL: Dynamic time block organization system
    js/unified-event-loader.js                  # CRITICAL: Event panel creation system
    js/expanded-event-details-manager.js        # CRITICAL: Event details overlay system
    js/widget-core.js                          # Thursday widget controller
    js/friday-saturday-widget-core.js          # Friday/Saturday widget controller
-   js/schedule-generator.js                   # Thursday DOM generator
-   js/morning-schedule-generator.js           # Morning DOM generator  
-   js/afternoon-schedule-generator.js         # Afternoon DOM generator
+   js/schedule-time-manager.js                # CRITICAL: Dynamic time organization system
+   js/schedule-generator.js                   # Thursday DOM generator with dynamic time blocks
+   js/morning-schedule-generator.js           # Morning DOM generator with dynamic time blocks
+   js/afternoon-schedule-generator.js         # Afternoon DOM generator with dynamic time blocks
    ```
 
 #### 3. **Upload Data & Event Files**:
@@ -1502,7 +1554,59 @@ WRONG ORDER = BROKEN WIDGETS
 
 ## 🔄 Version History & Recent Changes
 
-### Current Version: v1.4 (January 2025)
+### Current Version: v1.6 (January 2025)
+**Major Achievement: Comprehensive System Stabilization & Enhancement**
+
+#### Key Changes:
+- **🐛 JavaScript Error Resolution**: Fixed endTime undefined errors, duplicate method conflicts, and Set/Map usage issues
+- **🎨 CSS Architecture Fixes**: Resolved dynamic time category styling, layout gaps, and width constraints
+- **🔧 Filter System Enhancement**: Refactored to support both legacy and dynamic layouts with correct selectors
+- **📊 Panel Logic Corrections**: Fixed Thursday events to always use 'Big' panels, corrected main panel layouts (5 per row)
+- **⚡ Speaker Data Mapping**: Enhanced field prioritization, thumbnail fallback, and contact info integration
+- **🆔 Separation of Concerns**: Implemented ID + Class pattern throughout for maintainable architecture
+- **⏰ Dynamic Time Organization**: Events intelligently grouped by API startTime/endTime with semantic CSS classes
+- **🎯 Accessibility Improvements**: Large click targets, proper focus management, keyboard navigation
+- **🔄 Error Handling**: Comprehensive validation and fallback mechanisms throughout the system
+
+#### Files Added:
+- `js/schedule-time-manager.js` (Core dynamic time management system)
+- Multiple enhanced test and debug validation tools
+- Comprehensive error handling and validation systems
+
+#### Files Modified:
+- `js/unified-event-loader.js` (Enhanced speaker mapping, thumbnail fallback, ID + Class pattern)
+- `js/schedule-generator.js` (Dynamic time blocks, error handling, improved filtering)
+- `js/morning-schedule-generator.js` (Dynamic time organization, layout fixes, enhanced filtering)
+- `js/afternoon-schedule-generator.js` (Dynamic time organization, layout fixes, enhanced filtering)
+- `js/widget-core.js` (Improved filter system, error handling)
+- `js/friday-saturday-widget-core.js` (Enhanced view switching, filter coordination)
+- `css/thursday-schedule-bundle.css` (Width constraints, dynamic theme support, proper spacing)
+- `css/friday-saturday-schedule-bundle.css` (Layout fixes, dynamic theme support, consistent padding)
+
+### Previous Version: v1.5 (January 2025)
+**Major Achievement: Dynamic Event Times Container System**
+
+#### Key Changes:
+- **⏰ Dynamic Time Organization**: Event Times Containers intelligently group events by actual API `startTime` and `endTime`
+- **🔄 Smart Event Sorting**: Events automatically sorted by duration (longest first) then alphabetically within time blocks
+- **🎯 API-Driven Scheduling**: Time blocks generated from real event data instead of hardcoded static containers
+- **🆔 Separation of Concerns**: Event Times Containers use ID + Class pattern for dynamic updates
+- **📊 Intelligent Filtering**: Time-based filtering works with actual event schedules
+- **🔧 Backward Compatibility**: Full fallback to legacy time slots when API time data unavailable
+
+#### Files Added:
+- `js/schedule-time-manager.js` (Core dynamic time management system)
+- `docs/dynamic-time-management.md` (Comprehensive documentation)
+- `.widget-tests/dynamic-time-management-test.html` (Test page for validation)
+
+#### Files Modified:
+- `js/schedule-generator.js` (Added dynamic time block generation)
+- `js/morning-schedule-generator.js` (Integrated with ScheduleTimeManager)
+- `js/afternoon-schedule-generator.js` (Integrated with ScheduleTimeManager)
+- `css/thursday-schedule-bundle.css` (Added dynamic theme support)
+- `css/friday-saturday-schedule-bundle.css` (Added dynamic theme support)
+
+### Previous Version: v1.4 (January 2025)
 **Major Achievement: Separation of Concerns Architecture Refactoring**
 
 #### Key Changes:
@@ -1584,6 +1688,7 @@ If the unified Friday/Saturday widget causes issues, the deprecated separate wid
 - **`docs/tasks/AI_ASSISTANT_QUICK_REFERENCE_GUIDE.md`** - Complete development guide for AI assistants
 - **`docs/tasks/CRITICAL_OVERLAY_BUTTON_WARNING.md`** - Critical warning about existing clickable functionality
 - **`docs/separation-of-concerns-refactoring.md`** - Architecture refactoring and ID + Class separation documentation
+- **`docs/dynamic-time-management.md`** - Dynamic Event Times Container system documentation
 - **Architectural Safety Guidelines** - Prevent common AI coding mistakes and duplicated functionality
 
 ### Additional Documentation
@@ -1626,5 +1731,5 @@ When reporting issues, include:
 **Maintainer**: Fox Studios NZ  
 **Architecture**: Modular JavaScript with Unified Event Panel System  
 **Production Status**: Deployed and Validated ✅  
-**Version**: 1.3.0 (August 2025)  
+**Version**: 1.6.0 (January 2025)
 **License**: Apache 2.0
